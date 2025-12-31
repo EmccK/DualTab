@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { NavGroup } from '../types'
-import { GROUP_ICONS, generateId } from '../constants'
+import { GROUP_ICONS } from '../constants'
+import { generateId } from '../utils'
 import './GroupModal.css'
 
 interface GroupModalProps {
@@ -15,19 +16,17 @@ interface GroupModalProps {
 
 // 添加/编辑分组弹窗
 export function GroupModal({ isOpen, onClose, onSave, onDelete, group, position }: GroupModalProps) {
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState(GROUP_ICONS[0])
+  // 使用 group?.id 作为 key 的一部分来初始化状态
+  const [name, setName] = useState(group?.name ?? '')
+  const [icon, setIcon] = useState(group?.icon ?? GROUP_ICONS[0])
 
-  // 编辑模式时填充数据
-  useEffect(() => {
-    if (group) {
-      setName(group.name)
-      setIcon(group.icon)
-    } else {
-      setName('')
-      setIcon(GROUP_ICONS[0])
-    }
-  }, [group, isOpen])
+  // 当 group 变化时重置表单（通过比较 id）
+  const [prevGroupId, setPrevGroupId] = useState(group?.id)
+  if (group?.id !== prevGroupId) {
+    setPrevGroupId(group?.id)
+    setName(group?.name ?? '')
+    setIcon(group?.icon ?? GROUP_ICONS[0])
+  }
 
   // 保存
   const handleSave = () => {

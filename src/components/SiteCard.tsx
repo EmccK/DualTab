@@ -1,93 +1,61 @@
-import { useState } from 'react'
+import { memo } from 'react'
 import type { Site } from '../types'
 import { ContextMenu } from './ContextMenu'
+import { useContextMenu } from '../hooks'
+import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito } from '../utils'
 
 interface SiteCardProps {
   site: Site
-  openInNewTab: boolean
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
 }
 
 // 网站卡片组件
-export function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
-  // 右键菜单状态
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
+  // 使用右键菜单 hook
+  const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
 
   // 点击打开网站 - 默认在当前页打开
   const handleClick = () => {
-    window.location.href = site.url
+    openInCurrentTab(site.url)
   }
 
   // 右键显示菜单
   const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY })
+    openMenu(e, site)
   }
-
-  // 关闭菜单
-  const closeContextMenu = () => setContextMenu(null)
 
   // 在新标签页打开（切换到新标签）
   const handleOpenNewTab = () => {
-    // @ts-expect-error chrome API 在扩展环境下可用
-    if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-      // Chrome 扩展环境：打开新标签并激活
-      // @ts-expect-error chrome API
-      chrome.tabs.create({ url: site.url, active: true })
-    } else {
-      // 普通网页环境
-      window.open(site.url, '_blank')
-    }
-    closeContextMenu()
+    openInNewTab(site.url, true)
+    closeMenu()
   }
 
   // 在后台打开（不切换标签）
   const handleOpenBackground = () => {
-    // Chrome 扩展环境：打开新标签但不激活
-    // @ts-expect-error chrome API 在扩展环境下可用
-    if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-      // @ts-expect-error chrome API
-      chrome.tabs.create({ url: site.url, active: false })
-    } else {
-      // 普通网页环境：使用 window.open 并尝试保持焦点
-      window.open(site.url, '_blank')
-    }
-    closeContextMenu()
+    openInNewTab(site.url, false)
+    closeMenu()
   }
 
   // 在隐身窗口打开
   const handleOpenIncognito = () => {
-    // Chrome 扩展环境：在隐身窗口打开
-    // @ts-expect-error chrome API 在扩展环境下可用
-    if (typeof chrome !== 'undefined' && chrome.windows?.create) {
-      // @ts-expect-error chrome API
-      chrome.windows.create({ url: site.url, incognito: true })
-    } else {
-      // 普通网页环境：无法打开隐身窗口，提示用户
+    const success = openInIncognito(site.url)
+    if (!success) {
       alert('隐身窗口功能仅在 Chrome 扩展中可用')
     }
-    closeContextMenu()
+    closeMenu()
   }
 
   // 编辑
   const handleEdit = () => {
     onEdit(site)
-    closeContextMenu()
+    closeMenu()
   }
 
   // 删除
   const handleDelete = () => {
     onDelete(site.id)
-    closeContextMenu()
-  }
-
-  // 将 hex 颜色转换为 rgba
-  const hexToRgba = (hex: string, alpha: number) => {
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    closeMenu()
   }
 
   // 计算阴影颜色（基于书签背景色）
@@ -96,8 +64,8 @@ export function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
 
   return (
     <>
-      <div 
-        className="site-card" 
+      <div
+        className="site-card"
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         style={{
@@ -106,21 +74,21 @@ export function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
         } as React.CSSProperties}
       >
         <div className="site-card-icon" style={{ backgroundColor: site.color }}>
-          <img src={site.icon} alt={site.name} />
+          <img src={site.icon} alt={site.name} loading="lazy" />
         </div>
         <div className="site-card-info">
           <div className="site-card-title">{site.name}</div>
           <div className="site-card-desc">{site.desc}</div>
         </div>
       </div>
-      
+
       {/* 右键菜单 */}
-      {contextMenu && (
+      {isOpen && (
         <ContextMenu
           site={site}
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={closeContextMenu}
+          x={position.x}
+          y={position.y}
+          onClose={closeMenu}
           onOpenNewTab={handleOpenNewTab}
           onOpenBackground={handleOpenBackground}
           onOpenIncognito={handleOpenIncognito}
@@ -130,14 +98,14 @@ export function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
       )}
     </>
   )
-}
+})
 
 // 添加网站卡片
 interface AddSiteCardProps {
   onClick: () => void
 }
 
-export function AddSiteCard({ onClick }: AddSiteCardProps) {
+export const AddSiteCard = memo(function AddSiteCard({ onClick }: AddSiteCardProps) {
   return (
     <div className="site-card add-site-card" onClick={onClick}>
       <div className="site-card-icon add-icon">
@@ -151,4 +119,4 @@ export function AddSiteCard({ onClick }: AddSiteCardProps) {
       </div>
     </div>
   )
-}
+})

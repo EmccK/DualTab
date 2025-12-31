@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Site } from '../types'
-import { PRESET_COLORS, generateId } from '../constants'
+import { PRESET_COLORS } from '../constants'
+import { generateId } from '../utils'
 import { getIconList, ICON_CATEGORIES } from '../services/api'
 import type { IconListItem } from '../services/api'
 import './SiteModal.css'
@@ -39,7 +40,7 @@ export function SiteModal({ isOpen, onClose, onSave, onDelete, site, userSecret 
   const [searchQuery, setSearchQuery] = useState('')
   const [categorySites, setCategorySites] = useState<Site[]>([])
   const [loading, setLoading] = useState(false)
-  
+
   // 表单状态
   const [url, setUrl] = useState('')
   const [name, setName] = useState('')
@@ -48,8 +49,10 @@ export function SiteModal({ isOpen, onClose, onSave, onDelete, site, userSecret 
   const [iconType, setIconType] = useState<IconType>('official')
   const [customIcon, setCustomIcon] = useState('')
 
-  // 编辑模式时填充数据
-  useEffect(() => {
+  // 当 site 变化时重置表单（通过比较 id）
+  const [prevSiteId, setPrevSiteId] = useState(site?.id)
+  if (site?.id !== prevSiteId) {
+    setPrevSiteId(site?.id)
     if (site) {
       setUrl(site.url)
       setName(site.name)
@@ -65,31 +68,38 @@ export function SiteModal({ isOpen, onClose, onSave, onDelete, site, userSecret 
       setCustomIcon('')
       setActiveCategory('hot')
     }
-  }, [site, isOpen])
+  }
 
   // 加载分类网站数据
+  const loadCategorySites = useCallback(async (categoryId: string) => {
+    if (categoryId === 'manual') return
+
+    const category = SITE_CATEGORIES.find(c => c.id === categoryId)
+    if (!category || category.cateId === 0) return
+
+    setLoading(true)
+    try {
+      const items: IconListItem[] = await getIconList(category.cateId, '', 20, userSecret)
+      // 转换 API 数据为 Site 格式
+      const sites: Site[] = items.map(item => ({
+        id: String(item.udId),
+        name: item.title,
+        desc: item.description,
+        url: item.url,
+        icon: item.imgUrl,
+        color: item.bgColor
+      }))
+      setCategorySites(sites)
+    } finally {
+      setLoading(false)
+    }
+  }, [userSecret])
+
+  // 当分类变化时加载数据
   useEffect(() => {
     if (!isOpen || activeCategory === 'manual') return
-    
-    const category = SITE_CATEGORIES.find(c => c.id === activeCategory)
-    if (!category || category.cateId === 0) return
-    
-    setLoading(true)
-    getIconList(category.cateId, '', 20, userSecret)
-      .then((items: IconListItem[]) => {
-        // 转换 API 数据为 Site 格式
-        const sites: Site[] = items.map(item => ({
-          id: String(item.udId),
-          name: item.title,
-          desc: item.description,
-          url: item.url,
-          icon: item.imgUrl,
-          color: item.bgColor
-        }))
-        setCategorySites(sites)
-      })
-      .finally(() => setLoading(false))
-  }, [activeCategory, isOpen, userSecret])
+    loadCategorySites(activeCategory)
+  }, [activeCategory, isOpen, loadCategorySites])
 
   // 搜索过滤
   const filteredSites = searchQuery 
