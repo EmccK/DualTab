@@ -1,0 +1,1123 @@
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  height: 100%;
+  position: relative;
+}
+
+/* 壁纸 */
+.wallpaper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* 主容器 */
+.main-container {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+}
+
+/* 侧边栏 - MonkNow 风格 */
+.sidebar {
+  width: 72px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 24px;
+  user-select: none;
+  background-color: rgba(32, 33, 36, 0.9);
+}
+
+.light-theme .sidebar {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-header {
+  padding: 20px 0 24px;
+}
+
+.user-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1686f0;
+}
+
+.user-avatar:hover .login-text {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
+/* 导航菜单 */
+.nav-menu {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  scrollbar-width: thin;
+}
+
+/* 导航项 - MonkNow 风格 */
+.nav-item {
+  width: 72px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative;
+  background-color: transparent;
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+  background-color: currentColor;
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.nav-icon-svg {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+  transition: filter 0.2s;
+}
+
+/* 深色主题图标颜色 - 转为白色并控制透明度 */
+.dark-theme .nav-item .nav-icon-svg {
+  /* 将图标转为白色: brightness(0) 变黑, invert(1) 变白 */
+  filter: brightness(0) invert(1) opacity(0.4);
+}
+
+.dark-theme .nav-item:hover .nav-icon-svg,
+.dark-theme .nav-item.active .nav-icon-svg {
+  filter: brightness(0) invert(1) opacity(0.9);
+}
+
+/* 浅色主题图标颜色 - 转为黑色并控制透明度 */
+.light-theme .nav-item .nav-icon-svg {
+  /* 将图标转为黑色: brightness(0) */
+  filter: brightness(0) opacity(0.4);
+}
+
+.light-theme .nav-item:hover .nav-icon-svg,
+.light-theme .nav-item.active .nav-icon-svg {
+  filter: brightness(0) opacity(0.9);
+}
+
+/* 添加按钮和设置按钮的 SVG 图标 - 不需要 filter，直接继承颜色 */
+.nav-item.add-btn .nav-icon-svg,
+.nav-item.settings-btn .nav-icon-svg {
+  filter: none;
+}
+
+.nav-label {
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 100%;
+  padding: 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 徽章 - MonkNow 风格 */
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background-color: rgb(246, 32, 58);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* 添加按钮 */
+.add-btn {
+  height: 64px;
+  justify-content: center;
+}
+
+/* 添加按钮图标放大 */
+.add-icon-svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* 设置按钮 */
+.settings-btn {
+  margin-top: auto;
+}
+
+/* 深色主题 - MonkNow 风格 */
+.dark-theme .nav-item {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .nav-item:hover,
+.dark-theme .nav-item.active {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 浅色主题 */
+.light-theme .nav-item {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .nav-item:hover,
+.light-theme .nav-item.active {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* 内容区 */
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 60px 40px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* 时间天气覆盖层 - 全屏覆盖带毛玻璃效果 */
+.time-weather-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.6s ease-in-out;
+  pointer-events: auto;
+}
+
+.time-weather-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.time-weather-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 毛玻璃背景层 */
+.time-weather-blur-bg {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+/* 深色主题毛玻璃背景 */
+.dark-theme .time-weather-blur-bg {
+  background-color: rgba(51, 52, 54, 0.9);
+}
+
+/* 浅色主题毛玻璃背景 */
+.light-theme .time-weather-blur-bg {
+  background-color: rgba(220, 220, 220, 0.9);
+}
+
+/* 搜索框 */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.search-box {
+  position: relative;
+  width: 59%;
+  max-width: 600px;
+}
+
+.search-input {
+  width: 100%;
+  height: 57px;
+  padding: 0 60px 0 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+}
+
+.dark-theme .search-input {
+  background-color: rgba(32, 33, 36, 0.9);
+  color: #fff;
+}
+
+.dark-theme .search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .search-input {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.light-theme .search-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.search-engine {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10%;
+}
+
+.search-engine:hover {
+  background-color: rgba(255, 255, 255, 0.076);
+}
+
+.search-engine img {
+  width: 24px;
+  height: 24px;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 网站网格 - MonkNow 风格 */
+.sites-grid {
+  --icon-size: 96px;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(auto-fill, calc(var(--icon-size) * 2.6));
+  gap: 31px 40px;
+  padding: 0 60px 127px;
+}
+
+/* 网站卡片 - 仿 MonkNow 样式 */
+.site-card {
+  display: flex;
+  align-items: stretch;
+  height: 96px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease-in-out;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.site-card:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2), 0 12px 24px var(--hover-shadow-color, rgba(0, 0, 0, 0.35));
+}
+
+/* 图标区域 */
+.site-card-icon {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px 0 0 10px;
+}
+
+.site-card-icon img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+/* 文字区域 */
+.site-card-info {
+  flex: 1;
+  min-width: 0;
+  padding: 0 18px 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0 10px 10px 0;
+}
+
+.dark-theme .site-card-info {
+  background-color: rgba(32, 33, 36, 0.9);
+}
+
+.light-theme .site-card-info {
+  background-color: rgba(245, 245, 245, 0.95);
+}
+
+.site-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-theme .site-card-title {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.light-theme .site-card-title {
+  color: #333;
+}
+
+.site-card-desc {
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.dark-theme .site-card-desc {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .site-card-desc {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* 设置面板 */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  z-index: 100;
+  transition: right 0.3s ease;
+}
+
+.settings-panel.open {
+  right: 0;
+}
+
+.settings-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dark-theme .settings-content {
+  background-color: #2d2d2d;
+  color: #fff;
+}
+
+.light-theme .settings-content {
+  background-color: #fff;
+  color: #333;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.dark-theme .settings-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .settings-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.settings-tabs .tab {
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dark-theme .settings-tabs .tab:hover,
+.dark-theme .settings-tabs .tab.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .settings-tabs .tab:hover,
+.light-theme .settings-tabs .tab.active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.theme-options {
+  display: flex;
+  gap: 16px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.theme-option input {
+  cursor: pointer;
+}
+
+.wallpaper-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.wp-tab {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dark-theme .wp-tab.active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.light-theme .wp-tab.active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.wallpaper-item {
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.wallpaper-item:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-item.selected {
+  border-color: #1890ff;
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* 时间天气容器 */
+.time-weather-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 时间天气隐藏状态 */
+.time-weather-container.hidden {
+  opacity: 0;
+}
+
+/* 时间天气显示状态 */
+.time-weather-container.visible {
+  opacity: 1;
+}
+
+.time-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.time-text {
+  font-size: 100px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.time-period {
+  font-size: 24px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.date-display {
+  font-size: 14px;
+  margin-top: 16px;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.weather-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+.weather-text {
+  opacity: 0.9;
+}
+
+.weather-temp {
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.weather-range {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.dark-theme .time-text,
+.dark-theme .time-period,
+.dark-theme .date-display,
+.dark-theme .weather-display {
+  color: #fff;
+}
+
+.light-theme .time-text,
+.light-theme .time-period,
+.light-theme .date-display,
+.light-theme .weather-display {
+  color: #333;
+}
+
+/* 空闲提示文字 */
+.idle-hint {
+  position: absolute;
+  bottom: 12vh;
+  font-size: 12px;
+  opacity: 0.6;
+  line-height: 1.5;
+}
+
+.dark-theme .idle-hint {
+  color: #fff;
+}
+
+.light-theme .idle-hint {
+  color: #333;
+}
+
+/* 底部滚动提示 */
+.scroll-hint {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.dark-theme .scroll-hint {
+  color: #fff;
+}
+
+.light-theme .scroll-hint {
+  color: #333;
+}
+
+/* 搜索引擎下拉菜单 */
+.search-engine-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 150px;
+}
+
+.dark-theme .search-engine-dropdown {
+  background-color: rgba(45, 45, 45, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.light-theme .search-engine-dropdown {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-engine-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-engine-option img {
+  width: 20px;
+  height: 20px;
+}
+
+.dark-theme .search-engine-option:hover,
+.dark-theme .search-engine-option.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .search-engine-option:hover,
+.light-theme .search-engine-option.active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+/* 登录提示 */
+.login-prompt {
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.dark-theme .login-prompt {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.light-theme .login-prompt {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.login-prompt-text {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.login-btn {
+  background-color: #1890ff;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.login-btn:hover {
+  background-color: #40a9ff;
+}
+
+/* 设置行 */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.setting-label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.setting-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.dark-theme .setting-select {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.light-theme .setting-select {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+/* 本地壁纸 */
+.local-wallpaper {
+  padding: 20px;
+  text-align: center;
+}
+
+.local-wallpaper input[type="file"] {
+  margin-bottom: 12px;
+}
+
+.local-hint {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* 纯色壁纸网格 */
+.solid-color-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.solid-color-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.solid-color-item:hover {
+  transform: scale(1.05);
+}
+
+.solid-color-item.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #1890ff;
+}
+
+/* 即将推出 */
+.coming-soon {
+  font-size: 14px;
+  opacity: 0.6;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* 关于文本 */
+.about-text {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+/* 反馈按钮 */
+.feedback-btn {
+  background-color: transparent;
+  border: 1px solid;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dark-theme .feedback-btn {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.dark-theme .feedback-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .feedback-btn {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #333;
+}
+
+.light-theme .feedback-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 设置选项卡内容 */
+.settings-tab-content {
+  padding-top: 16px;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+
+/* 添加网站卡片 */
+.add-site-card {
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background-color: transparent !important;
+  box-shadow: none;
+}
+
+.add-site-card .site-card-info {
+  background-color: transparent;
+}
+
+.dark-theme .add-site-card {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.light-theme .add-site-card {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.add-site-card:hover {
+  border-color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1) !important;
+  box-shadow: none;
+}
+
+.add-site-card .add-icon {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .add-site-card .add-icon {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.add-site-card:hover .add-icon {
+  color: #1890ff;
+}
+
+/* 用户头像样式 */
+.user-avatar.logged-in {
+  cursor: pointer;
+}
+
+.user-avatar .avatar-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+  object-fit: cover;
+}
+
+/* 用户昵称 - 使用与分组一致的文字颜色 */
+.user-avatar .user-name {
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+/* 深色主题 - 用户昵称颜色与分组一致 */
+.dark-theme .user-avatar .user-name {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .user-avatar.logged-in:hover .user-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 浅色主题 - 用户昵称颜色与分组一致 */
+.light-theme .user-avatar .user-name {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .user-avatar.logged-in:hover .user-name {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+
+/* 分组右键菜单 - 与书签右键菜单风格一致 */
+.group-context-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 299;
+}
+
+.group-context-menu {
+  position: fixed;
+  z-index: 300;
+  min-width: 160px;
+  background-color: rgba(40, 40, 44, 0.98);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 6px;
+  overflow: hidden;
+  animation: groupContextMenuFadeIn 0.15s ease-out;
+}
+
+@keyframes groupContextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.group-context-item {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: background-color 0.15s;
+  border-radius: 6px;
+  margin: 2px 0;
+}
+
+.group-context-item:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.group-context-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 6px;
+}
+
+/* 浅色主题 */
+.light-theme .group-context-menu {
+  background-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.light-theme .group-context-item {
+  color: #333;
+}
+
+.light-theme .group-context-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .group-context-divider {
+  background-color: rgba(0, 0, 0, 0.08);
+}

@@ -1,0 +1,94 @@
+import type { NavGroup, SearchEngine } from './types'
+
+// 生成唯一ID
+export const generateId = () => Math.random().toString(36).substring(2, 9)
+
+// 搜索引擎列表
+export const SEARCH_ENGINES: SearchEngine[] = [
+  { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'https://static.monknow.com/newtab/searcher/0eb43a90-b4c7-43ce-9c73-ab110945f47d.svg' },
+  { id: 'baidu', name: 'Baidu', url: 'https://www.baidu.com/s?wd=', icon: 'https://www.baidu.com/favicon.ico' },
+  { id: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q=', icon: 'https://www.bing.com/favicon.ico' },
+  { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: 'https://duckduckgo.com/favicon.ico' }
+]
+
+// 分组图标列表 - MonkNow 官方图标
+export const GROUP_ICONS = [
+  'https://static.monknow.com/newtab/icon-group/61df5dde-0afd-4104-9b87-418bd62f95df.svg', // 主页
+  'https://static.monknow.com/newtab/icon-group/5664820e-0e6e-4040-9fa8-7a7491a5f2b8.svg', // 工具
+  'https://static.monknow.com/newtab/icon-group/dcc802e4-874f-4ac5-bbe0-dbda5428265d.svg', // 日历
+  'https://static.monknow.com/newtab/icon-group/9ac2df78-617e-4090-85ea-e68caf566a47.svg', // 表情
+  'https://static.monknow.com/newtab/icon-group/69e6f555-cff1-42fe-9f8e-677381c04cd3.svg', // 图片
+  'https://static.monknow.com/newtab/icon-group/3cea0df9-aa97-4d00-9a7a-a576c6805c6b.svg', // 购物车
+  'https://static.monknow.com/newtab/icon-group/15cb3663-ba77-44f6-91ab-2ded15fdec30.svg', // 用户
+  'https://static.monknow.com/newtab/icon-group/989dee8d-8d2d-4bef-bb5a-ff4c10499353.svg', // 时钟
+  'https://static.monknow.com/newtab/icon-group/abb98f16-8bd4-4c76-9c30-55c91afad96b.svg', // 文件夹
+  'https://static.monknow.com/newtab/icon-group/e38a7f4d-b22e-4ee5-8220-b236ac317756.svg'  // 点赞
+]
+
+// 预设颜色列表
+export const PRESET_COLORS = [
+  '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
+  '#13c2c2', '#eb2f96', '#2f54eb', '#fa541c', '#a0d911'
+]
+
+// 壁纸列表
+export const WALLPAPERS = [
+  'https://static.monknow.com/newtab/wallpaper/81d10bb3542bc99097ba324fd6162def.jpg'
+]
+
+// 纯色壁纸
+export const SOLID_COLORS = [
+  '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
+  '#13c2c2', '#eb2f96', '#2f54eb', '#fa541c', '#a0d911'
+]
+
+
+// 默认导航分组数据
+export const DEFAULT_NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'home',
+    name: '主页',
+    icon: 'https://static.monknow.com/newtab/icon-group/61df5dde-0afd-4104-9b87-418bd62f95df.svg',
+    sites: [
+      { id: generateId(), name: '微博', desc: '随时随地发现新鲜事！', url: 'https://weibo.com', icon: 'https://static.monknow.com/newtab/icon/0e3b119f42ba105262c52885adf032f1.png', color: '#e6162b' },
+      { id: generateId(), name: '微信网页版', desc: '使用手机微信扫码登录', url: 'https://wx.qq.com', icon: 'https://static.monknow.com/newtab/icon/e760bb47e6988e068f6d44c9f3109bb2.png', color: '#07c160' },
+      { id: generateId(), name: 'Bilibili', desc: 'bilibili是国内知名的视频弹幕网站。', url: 'https://bilibili.com', icon: 'https://static.monknow.com/newtab/icon/b88213b97677a97e45cb9f12d80ad328.png', color: '#fb7299' },
+      { id: generateId(), name: '爱淘宝', desc: '阿里巴巴旗下潮流导购网站', url: 'https://ai.taobao.com', icon: 'https://static.monknow.com/newtab/icon/62decccfc76a4da384686b01e7abffd0.png', color: '#ff5000' },
+      { id: generateId(), name: '京东', desc: '专业的综合网上购物商城', url: 'https://jd.com', icon: 'https://static.monknow.com/newtab/icon/61589568063efc2ebbfdac364bfb641b.png', color: '#e1251b' },
+      { id: generateId(), name: '知乎', desc: '有问题，上知乎。可信赖的问答社区。', url: 'https://zhihu.com', icon: 'https://static.monknow.com/newtab/icon/d485e51391e9a96b80caa34516bd00be.png', color: '#0066ff' },
+      { id: generateId(), name: '豆瓣', desc: '提供图书、电影、音乐唱片的推荐、评论和价格比较', url: 'https://douban.com', icon: 'https://static.monknow.com/newtab/icon/0358c64952350ca5e46e9f3b645f688c.png', color: '#00b51d' },
+      { id: generateId(), name: '印象笔记网页版', desc: '登录使用印象笔记网页版', url: 'https://app.yinxiang.com', icon: 'https://static.monknow.com/newtab/icon/be162f5b969fbb1c28d209b0773557cf.png', color: '#00a82d' }
+    ]
+  },
+  {
+    id: 'social',
+    name: '社交',
+    icon: 'https://static.monknow.com/newtab/icon-group/9ac2df78-617e-4090-85ea-e68caf566a47.svg',
+    sites: [
+      { id: generateId(), name: '爱奇艺', desc: '大型视频网站，专业的网络视频播放平台。', url: 'https://iqiyi.com', icon: 'https://static.monknow.com/newtab/icon/49d02ac31b2efd6c6da10ad9ffa3d909.png', color: '#00be06' },
+      { id: generateId(), name: '163网易邮箱', desc: '中文邮箱第一品牌。', url: 'https://mail.163.com', icon: 'https://static.monknow.com/newtab/icon/32b3bcd5782d3ae416c506eeeec28ecf.png', color: '#d43c33' },
+      { id: generateId(), name: '58同城', desc: '58同城，专业的分类信息网。', url: 'https://58.com', icon: 'https://static.monknow.com/newtab/icon/289d6000cfb0bb35124dca1f948af822.png', color: '#ff6600' },
+      { id: generateId(), name: '大众点评', desc: '推荐吃喝玩乐优惠信息，帮您选到满意商家', url: 'https://dianping.com', icon: 'https://static.monknow.com/newtab/icon/1353e0e5e6cf12ba5a4d596fb9c23ac6.png', color: '#ff6633' }
+    ]
+  },
+  {
+    id: 'tools',
+    name: '工具',
+    icon: 'https://static.monknow.com/newtab/icon-group/5664820e-0e6e-4040-9fa8-7a7491a5f2b8.svg',
+    sites: [
+      { id: generateId(), name: '携程', desc: '中国领先的在线旅行服务公司', url: 'https://ctrip.com', icon: 'https://static.monknow.com/newtab/icon/8a65194bb0f11289441f61a1d26737eb.png', color: '#2577e3' },
+      { id: generateId(), name: '今日头条', desc: '今日头条为您推荐有价值的、个性化的信息', url: 'https://toutiao.com', icon: 'https://static.monknow.com/newtab/icon/18d469f739518a6636bde9da8bd6d93b.png', color: '#f85959' },
+      { id: generateId(), name: '网易云音乐', desc: '一款专注于发现与分享的音乐产品', url: 'https://music.163.com', icon: 'https://static.monknow.com/newtab/icon/156950db51a3c93f877f9c00a121e548.png', color: '#c20c0c' },
+      { id: generateId(), name: '中国大学MOOC', desc: '国家精品课程在线学习平台', url: 'https://icourse163.org', icon: 'https://static.monknow.com/newtab/icon/276366d9d8e7c8b3ee2c8e8f301b5fe6.png', color: '#8b0000' }
+    ]
+  }
+]
+
+// 默认设置
+export const DEFAULT_SETTINGS = {
+  theme: 'dark' as const,
+  wallpaper: WALLPAPERS[0],
+  wallpaperType: 'image' as const,
+  openInNewTab: true,
+  searchEngine: 'google'
+}

@@ -1,0 +1,554 @@
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+  position: relative;
+}
+
+/* 壁纸容器 */
+.wallpaper-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.wallpaper {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.3s ease;
+}
+
+/* 主容器 */
+.main-container {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+}
+
+/* 侧边栏 */
+.sidebar {
+  width: 80px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 24px;
+  background: transparent;
+  user-select: none;
+}
+
+.sidebar-header {
+  padding: 16px 0 8px;
+}
+
+.user-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-avatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.login-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1686f0;
+}
+
+.user-avatar:hover .login-text {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
+/* 导航菜单 */
+.nav-menu {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  scrollbar-width: thin;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative;
+}
+
+.nav-item .icon {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.nav-item .label {
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 100%;
+  padding: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 深色主题 */
+.dark-theme .nav-item {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .nav-item:hover,
+.dark-theme .nav-item.active {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 浅色主题 */
+.light-theme .nav-item {
+  color: #676767;
+}
+
+.light-theme .nav-item:hover,
+.light-theme .nav-item.active {
+  background-color: rgba(255, 255, 255, 0.98);
+  color: #333;
+}
+
+/* 徽章 */
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: #f6203a;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 4px;
+  border-radius: 4px;
+  min-width: 16px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(246, 32, 58, 0.2);
+}
+
+/* 添加分组按钮 */
+.add-group-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  cursor: pointer;
+}
+
+.add-group-btn .icon {
+  width: 18px;
+  height: 18px;
+  transition: background-color 0.2s;
+}
+
+.dark-theme .add-group-btn .icon {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .add-group-btn:hover .icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 设置按钮 */
+.settings-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.settings-btn .icon {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+}
+
+.settings-btn span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dark-theme .settings-btn {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .settings-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 内容区 */
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 60px 40px;
+  overflow-y: auto;
+}
+
+/* 搜索框 */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.search-box {
+  position: relative;
+  width: 59%;
+  max-width: 600px;
+}
+
+.search-input {
+  width: 100%;
+  height: 57px;
+  padding: 0 60px 0 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(32, 33, 36, 0.9);
+  color: #fff;
+  outline: none;
+  opacity: 0.9;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .search-input {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.light-theme .search-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.search-engine {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10%;
+}
+
+.search-engine:hover {
+  background-color: rgba(255, 255, 255, 0.076);
+}
+
+.search-engine img {
+  width: 24px;
+  height: 24px;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 网站网格 */
+.sites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 0 60px;
+}
+
+/* 网站卡片 */
+.site-card {
+  display: flex;
+  align-items: stretch;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 1;
+}
+
+.site-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.site-card-icon {
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.site-card-icon img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+}
+
+.site-card-info {
+  flex: 1;
+  padding: 16px 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.site-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.site-card-desc {
+  font-size: 12px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-theme .site-card {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.light-theme .site-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+}
+
+/* 设置面板 */
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  z-index: 100;
+  transition: right 0.3s ease;
+}
+
+.settings-panel.open {
+  right: 0;
+}
+
+.settings-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dark-theme .settings-content {
+  background-color: #2d2d2d;
+  color: #fff;
+}
+
+.light-theme .settings-content {
+  background-color: #fff;
+  color: #333;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.settings-tabs .tab {
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dark-theme .settings-tabs .tab:hover,
+.dark-theme .settings-tabs .tab.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .settings-tabs .tab:hover,
+.light-theme .settings-tabs .tab.active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tab-pane h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.theme-options {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.theme-option input {
+  cursor: pointer;
+}
+
+.wallpaper-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.wp-tab {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dark-theme .wp-tab.active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.light-theme .wp-tab.active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.wallpaper-item {
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.wallpaper-item:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-item.selected {
+  border-color: #1890ff;
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}

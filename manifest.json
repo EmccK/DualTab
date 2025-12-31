@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "DualTab - 新标签页",
+  "version": "1.0.0",
+  "description": "简洁美观的新标签页扩展，复刻MonkNow风格",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "icons": {
+    "16": "src/icons/icon16.png",
+    "48": "src/icons/icon48.png",
+    "128": "src/icons/icon128.png"
+  }
+}
