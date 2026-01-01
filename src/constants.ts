@@ -1,11 +1,43 @@
 import type { NavGroup, SearchEngine } from './types'
 
-// 搜索引擎列表
+// 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
-  { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'https://static.monknow.com/newtab/searcher/0eb43a90-b4c7-43ce-9c73-ab110945f47d.svg' },
-  { id: 'baidu', name: 'Baidu', url: 'https://www.baidu.com/s?wd=', icon: 'https://www.baidu.com/favicon.ico' },
-  { id: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q=', icon: 'https://www.bing.com/favicon.ico' },
-  { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: 'https://duckduckgo.com/favicon.ico' }
+  {
+    id: 'google',
+    name: 'Google',
+    url: 'https://www.google.com/search?q=',
+    icon: 'https://static.monknow.com/newtab/searcher/e58b5a00-74fe-4319-af0a-d4999565dd71.svg'
+  },
+  {
+    id: 'baidu',
+    name: '百度',
+    url: 'https://www.baidu.com/s?wd=',
+    icon: 'https://static.monknow.com/newtab/searcher/0eb43a90-b4c7-43ce-9c73-ab110945f47d.svg'
+  },
+  {
+    id: 'bing',
+    name: 'Bing',
+    url: 'https://www.bing.com/search?q=',
+    icon: 'https://static.monknow.com/newtab/searcher/ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d.svg'
+  },
+  {
+    id: 'yahoo',
+    name: 'Yahoo',
+    url: 'https://search.yahoo.com/search?p=',
+    icon: 'https://static.monknow.com/newtab/searcher/2a5e69d9-bf13-4188-8da2-004551a913a0.svg'
+  },
+  {
+    id: 'yandex',
+    name: 'Yandex',
+    url: 'https://yandex.ru/search/?text=',
+    icon: 'https://static.monknow.com/newtab/searcher/118f7463-4411-4856-873f-2851faa3b543.svg'
+  },
+  {
+    id: 'duckduckgo',
+    name: 'DuckDuckGo',
+    url: 'https://duckduckgo.com/?q=',
+    icon: 'https://static.monknow.com/newtab/searcher/259d8e2b-340e-4690-8046-88a0b130cbd0.svg'
+  }
 ]
 
 // 分组图标列表 - MonkNow 官方图标
@@ -30,13 +62,19 @@ export const PRESET_COLORS = [
 
 // 壁纸列表
 export const WALLPAPERS = [
-  'https://static.monknow.com/newtab/wallpaper/81d10bb3542bc99097ba324fd6162def.jpg'
+  'https://static.monknow.com/newtab/wallpaper/81d10bb3542bc99097ba324fd6162def.jpg',
+  'https://static.monknow.com/newtab/wallpaper/0a1b2c3d4e5f6789abcdef0123456789.jpg',
+  'https://static.monknow.com/newtab/wallpaper/1234567890abcdef1234567890abcdef.jpg',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920',
+  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920',
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920'
 ]
 
 // 纯色壁纸
 export const SOLID_COLORS = [
   '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
-  '#13c2c2', '#eb2f96', '#2f54eb', '#fa541c', '#a0d911'
+  '#13c2c2', '#eb2f96', '#2f54eb', '#fa541c', '#a0d911',
+  '#333436', '#202124', '#1a1a2e', '#16213e', '#0f3460'
 ]
 
 
@@ -83,9 +121,21 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
 
 // 默认设置
 export const DEFAULT_SETTINGS = {
+  // 主题设置
   theme: 'dark' as const,
   wallpaper: WALLPAPERS[0],
   wallpaperType: 'image' as const,
+
+  // 常规设置
   openInNewTab: true,
-  searchEngine: 'google'
+  searchEngine: 'google',
+  clockFormat: '24h' as const,
+  showSeconds: false,
+  showWeather: true,
+
+  // 外观设置
+  iconSize: 'medium' as const,
+  showSiteLabel: true,
+  showSiteDesc: true,
+  sidebarPosition: 'left' as const
 }

@@ -10,6 +10,9 @@
     "storage",
     "tabs"
   ],
+  "host_permissions": [
+    "https://suggestqueries.google.com/*"
+  ],
   "icons": {
     "16": "src/icons/icon16.png",
     "48": "src/icons/icon48.png",

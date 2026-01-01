@@ -136,6 +136,7 @@ function App() {
                 site={site}
                 onEdit={openEditSiteModal}
                 onDelete={handleDeleteSite}
+                openInNewTabSetting={settings.openInNewTab}
               />
             ))}
             {/* 添加网站卡片 */}
@@ -147,7 +148,7 @@ function App() {
             className={`time-weather-overlay ${showTimeWeather ? 'visible' : 'hidden'}`}
           >
             <div className="time-weather-blur-bg" />
-            <TimeWeather visible={showTimeWeather} />
+            <TimeWeather visible={showTimeWeather} settings={settings} />
           </div>
         </main>
       </div>
@@ -158,6 +159,9 @@ function App() {
         onClose={closeSettings}
         settings={settings}
         onSettingsChange={(newSettings) => useAppStore.getState().setSettings(newSettings)}
+        user={user}
+        onLoginClick={openLoginModal}
+        onLogout={logout}
       />
 
       {/* 添加/编辑网站弹窗 */}

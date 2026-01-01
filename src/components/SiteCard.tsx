@@ -8,16 +8,21 @@ interface SiteCardProps {
   site: Site
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
+  openInNewTabSetting?: boolean  // 是否在新标签页打开
 }
 
 // 网站卡片组件
-export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete }: SiteCardProps) {
+export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openInNewTabSetting = true }: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
 
-  // 点击打开网站 - 默认在当前页打开
+  // 点击打开网站 - 根据设置决定打开方式
   const handleClick = () => {
-    openInCurrentTab(site.url)
+    if (openInNewTabSetting) {
+      openInNewTab(site.url, true)
+    } else {
+      openInCurrentTab(site.url)
+    }
   }
 
   // 右键显示菜单
@@ -100,22 +105,19 @@ export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete }: SiteC
   )
 })
 
-// 添加网站卡片
+// 添加网站卡片 - Monknow 风格
 interface AddSiteCardProps {
   onClick: () => void
 }
 
 export const AddSiteCard = memo(function AddSiteCard({ onClick }: AddSiteCardProps) {
   return (
-    <div className="site-card add-site-card" onClick={onClick}>
-      <div className="site-card-icon add-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+    <div className="add-site-card" onClick={onClick}>
+      <div className="add-site-icon">
+        {/* 加号图标 */}
+        <svg viewBox="0 0 24 24" fill="currentColor">
           <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
-      </div>
-      <div className="site-card-info">
-        <div className="site-card-title">添加网站</div>
-        <div className="site-card-desc">点击添加新的网站书签</div>
       </div>
     </div>
   )

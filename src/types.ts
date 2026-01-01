@@ -36,11 +36,23 @@ export interface SearchEngine {
 
 // 设置配置类型
 export interface Settings {
+  // 主题设置
   theme: 'dark' | 'light'
   wallpaper: string
   wallpaperType: 'image' | 'color'
+
+  // 常规设置
   openInNewTab: boolean
   searchEngine: string
+  clockFormat: '12h' | '24h'  // 时钟格式
+  showSeconds: boolean        // 显示秒
+  showWeather: boolean        // 显示天气
+
+  // 外观设置
+  iconSize: 'small' | 'medium' | 'large'  // 图标大小
+  showSiteLabel: boolean      // 显示网站标签
+  showSiteDesc: boolean       // 显示网站描述
+  sidebarPosition: 'left' | 'right'  // 侧边栏位置
 }
 
 // 用户信息类型
