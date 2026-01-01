@@ -1,80 +1,124 @@
-/* 弹窗遮罩 */
+/* 弹窗遮罩 - Monknow 风格 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
   z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 弹窗容器 */
+.dark-theme .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* 弹窗容器 - Monknow 风格 */
 .modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   width: 420px;
   max-width: 90vw;
   max-height: 80vh;
-  border-radius: 12px;
+  border-radius: 6px;
   z-index: 201;
   overflow: hidden;
 }
 
 .dark-theme .modal {
-  background-color: #2d2d2d;
-  color: #fff;
+  background-color: #202124;
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
 .light-theme .modal {
   background-color: #fff;
   color: #333;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* 弹窗头部 */
+/* 弹窗头部 - Monknow 风格 */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.light-theme .modal-header {
-  border-bottom-color: rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  position: relative;
 }
 
 .modal-header h3 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
+  line-height: 1.3;
   margin: 0;
+}
+
+.dark-theme .modal-header h3 {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.light-theme .modal-header h3 {
+  color: #333;
 }
 
 .modal-close {
   background: none;
   border: none;
-  font-size: 24px;
   cursor: pointer;
   color: inherit;
-  opacity: 0.6;
   line-height: 1;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease-in-out;
 }
 
-.modal-close:hover {
-  opacity: 1;
+.dark-theme .modal-close {
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
-/* 弹窗内容 */
+.dark-theme .modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.light-theme .modal-close {
+  background-color: #676767;
+}
+
+.light-theme .modal-close:hover {
+  background-color: #333;
+}
+
+.modal-close-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.dark-theme .modal-close-icon {
+  background-color: #141414;
+}
+
+.light-theme .modal-close-icon {
+  background-color: #fff;
+}
+
+/* 弹窗内容 - Monknow 风格 */
 .modal-body {
-  padding: 20px;
+  padding: 0 16px 16px;
   overflow-y: auto;
   max-height: calc(80vh - 60px);
 }
 
-/* 表单样式 */
+/* 表单样式 - Monknow 风格 */
 .form-group {
   margin-bottom: 16px;
 }
@@ -82,71 +126,102 @@
 .form-group label {
   display: block;
   font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
   margin-bottom: 8px;
-  opacity: 0.8;
+}
+
+.dark-theme .form-group label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .form-group label {
+  color: #4a4a4a;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid;
   font-size: 14px;
+  line-height: 1.3;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease-in-out;
+  box-sizing: border-box;
 }
 
 .dark-theme .form-group input,
 .dark-theme .form-group textarea {
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme .form-group input::placeholder,
+.dark-theme .form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme .form-group input:focus,
+.dark-theme .form-group textarea:focus {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .light-theme .form-group input,
 .light-theme .form-group textarea {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: #fafafa;
   color: #333;
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: #cfcfcf;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #1890ff;
+.light-theme .form-group input::placeholder,
+.light-theme .form-group textarea::placeholder {
+  color: #cfcfcf;
+}
+
+.light-theme .form-group input:focus,
+.light-theme .form-group textarea:focus {
+  border-color: #676767;
 }
 
 .form-group textarea {
-  resize: vertical;
+  resize: none;
   min-height: 60px;
 }
 
-/* 颜色选择器 */
+/* 颜色选择器 - Monknow 风格 */
 .color-picker {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, 24px);
+  column-gap: 9px;
+  margin-bottom: 12px;
 }
 
 .color-item {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: transform 0.2s, border-color 0.2s;
+  padding: 1px;
+  background-clip: content-box;
+  background-origin: content-box;
+  transition: border-color 0.2s ease-in-out;
+  position: relative;
 }
 
 .color-item:hover {
-  transform: scale(1.1);
+  border-color: currentColor;
 }
 
 .color-item.selected {
-  border-color: #fff;
-  box-shadow: 0 0 0 2px #1890ff;
+  border-color: currentColor;
+  color: #1890ff;
 }
 
-/* 图标选择器 */
+/* 图标选择器 - Monknow 风格 */
 .icon-picker {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -158,18 +233,18 @@
   align-items: center;
   justify-content: center;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 .dark-theme .icon-item {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .light-theme .icon-item {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f5f5f5;
 }
 
 .icon-item:hover {
@@ -178,7 +253,6 @@
 
 .icon-item.selected {
   border-color: #1890ff;
-  background-color: rgba(24, 144, 255, 0.15);
 }
 
 .icon-item img {
@@ -186,59 +260,86 @@
   height: 32px;
 }
 
-/* 按钮组 */
+/* 按钮组 - Monknow 风格 */
 .modal-actions {
   display: flex;
   gap: 12px;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .btn {
   flex: 1;
-  padding: 10px 16px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 4px;
   font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
   border: none;
+  text-align: center;
+  display: block;
+  position: relative;
+  width: 100%;
 }
 
 .btn-primary {
-  background-color: #1890ff;
+  background-color: #1686f0;
   color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: #40a9ff;
+  background-color: #1890ff;
 }
 
 .btn-secondary {
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: inherit;
+  border: none;
 }
 
 .dark-theme .btn-secondary {
-  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #202124;
+}
+
+.dark-theme .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .light-theme .btn-secondary {
-  border-color: rgba(0, 0, 0, 0.2);
-}
-
-.btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #e6e6e6;
+  color: #676767;
 }
 
 .light-theme .btn-secondary:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f5f5f5;
 }
 
 .btn-danger {
-  background-color: #ff4d4f;
+  background-color: #ed1f38;
   color: #fff;
 }
 
 .btn-danger:hover {
-  background-color: #ff7875;
+  background-color: #f6203a;
+}
+
+/* 按钮加载状态 */
+.btn.loading {
+  cursor: default;
+}
+
+.btn.loading .btn-text {
+  visibility: hidden;
+}
+
+.btn-loading-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
