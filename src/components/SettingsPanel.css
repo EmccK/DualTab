@@ -2470,3 +2470,339 @@
   background-repeat: no-repeat;
   overflow: hidden;
 }
+
+/* ========== 外观设置 - Monknow 风格 ========== */
+
+/* 外观设置两列布局 */
+.appearance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.appearance-left,
+.appearance-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 主视图布局选择网格 - 完全复刻 Monknow (J1K9pFb3vIOMqbGY9QF7) */
+.view-layout-grid {
+  column-gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 102px);
+  justify-content: center;
+  row-gap: 12px;
+}
+
+/* 布局选项项 - Monknow (HmhCqzdBlns8DwKAZyog) */
+.view-layout-item {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 布局预览图片 - Monknow (gZZ8Qq5KaOKyRWoxZBCS) */
+.view-layout-preview {
+  background-clip: content-box;
+  background-origin: content-box;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  width: 102px;
+  height: 66px;
+  padding: 1px;
+  position: relative;
+  transition-duration: 0.2s;
+  transition-property: background-image, border-color, filter;
+  transition-timing-function: ease-in-out;
+  overflow: hidden;
+}
+
+/* 选中状态 - Monknow (vy07Y1_Q59uTVUXtqt2v) */
+.view-layout-item.selected .view-layout-preview {
+  border-color: #1890ff;
+}
+
+/* 布局标签 - Monknow (LJyrwWFnc3U2mjdm6LGl) */
+.view-layout-label {
+  font-size: 14px;
+  line-height: 1.3;
+  margin-top: 8px;
+  text-align: center;
+  transition: color 0.2s ease-in-out;
+  display: block;
+  width: 100%;
+}
+
+.dark-theme .view-layout-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .view-layout-label {
+  color: #676767;
+}
+
+/* 选中状态标签 */
+.view-layout-item.selected .view-layout-label {
+  color: #1890ff;
+}
+
+/* SVG 预览图内部元素样式 */
+.view-layout-preview svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 背景 */
+.dark-theme .view-layout-bg {
+  fill: #242424;
+}
+
+.light-theme .view-layout-bg {
+  fill: #f5f5f5;
+}
+
+/* 搜索栏 */
+.dark-theme .view-layout-search-bar {
+  fill: #676767;
+}
+
+.light-theme .view-layout-search-bar {
+  fill: #cfcfcf;
+}
+
+/* 卡片背景 */
+.dark-theme .view-layout-card-bg {
+  fill: #393939;
+}
+
+.light-theme .view-layout-card-bg {
+  fill: #e6e6e6;
+}
+
+/* 图标 */
+.dark-theme .view-layout-icon {
+  fill: #676767;
+}
+
+.light-theme .view-layout-icon {
+  fill: #cfcfcf;
+}
+
+/* 文字 */
+.dark-theme .view-layout-text {
+  fill: #676767;
+}
+
+.light-theme .view-layout-text {
+  fill: #999999;
+}
+
+/* 外观设置分隔线 */
+.appearance-divider {
+  height: 1px;
+  margin: 8px 8px;
+}
+
+.dark-theme .appearance-divider {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.light-theme .appearance-divider {
+  background-color: #e6e6e6;
+}
+
+/* 外观菜单列表 */
+.appearance-menu-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 外观菜单项 */
+.appearance-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  user-select: none;
+}
+
+.dark-theme .appearance-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.light-theme .appearance-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* 菜单项标签 */
+.appearance-menu-label {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.dark-theme .appearance-menu-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .appearance-menu-label {
+  color: #676767;
+}
+
+/* 菜单项箭头 */
+.appearance-menu-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.dark-theme .appearance-menu-arrow {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.light-theme .appearance-menu-arrow {
+  color: #cfcfcf;
+}
+
+/* 菜单项激活状态 */
+.appearance-menu-item.active {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.dark-theme .appearance-menu-item.active .appearance-menu-label,
+.light-theme .appearance-menu-item.active .appearance-menu-label {
+  color: #1890ff;
+}
+
+.dark-theme .appearance-menu-item.active .appearance-menu-arrow,
+.light-theme .appearance-menu-item.active .appearance-menu-arrow {
+  color: #1890ff;
+  transform: rotate(90deg);
+}
+
+/* 外观子菜单 */
+.appearance-submenu {
+  padding: 8px 8px 8px 16px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+}
+
+.dark-theme .appearance-submenu {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.light-theme .appearance-submenu {
+  background-color: #f9f9f9;
+}
+
+/* 子菜单滑块项 */
+.appearance-slider-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.appearance-slider-label {
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.dark-theme .appearance-slider-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light-theme .appearance-slider-label {
+  color: #676767;
+}
+
+.appearance-slider-control {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.appearance-slider {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #d1eaff;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.appearance-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #1890ff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.appearance-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #1890ff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.appearance-slider-value {
+  font-size: 12px;
+  min-width: 40px;
+  text-align: right;
+  margin-left: 8px;
+}
+
+.dark-theme .appearance-slider-value {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light-theme .appearance-slider-value {
+  color: #676767;
+}
+
+/* 子菜单开关项 */
+.appearance-switch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.appearance-switch-label {
+  font-size: 13px;
+}
+
+.dark-theme .appearance-switch-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light-theme .appearance-switch-label {
+  color: #676767;
+}
+
+/* 紧凑型下拉选择框 */
+.settings-select.compact {
+  padding: 4px 24px 4px 8px;
+  min-width: 70px;
+}

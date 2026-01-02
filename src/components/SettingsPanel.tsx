@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval } from '../types'
-import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS } from '../constants'
+import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval, ViewLayout } from '../types'
+import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS, VIEW_LAYOUT_PRESETS } from '../constants'
 import { updateNickname, updatePortrait, changePassword, uploadImage, uploadWallpaper } from '../services/api'
 import { OptionSelect } from './OptionSelect'
 import './SettingsPanel.css'
@@ -131,9 +131,34 @@ export function SettingsPanel({
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
+  // 外观子菜单状态: null | 'width' | 'search' | 'icon'
+  const [appearanceSubMenu, setAppearanceSubMenu] = useState<'width' | 'search' | 'icon' | null>(null)
+
   // 更新设置
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     onSettingsChange({ ...settings, [key]: value })
+  }
+
+  // 切换主视图布局时，同时更新多个相关设置
+  const handleViewLayoutChange = (layout: ViewLayout) => {
+    const preset = VIEW_LAYOUT_PRESETS[layout]
+    if (!preset) return
+
+    // 合并预设参数到当前设置
+    const newSettings: Settings = {
+      ...settings,
+      viewLayout: layout,
+      // 应用 icons 预设
+      iconLayout: preset.icons.iconLayout,
+      iconSizePercentage: preset.icons.sizePercentage,
+      iconBorderRadius: preset.icons.borderRadiusPercentage,
+      iconOpacity: preset.icons.opacityPercentage,
+      iconShadow: preset.icons.displayShadow,
+      iconRowGap: preset.icons.rowGapPercentage,
+      iconColumnGap: preset.icons.columnGapPercentage
+    }
+
+    onSettingsChange(newSettings)
   }
 
   // 组件卸载时清理头像预览 URL，防止内存泄漏
@@ -968,84 +993,333 @@ export function SettingsPanel({
               </div>
             )}
 
-            {/* 外观设置 */}
+            {/* 外观设置 - Monknow 风格两列布局 */}
             {activeTab === 'appearance' && (
               <div className="settings-panel-content">
-                {/* 图标设置 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">图标设置</h3>
+                <div className="appearance-grid">
+                  {/* 左列 - 主视图 + 菜单项 */}
+                  <div className="appearance-left">
+                    {/* 主视图选择 - 完全复刻 Monknow */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">主视图</h3>
+                      <div className="view-layout-grid">
+                        {/* 经典布局 */}
+                        <div
+                          className={`view-layout-item ${settings.viewLayout === 'classic' ? 'selected' : ''}`}
+                          onClick={() => handleViewLayoutChange('classic')}
+                        >
+                          <div className="view-layout-preview">
+                            <svg width="102" height="66" viewBox="0 0 96 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="96" height="60" rx="2" className="view-layout-bg" />
+                              <rect x="24" y="8" width="48" height="8" rx="1" className="view-layout-search-bar" />
+                              <rect x="12" y="24" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <rect x="12" y="40" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <rect x="38" y="24" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <rect x="38" y="40" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <rect x="64" y="24" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <rect x="64" y="40" width="20" height="10" rx="2" className="view-layout-card-bg" />
+                              <path d="M14,24 L22,24 L22,34 L14,34 C12.895,34 12,33.105 12,32 L12,26 C12,24.895 12.895,24 14,24 Z" className="view-layout-icon" />
+                              <path d="M14,40 L22,40 L22,50 L14,50 C12.895,50 12,49.105 12,48 L12,42 C12,40.895 12.895,40 14,40 Z" className="view-layout-icon" />
+                              <path d="M40,24 L48,24 L48,34 L40,34 C38.895,34 38,33.105 38,32 L38,26 C38,24.895 38.895,24 40,24 Z" className="view-layout-icon" />
+                              <path d="M40,40 L48,40 L48,50 L40,50 C38.895,50 38,49.105 38,48 L38,42 C38,40.895 38.895,40 40,40 Z" className="view-layout-icon" />
+                              <path d="M66,24 L74,24 L74,34 L66,34 C64.895,34 64,33.105 64,32 L64,26 C64,24.895 64.895,24 66,24 Z" className="view-layout-icon" />
+                              <path d="M66,40 L74,40 L74,50 L66,50 C64.895,50 64,49.105 64,48 L64,42 C64,40.895 64.895,40 66,40 Z" className="view-layout-icon" />
+                              <rect x="24" y="26" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="24" y="42" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="26" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="42" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="26" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="42" width="6" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="24" y="29" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="24" y="45" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="29" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="45" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="29" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="45" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="24" y="31" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="24" y="47" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="31" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="50" y="47" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="31" width="6" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="76" y="47" width="6" height="1" rx="0.5" className="view-layout-text" />
+                            </svg>
+                          </div>
+                          <span className="view-layout-label">经典</span>
+                        </div>
+                        {/* 高效布局 */}
+                        <div
+                          className={`view-layout-item ${settings.viewLayout === 'efficient' ? 'selected' : ''}`}
+                          onClick={() => handleViewLayoutChange('efficient')}
+                        >
+                          <div className="view-layout-preview">
+                            <svg width="102" height="66" viewBox="0 0 96 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="96" height="60" rx="2" className="view-layout-bg" />
+                              <rect x="22" y="10" width="52" height="8" rx="1" className="view-layout-search-bar" />
+                              <rect x="7" y="26" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="7" y="40" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="29" y="26" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="29" y="40" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="51" y="26" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="51" y="40" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="73" y="26" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <rect x="73" y="40" width="16" height="8" rx="2" className="view-layout-card-bg" />
+                              <path d="M9,26 L15,26 L15,34 L9,34 C7.895,34 7,33.105 7,32 L7,28 C7,26.895 7.895,26 9,26 Z" className="view-layout-icon" />
+                              <path d="M9,40 L15,40 L15,48 L9,48 C7.895,48 7,47.105 7,46 L7,42 C7,40.895 7.895,40 9,40 Z" className="view-layout-icon" />
+                              <path d="M31,26 L37,26 L37,34 L31,34 C29.895,34 29,33.105 29,32 L29,28 C29,26.895 29.895,26 31,26 Z" className="view-layout-icon" />
+                              <path d="M31,40 L37,40 L37,48 L31,48 C29.895,48 29,47.105 29,46 L29,42 C29,40.895 29.895,40 31,40 Z" className="view-layout-icon" />
+                              <path d="M53,26 L59,26 L59,34 L53,34 C51.895,34 51,33.105 51,32 L51,28 C51,26.895 51.895,26 53,26 Z" className="view-layout-icon" />
+                              <path d="M53,40 L59,40 L59,48 L53,48 C51.895,48 51,47.105 51,46 L51,42 C51,40.895 51.895,40 53,40 Z" className="view-layout-icon" />
+                              <path d="M75,26 L81,26 L81,34 L75,34 C73.895,34 73,33.105 73,32 L73,28 C73,26.895 73.895,26 75,26 Z" className="view-layout-icon" />
+                              <path d="M75,40 L81,40 L81,48 L75,48 C73.895,48 73,47.105 73,46 L73,42 C73,40.895 73.895,40 75,40 Z" className="view-layout-icon" />
+                              <rect x="17" y="28" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="17" y="42" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="39" y="28" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="39" y="42" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="61" y="28" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="61" y="42" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="83" y="28" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="83" y="42" width="4" height="2" rx="0.5" className="view-layout-text" />
+                              <rect x="17" y="31" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="17" y="45" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="39" y="31" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="39" y="45" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="61" y="31" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="61" y="45" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="83" y="31" width="4" height="1" rx="0.5" className="view-layout-text" />
+                              <rect x="83" y="45" width="4" height="1" rx="0.5" className="view-layout-text" />
+                            </svg>
+                          </div>
+                          <span className="view-layout-label">高效</span>
+                        </div>
+                        {/* 深刻布局 */}
+                        <div
+                          className={`view-layout-item ${settings.viewLayout === 'deep' ? 'selected' : ''}`}
+                          onClick={() => handleViewLayoutChange('deep')}
+                        >
+                          <div className="view-layout-preview">
+                            <svg width="102" height="66" viewBox="0 0 96 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="96" height="60" rx="2" className="view-layout-bg" />
+                              <rect x="24" y="8" width="48" height="8" rx="1" className="view-layout-search-bar" />
+                              <rect x="14" y="24" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="14" y="40" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="33" y="24" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="33" y="40" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="52" y="24" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="72" y="24" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="52" y="40" width="10" height="10" rx="2" className="view-layout-icon" />
+                              <rect x="72" y="40" width="10" height="10" rx="2" className="view-layout-icon" />
+                            </svg>
+                          </div>
+                          <span className="view-layout-label">深刻</span>
+                        </div>
+                        {/* 轻巧布局 */}
+                        <div
+                          className={`view-layout-item ${settings.viewLayout === 'light' ? 'selected' : ''}`}
+                          onClick={() => handleViewLayoutChange('light')}
+                        >
+                          <div className="view-layout-preview">
+                            <svg width="102" height="66" viewBox="0 0 96 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="96" height="60" rx="2" className="view-layout-bg" />
+                              <rect x="22" y="10" width="52" height="8" rx="1" className="view-layout-search-bar" />
+                              <rect x="14" y="26" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="14" y="40" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="29" y="26" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="29" y="40" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="44" y="26" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="59" y="26" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="74" y="26" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="44" y="40" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="59" y="40" width="8" height="8" rx="2" className="view-layout-icon" />
+                              <rect x="74" y="40" width="8" height="8" rx="2" className="view-layout-icon" />
+                            </svg>
+                          </div>
+                          <span className="view-layout-label">轻巧</span>
+                        </div>
+                      </div>
 
-                  {/* 图标大小 */}
-                  <div className="settings-item">
-                    <span className="settings-item-label">图标大小</span>
-                    <select
-                      className="settings-select"
-                      value={settings.iconSize}
-                      onChange={(e) => updateSetting('iconSize', e.target.value as 'small' | 'medium' | 'large')}
-                    >
-                      <option value="small">小</option>
-                      <option value="medium">中</option>
-                      <option value="large">大</option>
-                    </select>
-                  </div>
+                      {/* 分隔线 */}
+                      <div className="appearance-divider" />
 
-                  {/* 显示网站标签 */}
-                  <div className="settings-item">
-                    <span className="settings-item-label">显示网站名称</span>
-                    <div
-                      className={`settings-switch ${settings.showSiteLabel ? 'active' : ''}`}
-                      onClick={() => updateSetting('showSiteLabel', !settings.showSiteLabel)}
-                    >
-                      <div className="settings-switch-thumb" />
+                      {/* 菜单项列表 - 带子菜单 */}
+                      <div className="appearance-menu-list">
+                        {/* 图标 */}
+                        <div
+                          className={`appearance-menu-item ${appearanceSubMenu === 'icon' ? 'active' : ''}`}
+                          onClick={() => setAppearanceSubMenu(appearanceSubMenu === 'icon' ? null : 'icon')}
+                        >
+                          <span className="appearance-menu-label">图标</span>
+                          <span className="appearance-menu-arrow">
+                            <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
+                              <path d="M1.5 0L0 1.5L4.5 6L0 10.5L1.5 12L7.5 6L1.5 0Z" />
+                            </svg>
+                          </span>
+                        </div>
+                        {/* 图标子菜单 */}
+                        {appearanceSubMenu === 'icon' && (
+                          <div className="appearance-submenu">
+                            <div className="appearance-slider-item">
+                              <span className="appearance-slider-label">大小</span>
+                              <div className="appearance-slider-control">
+                                <input
+                                  type="range"
+                                  min="50"
+                                  max="120"
+                                  value={settings.iconSizePercentage}
+                                  onChange={(e) => updateSetting('iconSizePercentage', Number(e.target.value))}
+                                  className="appearance-slider"
+                                />
+                                <span className="appearance-slider-value">{settings.iconSizePercentage}%</span>
+                              </div>
+                            </div>
+                            <div className="appearance-slider-item">
+                              <span className="appearance-slider-label">圆角</span>
+                              <div className="appearance-slider-control">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="50"
+                                  value={settings.iconBorderRadius}
+                                  onChange={(e) => updateSetting('iconBorderRadius', Number(e.target.value))}
+                                  className="appearance-slider"
+                                />
+                                <span className="appearance-slider-value">{settings.iconBorderRadius}%</span>
+                              </div>
+                            </div>
+                            <div className="appearance-slider-item">
+                              <span className="appearance-slider-label">行间距</span>
+                              <div className="appearance-slider-control">
+                                <input
+                                  type="range"
+                                  min="10"
+                                  max="60"
+                                  value={settings.iconRowGap}
+                                  onChange={(e) => updateSetting('iconRowGap', Number(e.target.value))}
+                                  className="appearance-slider"
+                                />
+                                <span className="appearance-slider-value">{settings.iconRowGap}px</span>
+                              </div>
+                            </div>
+                            <div className="appearance-slider-item">
+                              <span className="appearance-slider-label">列间距</span>
+                              <div className="appearance-slider-control">
+                                <input
+                                  type="range"
+                                  min="10"
+                                  max="60"
+                                  value={settings.iconColumnGap}
+                                  onChange={(e) => updateSetting('iconColumnGap', Number(e.target.value))}
+                                  className="appearance-slider"
+                                />
+                                <span className="appearance-slider-value">{settings.iconColumnGap}px</span>
+                              </div>
+                            </div>
+                            <div className="appearance-switch-item">
+                              <span className="appearance-switch-label">阴影</span>
+                              <div
+                                className={`settings-switch ${settings.iconShadow ? 'active' : ''}`}
+                                onClick={() => updateSetting('iconShadow', !settings.iconShadow)}
+                              >
+                                <div className="settings-switch-thumb" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 显示红点提示 */}
+                        <div className="appearance-menu-item">
+                          <span className="appearance-menu-label">显示红点提示</span>
+                          <div
+                            className={`settings-switch ${settings.showSiteLabel ? 'active' : ''}`}
+                            onClick={() => updateSetting('showSiteLabel', !settings.showSiteLabel)}
+                          >
+                            <div className="settings-switch-thumb" />
+                          </div>
+                        </div>
+                        {/* 显示添加按钮 */}
+                        <div className="appearance-menu-item">
+                          <span className="appearance-menu-label">显示添加按钮</span>
+                          <div
+                            className={`settings-switch ${settings.showAddButton !== false ? 'active' : ''}`}
+                            onClick={() => updateSetting('showAddButton', settings.showAddButton === false)}
+                          >
+                            <div className="settings-switch-thumb" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 显示网站描述 */}
-                  <div className="settings-item">
-                    <span className="settings-item-label">显示网站描述</span>
-                    <div
-                      className={`settings-switch ${settings.showSiteDesc ? 'active' : ''}`}
-                      onClick={() => updateSetting('showSiteDesc', !settings.showSiteDesc)}
-                    >
-                      <div className="settings-switch-thumb" />
+                  {/* 右列 - 待机页设置 */}
+                  <div className="appearance-right">
+                    {/* 待机页 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">待机页</h3>
+                      <div className="settings-item">
+                        <span className="settings-item-label">开启待机页</span>
+                        <div
+                          className={`settings-switch ${settings.showWeather ? 'active' : ''}`}
+                          onClick={() => updateSetting('showWeather', !settings.showWeather)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                      <div className="settings-item">
+                        <span className="settings-item-label">打开标签页时进入</span>
+                        <div
+                          className={`settings-switch ${settings.showSeconds ? 'active' : ''}`}
+                          onClick={() => updateSetting('showSeconds', !settings.showSeconds)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                      <div className="settings-item">
+                        <span className="settings-item-label">不活跃时进入</span>
+                        <select
+                          className="settings-select compact"
+                          value="30"
+                        >
+                          <option value="30">30秒</option>
+                          <option value="60">60秒</option>
+                          <option value="120">2分钟</option>
+                          <option value="300">5分钟</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-
-                {/* 时钟设置 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">时钟设置</h3>
-                  <div className="settings-item">
-                    <span className="settings-item-label">时钟格式</span>
-                    <select
-                      className="settings-select"
-                      value={settings.clockFormat}
-                      onChange={(e) => updateSetting('clockFormat', e.target.value as '12h' | '24h')}
-                    >
-                      <option value="24h">24小时制</option>
-                      <option value="12h">12小时制</option>
-                    </select>
-                  </div>
-                  <div className="settings-item">
-                    <span className="settings-item-label">显示秒</span>
-                    <div
-                      className={`settings-switch ${settings.showSeconds ? 'active' : ''}`}
-                      onClick={() => updateSetting('showSeconds', !settings.showSeconds)}
-                    >
-                      <div className="settings-switch-thumb" />
+                    {/* 待机页背景 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">待机页背景</h3>
+                      <div className="settings-item">
+                        <span className="settings-item-label">模糊</span>
+                        <div
+                          className={`settings-switch ${settings.wallpaperBlurred ? 'active' : ''}`}
+                          onClick={() => updateSetting('wallpaperBlurred', !settings.wallpaperBlurred)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* 图标大小预览 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">预览</h3>
-                  <div className="icon-size-preview">
-                    <div className={`preview-icon ${settings.iconSize}`}>
-                      <div className="preview-icon-img" style={{ backgroundColor: '#1890ff' }} />
-                      {settings.showSiteLabel && <span className="preview-icon-label">示例网站</span>}
-                      {settings.showSiteDesc && <span className="preview-icon-desc">这是网站描述</span>}
+                    {/* 待机页时钟 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">待机页时钟</h3>
+                      <div className="settings-item">
+                        <span className="settings-item-label">开启时钟</span>
+                        <div
+                          className={`settings-switch active`}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                      <div className="settings-item">
+                        <span className="settings-item-label">24小时制</span>
+                        <div
+                          className={`settings-switch ${settings.clockFormat === '24h' ? 'active' : ''}`}
+                          onClick={() => updateSetting('clockFormat', settings.clockFormat === '24h' ? '12h' : '24h')}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

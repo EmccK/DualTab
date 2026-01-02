@@ -71,6 +71,9 @@ export interface LocationInfo {
 // 图标布局类型
 export type IconLayout = 'simple' | 'particular'
 
+// 主视图布局类型: classic(经典) / efficient(高效) / deep(深刻) / light(轻巧)
+export type ViewLayout = 'classic' | 'efficient' | 'deep' | 'light'
+
 // 主题类型: dark(深色) / light(浅色) / auto(跟随系统)
 export type ThemeType = 'dark' | 'light' | 'auto'
 
@@ -151,6 +154,7 @@ export interface Settings {
   location: LocationInfo | null  // 位置信息
 
   // 外观设置
+  viewLayout: ViewLayout             // 主视图布局
   iconSize: 'small' | 'medium' | 'large'  // 图标大小
   showSiteLabel: boolean       // 显示网站标签
   showSiteDesc: boolean        // 显示网站描述

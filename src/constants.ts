@@ -1,4 +1,4 @@
-import type { NavGroup, SearchEngine, Site, ThemeType, WallpaperCategory, WallpaperInterval, WallpaperSource } from './types'
+import type { NavGroup, SearchEngine, Site, ThemeType, ViewLayout, WallpaperCategory, WallpaperInterval, WallpaperSource } from './types'
 
 // 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
@@ -202,6 +202,7 @@ export const DEFAULT_SETTINGS = {
   location: null,  // 位置信息
 
   // 外观设置
+  viewLayout: 'classic' as ViewLayout,  // 默认经典布局
   iconSize: 'medium' as const,
   showSiteLabel: true,
   showSiteDesc: true,
@@ -239,3 +240,101 @@ export const TEMPERATURE_UNIT_OPTIONS = [
 export const ICON_SCALE_MIN = 50
 export const ICON_SCALE_MAX = 150
 export const ICON_SCALE_DEFAULT = 100
+
+// 主视图布局预设参数
+// 每种布局对应不同的 common、icons、searcher 设置组合
+// 根据 Monknow 实际效果分析：
+// - 经典：大图标 + 标题 + 描述（particular 布局）
+// - 高效：小图标 + 标题 + 描述（particular 布局，更紧凑）
+// - 深刻：大图标 + 标题（simple 布局，大圆角）
+// - 轻巧：小图标 + 标题（simple 布局，小圆角）
+export const VIEW_LAYOUT_PRESETS = {
+  // 经典布局 - 大图标 + 标题 + 描述
+  classic: {
+    common: {
+      widthPercentage: 100
+    },
+    icons: {
+      iconLayout: 'particular' as const,  // 详细布局（带描述）
+      sizePercentage: 80,                  // 较大图标
+      borderRadiusPercentage: 20,
+      opacityPercentage: 100,
+      displayShadow: true,
+      rowGapPercentage: 26,
+      columnGapPercentage: 34
+    },
+    searcher: {
+      widthPercentage: 59,
+      heightPercentage: 80,
+      borderRadiusPercentage: 20,
+      opacityPercentage: 90,
+      displayShadow: true
+    }
+  },
+  // 高效布局 - 小图标 + 标题 + 描述（更紧凑）
+  efficient: {
+    common: {
+      widthPercentage: 100
+    },
+    icons: {
+      iconLayout: 'particular' as const,  // 详细布局（带描述）
+      sizePercentage: 65,                  // 较小图标
+      borderRadiusPercentage: 18,
+      opacityPercentage: 100,
+      displayShadow: true,
+      rowGapPercentage: 20,
+      columnGapPercentage: 28
+    },
+    searcher: {
+      widthPercentage: 55,
+      heightPercentage: 75,
+      borderRadiusPercentage: 18,
+      opacityPercentage: 88,
+      displayShadow: true
+    }
+  },
+  // 深刻布局 - 大图标 + 标题（无描述，大圆角）
+  deep: {
+    common: {
+      widthPercentage: 100
+    },
+    icons: {
+      iconLayout: 'simple' as const,      // 简洁布局（只有标题）
+      sizePercentage: 90,                  // 大图标
+      borderRadiusPercentage: 25,          // 大圆角
+      opacityPercentage: 100,
+      displayShadow: true,
+      rowGapPercentage: 24,
+      columnGapPercentage: 32
+    },
+    searcher: {
+      widthPercentage: 59,
+      heightPercentage: 80,
+      borderRadiusPercentage: 20,
+      opacityPercentage: 90,
+      displayShadow: true
+    }
+  },
+  // 轻巧布局 - 小图标 + 标题（无描述，小圆角）
+  light: {
+    common: {
+      widthPercentage: 100
+    },
+    icons: {
+      iconLayout: 'simple' as const,      // 简洁布局（只有标题）
+      sizePercentage: 70,                  // 较小图标
+      borderRadiusPercentage: 20,          // 标准圆角
+      opacityPercentage: 100,
+      displayShadow: true,
+      rowGapPercentage: 20,
+      columnGapPercentage: 26
+    },
+    searcher: {
+      widthPercentage: 55,
+      heightPercentage: 75,
+      borderRadiusPercentage: 18,
+      opacityPercentage: 88,
+      displayShadow: true
+    }
+  }
+}

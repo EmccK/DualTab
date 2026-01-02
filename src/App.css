@@ -940,6 +940,93 @@ ol, ul {
   color: #676767;
 }
 
+/* ========== Simple 布局样式（只有图标和标题，无描述）========== */
+/* Simple 布局 - 卡片容器 */
+.site-card.site-card-simple {
+  flex-direction: column;
+  align-items: center;
+  height: auto;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;  /* 允许阴影溢出 */
+}
+
+/* 深色/浅色主题下 Simple 布局卡片无阴影 */
+.dark-theme .site-card.site-card-simple,
+.light-theme .site-card.site-card-simple {
+  box-shadow: none;
+}
+
+.site-card.site-card-simple:hover {
+  box-shadow: none;
+}
+
+/* Simple 布局 - 图标区域 */
+.site-card-simple .site-card-icon {
+  border-radius: var(--icon-border-radius, 20%);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Simple 布局 - 图标阴影效果（使用 box-shadow 避免被裁剪） */
+.dark-theme .site-card-simple .site-card-icon {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.light-theme .site-card-simple .site-card-icon {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-card-simple:hover .site-card-icon {
+  box-shadow: 0 12px 24px var(--hover-shadow-color, rgba(0, 0, 0, 0.35));
+}
+
+/* Simple 布局 - 标题标签 */
+.site-card-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: 8px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .site-card-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.light-theme .site-card-label {
+  color: #fff;
+}
+
+/* ========== Particular 布局样式（图标 + 标题 + 描述）========== */
+/* Particular 布局 - 卡片容器（默认样式，已在上面定义）*/
+.site-card-particular {
+  flex-direction: row;
+}
+
+/* ========== Simple 布局的网格样式 ========== */
+.sites-grid.simple-layout {
+  grid-template-columns: repeat(auto-fill, var(--icon-size));
+  gap: var(--grid-row-gap, 24px) var(--grid-column-gap, 32px);
+  padding: 24px 60px 127px;  /* 增加 padding 容纳阴影 */
+}
+
+/* Simple 布局的添加按钮 */
+.sites-grid.simple-layout .add-site-card {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: var(--icon-border-radius, 20%);
+}
+
+/* ========== Particular 布局的网格样式 ========== */
+.sites-grid.particular-layout {
+  grid-template-columns: repeat(auto-fill, calc(var(--icon-size) * 2.6));
+  gap: var(--grid-row-gap, 31px) var(--grid-column-gap, 40px);
+}
 
 /* 遮罩层 */
 .overlay {

@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import type { Site, OpenTarget } from '../types'
+import type { Site, OpenTarget, IconLayout } from '../types'
 import { ContextMenu } from './ContextMenu'
 import { useContextMenu } from '../hooks'
 import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito } from '../utils'
@@ -9,10 +9,17 @@ interface SiteCardProps {
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
   openTarget?: OpenTarget  // 全局打开链接方式
+  iconLayout?: IconLayout  // 图标布局: simple(只有标题) / particular(标题+描述)
 }
 
 // 网站卡片组件
-export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTarget = 'currentTab' }: SiteCardProps) {
+export const SiteCard = memo(function SiteCard({
+  site,
+  onEdit,
+  onDelete,
+  openTarget = 'currentTab',
+  iconLayout = 'particular'
+}: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
 
@@ -105,21 +112,27 @@ export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTar
   return (
     <>
       <div
-        className="site-card"
+        className={`site-card ${iconLayout === 'simple' ? 'site-card-simple' : 'site-card-particular'}`}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         style={{
           '--shadow-color': shadowColor,
-          '--hover-shadow-color': hoverShadowColor
+          '--hover-shadow-color': hoverShadowColor,
+          '--icon-border-radius': 'inherit'
         } as React.CSSProperties}
       >
         <div className="site-card-icon" style={{ backgroundColor: bgColor }}>
           {getIconContent()}
         </div>
-        <div className="site-card-info">
-          <div className="site-card-title">{site.name}</div>
-          <div className="site-card-desc">{site.desc}</div>
-        </div>
+        {/* simple 布局只显示标题，particular 布局显示标题和描述 */}
+        {iconLayout === 'simple' ? (
+          <div className="site-card-label">{site.name}</div>
+        ) : (
+          <div className="site-card-info">
+            <div className="site-card-title">{site.name}</div>
+            <div className="site-card-desc">{site.desc}</div>
+          </div>
+        )}
       </div>
 
       {/* 右键菜单 */}

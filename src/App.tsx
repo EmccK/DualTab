@@ -502,8 +502,16 @@ function App() {
               openTarget={settings.searchOpenTarget}
             />
 
-            {/* 网站网格 */}
-            <div className="sites-grid">
+            {/* 网站网格 - 根据 iconLayout 应用不同布局样式 */}
+            <div
+              className={`sites-grid ${settings.iconLayout === 'simple' ? 'simple-layout' : 'particular-layout'}`}
+              style={{
+                '--icon-size': `${settings.iconSizePercentage * 0.96 + 24}px`,
+                '--icon-border-radius': `${settings.iconBorderRadius}%`,
+                '--grid-row-gap': `${settings.iconRowGap}px`,
+                '--grid-column-gap': `${settings.iconColumnGap}px`
+              } as React.CSSProperties}
+            >
               {isLoaded && currentGroup?.sites.map(site => (
                 <SiteCard
                   key={site.id}
@@ -511,10 +519,11 @@ function App() {
                   onEdit={openEditSiteModal}
                   onDelete={deleteSite}
                   openTarget={settings.openTarget}
+                  iconLayout={settings.iconLayout}
                 />
               ))}
-              {/* 添加网站卡片 */}
-              {isLoaded && <AddSiteCard onClick={openAddSiteModal} />}
+              {/* 添加网站卡片 - 根据设置决定是否显示 */}
+              {isLoaded && settings.showAddButton !== false && <AddSiteCard onClick={openAddSiteModal} />}
             </div>
           </main>
         </div>
