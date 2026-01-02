@@ -1,4 +1,4 @@
-import type { NavGroup, SearchEngine } from './types'
+import type { NavGroup, SearchEngine, Site } from './types'
 
 // 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
@@ -54,10 +54,16 @@ export const GROUP_ICONS = [
   'https://static.monknow.com/newtab/icon-group/e38a7f4d-b22e-4ee5-8220-b236ac317756.svg'  // 点赞
 ]
 
-// 预设颜色列表
+// 预设颜色列表（与 Monknow 保持一致）
 export const PRESET_COLORS = [
-  '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
-  '#13c2c2', '#eb2f96', '#2f54eb', '#fa541c', '#a0d911'
+  '#ffffff',  // 白色（默认）
+  '#f44336',  // 红色
+  '#ff9800',  // 橙色
+  '#8bc34a',  // 浅绿
+  '#00bcd4',  // 青色
+  '#2196f3',  // 蓝色
+  '#9c27b0',  // 紫色
+  'transparent'  // 透明
 ]
 
 // 壁纸列表
@@ -78,6 +84,25 @@ export const SOLID_COLORS = [
 ]
 
 
+// 创建图片类型 Site 的辅助函数
+const createImageSite = (id: string, name: string, desc: string, url: string, iconUrl: string, bgColor: string): Site => ({
+  id,
+  name,
+  desc,
+  url,
+  type: 'image',
+  icoSrc: {
+    data: iconUrl,
+    isOfficial: true,
+    mimeType: 'image/png',
+    uploaded: true
+  },
+  backgroundColor: {
+    type: 'pure',
+    data: bgColor
+  }
+})
+
 // 默认导航分组数据
 export const DEFAULT_NAV_GROUPS: NavGroup[] = [
   {
@@ -85,14 +110,14 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
     name: '主页',
     icon: 'https://static.monknow.com/newtab/icon-group/61df5dde-0afd-4104-9b87-418bd62f95df.svg',
     sites: [
-      { id: 'site_weibo_001', name: '微博', desc: '随时随地发现新鲜事！', url: 'https://weibo.com', icon: 'https://static.monknow.com/newtab/icon/0e3b119f42ba105262c52885adf032f1.png', color: '#e6162b' },
-      { id: 'site_wechat_002', name: '微信网页版', desc: '使用手机微信扫码登录', url: 'https://wx.qq.com', icon: 'https://static.monknow.com/newtab/icon/e760bb47e6988e068f6d44c9f3109bb2.png', color: '#07c160' },
-      { id: 'site_bilibili_003', name: 'Bilibili', desc: 'bilibili是国内知名的视频弹幕网站。', url: 'https://bilibili.com', icon: 'https://static.monknow.com/newtab/icon/b88213b97677a97e45cb9f12d80ad328.png', color: '#fb7299' },
-      { id: 'site_taobao_004', name: '爱淘宝', desc: '阿里巴巴旗下潮流导购网站', url: 'https://ai.taobao.com', icon: 'https://static.monknow.com/newtab/icon/62decccfc76a4da384686b01e7abffd0.png', color: '#ff5000' },
-      { id: 'site_jd_005', name: '京东', desc: '专业的综合网上购物商城', url: 'https://jd.com', icon: 'https://static.monknow.com/newtab/icon/61589568063efc2ebbfdac364bfb641b.png', color: '#e1251b' },
-      { id: 'site_zhihu_006', name: '知乎', desc: '有问题，上知乎。可信赖的问答社区。', url: 'https://zhihu.com', icon: 'https://static.monknow.com/newtab/icon/d485e51391e9a96b80caa34516bd00be.png', color: '#0066ff' },
-      { id: 'site_douban_007', name: '豆瓣', desc: '提供图书、电影、音乐唱片的推荐、评论和价格比较', url: 'https://douban.com', icon: 'https://static.monknow.com/newtab/icon/0358c64952350ca5e46e9f3b645f688c.png', color: '#00b51d' },
-      { id: 'site_yinxiang_008', name: '印象笔记网页版', desc: '登录使用印象笔记网页版', url: 'https://app.yinxiang.com', icon: 'https://static.monknow.com/newtab/icon/be162f5b969fbb1c28d209b0773557cf.png', color: '#00a82d' }
+      createImageSite('site_weibo_001', '微博', '随时随地发现新鲜事！', 'https://weibo.com', 'https://static.monknow.com/newtab/icon/0e3b119f42ba105262c52885adf032f1.png', '#e6162b'),
+      createImageSite('site_wechat_002', '微信网页版', '使用手机微信扫码登录', 'https://wx.qq.com', 'https://static.monknow.com/newtab/icon/e760bb47e6988e068f6d44c9f3109bb2.png', '#07c160'),
+      createImageSite('site_bilibili_003', 'Bilibili', 'bilibili是国内知名的视频弹幕网站。', 'https://bilibili.com', 'https://static.monknow.com/newtab/icon/b88213b97677a97e45cb9f12d80ad328.png', '#fb7299'),
+      createImageSite('site_taobao_004', '爱淘宝', '阿里巴巴旗下潮流导购网站', 'https://ai.taobao.com', 'https://static.monknow.com/newtab/icon/62decccfc76a4da384686b01e7abffd0.png', '#ff5000'),
+      createImageSite('site_jd_005', '京东', '专业的综合网上购物商城', 'https://jd.com', 'https://static.monknow.com/newtab/icon/61589568063efc2ebbfdac364bfb641b.png', '#e1251b'),
+      createImageSite('site_zhihu_006', '知乎', '有问题，上知乎。可信赖的问答社区。', 'https://zhihu.com', 'https://static.monknow.com/newtab/icon/d485e51391e9a96b80caa34516bd00be.png', '#0066ff'),
+      createImageSite('site_douban_007', '豆瓣', '提供图书、电影、音乐唱片的推荐、评论和价格比较', 'https://douban.com', 'https://static.monknow.com/newtab/icon/0358c64952350ca5e46e9f3b645f688c.png', '#00b51d'),
+      createImageSite('site_yinxiang_008', '印象笔记网页版', '登录使用印象笔记网页版', 'https://app.yinxiang.com', 'https://static.monknow.com/newtab/icon/be162f5b969fbb1c28d209b0773557cf.png', '#00a82d')
     ]
   },
   {
@@ -100,10 +125,10 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
     name: '社交',
     icon: 'https://static.monknow.com/newtab/icon-group/9ac2df78-617e-4090-85ea-e68caf566a47.svg',
     sites: [
-      { id: 'site_iqiyi_009', name: '爱奇艺', desc: '大型视频网站，专业的网络视频播放平台。', url: 'https://iqiyi.com', icon: 'https://static.monknow.com/newtab/icon/49d02ac31b2efd6c6da10ad9ffa3d909.png', color: '#00be06' },
-      { id: 'site_163mail_010', name: '163网易邮箱', desc: '中文邮箱第一品牌。', url: 'https://mail.163.com', icon: 'https://static.monknow.com/newtab/icon/32b3bcd5782d3ae416c506eeeec28ecf.png', color: '#d43c33' },
-      { id: 'site_58_011', name: '58同城', desc: '58同城，专业的分类信息网。', url: 'https://58.com', icon: 'https://static.monknow.com/newtab/icon/289d6000cfb0bb35124dca1f948af822.png', color: '#ff6600' },
-      { id: 'site_dianping_012', name: '大众点评', desc: '推荐吃喝玩乐优惠信息，帮您选到满意商家', url: 'https://dianping.com', icon: 'https://static.monknow.com/newtab/icon/1353e0e5e6cf12ba5a4d596fb9c23ac6.png', color: '#ff6633' }
+      createImageSite('site_iqiyi_009', '爱奇艺', '大型视频网站，专业的网络视频播放平台。', 'https://iqiyi.com', 'https://static.monknow.com/newtab/icon/49d02ac31b2efd6c6da10ad9ffa3d909.png', '#00be06'),
+      createImageSite('site_163mail_010', '163网易邮箱', '中文邮箱第一品牌。', 'https://mail.163.com', 'https://static.monknow.com/newtab/icon/32b3bcd5782d3ae416c506eeeec28ecf.png', '#d43c33'),
+      createImageSite('site_58_011', '58同城', '58同城，专业的分类信息网。', 'https://58.com', 'https://static.monknow.com/newtab/icon/289d6000cfb0bb35124dca1f948af822.png', '#ff6600'),
+      createImageSite('site_dianping_012', '大众点评', '推荐吃喝玩乐优惠信息，帮您选到满意商家', 'https://dianping.com', 'https://static.monknow.com/newtab/icon/1353e0e5e6cf12ba5a4d596fb9c23ac6.png', '#ff6633')
     ]
   },
   {
@@ -111,10 +136,10 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
     name: '工具',
     icon: 'https://static.monknow.com/newtab/icon-group/5664820e-0e6e-4040-9fa8-7a7491a5f2b8.svg',
     sites: [
-      { id: 'site_ctrip_013', name: '携程', desc: '中国领先的在线旅行服务公司', url: 'https://ctrip.com', icon: 'https://static.monknow.com/newtab/icon/8a65194bb0f11289441f61a1d26737eb.png', color: '#2577e3' },
-      { id: 'site_toutiao_014', name: '今日头条', desc: '今日头条为您推荐有价值的、个性化的信息', url: 'https://toutiao.com', icon: 'https://static.monknow.com/newtab/icon/18d469f739518a6636bde9da8bd6d93b.png', color: '#f85959' },
-      { id: 'site_music163_015', name: '网易云音乐', desc: '一款专注于发现与分享的音乐产品', url: 'https://music.163.com', icon: 'https://static.monknow.com/newtab/icon/156950db51a3c93f877f9c00a121e548.png', color: '#c20c0c' },
-      { id: 'site_mooc_016', name: '中国大学MOOC', desc: '国家精品课程在线学习平台', url: 'https://icourse163.org', icon: 'https://static.monknow.com/newtab/icon/276366d9d8e7c8b3ee2c8e8f301b5fe6.png', color: '#8b0000' }
+      createImageSite('site_ctrip_013', '携程', '中国领先的在线旅行服务公司', 'https://ctrip.com', 'https://static.monknow.com/newtab/icon/8a65194bb0f11289441f61a1d26737eb.png', '#2577e3'),
+      createImageSite('site_toutiao_014', '今日头条', '今日头条为您推荐有价值的、个性化的信息', 'https://toutiao.com', 'https://static.monknow.com/newtab/icon/18d469f739518a6636bde9da8bd6d93b.png', '#f85959'),
+      createImageSite('site_music163_015', '网易云音乐', '一款专注于发现与分享的音乐产品', 'https://music.163.com', 'https://static.monknow.com/newtab/icon/156950db51a3c93f877f9c00a121e548.png', '#c20c0c'),
+      createImageSite('site_mooc_016', '中国大学MOOC', '国家精品课程在线学习平台', 'https://icourse163.org', 'https://static.monknow.com/newtab/icon/276366d9d8e7c8b3ee2c8e8f301b5fe6.png', '#8b0000')
     ]
   }
 ]
@@ -156,3 +181,8 @@ export const TEMPERATURE_UNIT_OPTIONS = [
   { value: 'celsius', label: '摄氏度 (°C)' },
   { value: 'fahrenheit', label: '华氏度 (°F)' }
 ]
+
+// 图标缩放范围常量
+export const ICON_SCALE_MIN = 50
+export const ICON_SCALE_MAX = 150
+export const ICON_SCALE_DEFAULT = 100

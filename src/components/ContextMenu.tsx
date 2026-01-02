@@ -68,15 +68,19 @@ export function ContextMenu({
   const position = adjustedPosition()
 
   return (
-    <div 
+    <div
       ref={menuRef}
       className="context-menu"
       style={{ left: position.left, top: position.top }}
     >
       {/* 网站信息头部 */}
       <div className="context-menu-header">
-        <div className="context-menu-icon" style={{ backgroundColor: site.color }}>
-          <img src={site.icon} alt={site.name} />
+        <div className="context-menu-icon" style={{ backgroundColor: site.backgroundColor?.data || '#ffffff' }}>
+          {site.type === 'text' ? (
+            <span className="site-card-icon-text">{site.icoText || site.name.slice(0, 2)}</span>
+          ) : (
+            <img src={site.icoSrc?.data} alt={site.name} />
+          )}
         </div>
         <div className="context-menu-info">
           <div className="context-menu-title">{site.name}</div>

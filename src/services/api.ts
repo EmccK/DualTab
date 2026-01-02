@@ -221,17 +221,18 @@ export interface MonkNowIcon {
   desc: string
   url: string
   type: 'image' | 'text'
-  icoSrc: {
+  icoSrc?: {
     data: string
     isOfficial: boolean
-    mimeType: string
-    uploaded: boolean
+    mimeType?: string
+    uploaded?: boolean
   }
+  icoText?: string  // 文字图标内容
   backgroundColor: {
     data: string
     type: 'pure'
   }
-  icoScalePercentage: number
+  icoScalePercentage?: number
   id?: number
 }
 
@@ -310,33 +311,36 @@ export async function syncIconsToServer(
   const groupUuids: string[] = []
   const groupDict: Record<string, MonkNowGroup> = {}
   const iconDict: Record<string, MonkNowIcon> = {}
-  
+
   groups.forEach(group => {
     groupUuids.push(group.id)
-    
+
     const iconUuids: string[] = []
     group.sites.forEach(site => {
       iconUuids.push(site.id)
-      iconDict[site.id] = {
+
+      // 根据图标类型构建数据
+      const iconData: MonkNowIcon = {
         uuid: site.id,
         label: site.name,
         desc: site.desc,
         url: site.url,
-        type: 'image',
-        icoSrc: {
-          data: site.icon,
-          isOfficial: site.icon.includes('static.monknow.com'),
-          mimeType: 'image/png',
-          uploaded: true
-        },
-        backgroundColor: {
-          data: site.color,
-          type: 'pure'
-        },
-        icoScalePercentage: 100
+        type: site.type,
+        backgroundColor: site.backgroundColor,
+        icoScalePercentage: site.icoScalePercentage || 100
       }
+
+      if (site.type === 'text') {
+        // 文字图标
+        iconData.icoText = site.icoText || site.name.slice(0, 2)
+      } else {
+        // 图片图标
+        iconData.icoSrc = site.icoSrc
+      }
+
+      iconDict[site.id] = iconData
     })
-    
+
     groupDict[group.id] = {
       uuid: group.id,
       label: group.name,
@@ -344,7 +348,7 @@ export async function syncIconsToServer(
       data: iconUuids
     }
   })
-  
+
   const iconsData: MonkNowIconsData = {
     version: 6,
     updaterVersion: 2024042109,
@@ -368,7 +372,7 @@ export async function syncIconsToServer(
       iconDict
     }
   }
-  
+
   return updateUserData(secret, 'icons', JSON.stringify(iconsData))
 }
 
@@ -388,14 +392,27 @@ export function parseMonkNowIcons(iconsJson: string): { groups: import('../types
           const icon = iconsData.data.iconDict[iconUuid]
           if (!icon) return null
 
-          return {
+          // 构建 Site 对象
+          const site: import('../types').Site = {
             id: icon.uuid,
             name: icon.label,
             desc: icon.desc || icon.label,
             url: icon.url,
-            icon: icon.icoSrc?.data || '',
-            color: icon.backgroundColor?.data || '#1890ff'
+            type: icon.type || 'image',
+            backgroundColor: icon.backgroundColor || { type: 'pure', data: '#ffffff' },
+            icoScalePercentage: icon.icoScalePercentage || 100
           }
+
+          if (icon.type === 'text') {
+            site.icoText = icon.icoText || icon.label.slice(0, 2)
+          } else {
+            site.icoSrc = icon.icoSrc || {
+              data: '',
+              isOfficial: false
+            }
+          }
+
+          return site
         })
         .filter((s): s is NonNullable<typeof s> => s !== null)
 
@@ -688,6 +705,47 @@ export async function uploadImage(
     return imageUrl
   } catch (err) {
     console.error('上传图片失败:', err)
+    return null
+  }
+}
+
+// 根据 URL 获取图标信息的响应类型
+export interface IconByUrlResponse {
+  udId: number
+  title: string
+  description: string
+  lang: string
+  url: string
+  imgUrl: string
+  bgColor: string
+  mimeType: string
+  sort: number
+  createdAt: number
+  updatedAt: number
+}
+
+/**
+ * 根据 URL 获取网站图标信息
+ * @param url 网站 URL
+ * @param secret 用户 token
+ */
+export async function getIconByUrl(url: string, secret?: string): Promise<IconByUrlResponse | null> {
+  try {
+    const res = await fetch(
+      `${API_BASE}/icon/byurl?url=${encodeURIComponent(url)}`,
+      {
+        method: 'GET',
+        headers: getHeaders(secret)
+      }
+    )
+
+    const result = await res.json()
+    if (result.msg !== 'success' || !result.data?.icon) {
+      return null
+    }
+    return result.data.icon
+  } catch (err) {
+    console.error('获取图标失败:', err)
     return null
   }
 }

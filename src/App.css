@@ -716,6 +716,14 @@ ol, ul {
   object-fit: contain;
 }
 
+/* 文字图标样式 */
+.site-card-icon-text {
+  font-size: 28px;
+  font-weight: 500;
+  color: #fff;
+  text-transform: uppercase;
+}
+
 /* 文字区域 - Monknow 风格 */
 .site-card-info {
   flex: 1 1 0;

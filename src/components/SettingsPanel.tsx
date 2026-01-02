@@ -1,25 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Settings, User, LocationInfo, OpenTarget } from '../types'
-import { WALLPAPERS, SOLID_COLORS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, TEMPERATURE_UNIT_OPTIONS } from '../constants'
-import { searchLocations, updateNickname, updatePortrait, changePassword, uploadImage } from '../services/api'
+import type { Settings, User, OpenTarget } from '../types'
+import { WALLPAPERS, SOLID_COLORS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS } from '../constants'
+import { updateNickname, updatePortrait, changePassword, uploadImage } from '../services/api'
 import './SettingsPanel.css'
-
-// 防抖 hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [value, delay])
-
-  return debouncedValue
-}
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -89,16 +72,6 @@ export function SettingsPanel({
   const [activeTab, setActiveTab] = useState<SettingsTab>('theme')
   const [wallpaperTab, setWallpaperTab] = useState<WallpaperTab>('official')
 
-  // 位置搜索相关状态
-  const [locationSearch, setLocationSearch] = useState('')
-  const [locationResults, setLocationResults] = useState<LocationInfo[]>([])
-  const [isSearchingLocation, setIsSearchingLocation] = useState(false)
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false)
-  const locationWrapperRef = useRef<HTMLDivElement>(null)
-
-  // 防抖处理位置搜索关键词
-  const debouncedLocationSearch = useDebounce(locationSearch, 300)
-
   // 编辑弹窗状态
   const [editModal, setEditModal] = useState<EditModalType>(null)
   const [editNickname, setEditNickname] = useState('')
@@ -123,72 +96,6 @@ export function SettingsPanel({
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     onSettingsChange({ ...settings, [key]: value })
   }
-
-  // 执行位置搜索（使用防抖后的关键词）
-  useEffect(() => {
-    const performSearch = async () => {
-      if (debouncedLocationSearch.length < 2) {
-        setLocationResults([])
-        setShowLocationDropdown(false)
-        return
-      }
-
-      setIsSearchingLocation(true)
-      try {
-        const results = await searchLocations(debouncedLocationSearch)
-        setLocationResults(results)
-        setShowLocationDropdown(true)
-      } catch (error) {
-        console.error('搜索位置失败:', error)
-        setLocationResults([])
-      } finally {
-        setIsSearchingLocation(false)
-      }
-    }
-
-    performSearch()
-  }, [debouncedLocationSearch])
-
-  // 点击外部关闭位置下拉框
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        locationWrapperRef.current &&
-        !locationWrapperRef.current.contains(event.target as Node)
-      ) {
-        setShowLocationDropdown(false)
-      }
-    }
-
-    if (showLocationDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showLocationDropdown])
-
-  // 选择位置
-  const handleSelectLocation = (location: LocationInfo) => {
-    updateSetting('location', location)
-    setLocationSearch(location.shortname)
-    setShowLocationDropdown(false)
-    setLocationResults([])
-  }
-
-  // 清除位置
-  const handleClearLocation = () => {
-    updateSetting('location', null)
-    setLocationSearch('')
-  }
-
-  // 初始化位置搜索框的值
-  useEffect(() => {
-    if (settings.location) {
-      setLocationSearch(settings.location.shortname)
-    }
-  }, [settings.location])
 
   // 组件卸载时清理头像预览 URL，防止内存泄漏
   useEffect(() => {
@@ -559,69 +466,6 @@ export function SettingsPanel({
                           <div className="settings-switch-thumb" />
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 天气设置 - 单独一行 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">天气设置</h3>
-                  <div className="settings-item">
-                    <span className="settings-item-label">显示天气</span>
-                    <div
-                      className={`settings-switch ${settings.showWeather ? 'active' : ''}`}
-                      onClick={() => updateSetting('showWeather', !settings.showWeather)}
-                    >
-                      <div className="settings-switch-thumb" />
-                    </div>
-                  </div>
-                  <div className="settings-item">
-                    <span className="settings-item-label">温度单位</span>
-                    <select
-                      className="settings-select"
-                      value={settings.temperatureUnit}
-                      onChange={(e) => updateSetting('temperatureUnit', e.target.value as 'celsius' | 'fahrenheit')}
-                    >
-                      {TEMPERATURE_UNIT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="settings-item location-item">
-                    <span className="settings-item-label">位置</span>
-                    <div className="location-input-wrapper" ref={locationWrapperRef}>
-                      <input
-                        type="text"
-                        className="settings-input"
-                        placeholder="搜索城市..."
-                        value={locationSearch}
-                        onChange={(e) => setLocationSearch(e.target.value)}
-                        onFocus={() => locationResults.length > 0 && setShowLocationDropdown(true)}
-                      />
-                      {settings.location && (
-                        <button className="location-clear-btn" onClick={handleClearLocation}>
-                          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-                            <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"/>
-                          </svg>
-                        </button>
-                      )}
-                      {isSearchingLocation && (
-                        <span className="location-loading">搜索中...</span>
-                      )}
-                      {showLocationDropdown && locationResults.length > 0 && (
-                        <div className="location-dropdown">
-                          {locationResults.map((loc, index) => (
-                            <div
-                              key={index}
-                              className="location-option"
-                              onClick={() => handleSelectLocation(loc)}
-                            >
-                              <span className="location-option-name">{loc.shortname}</span>
-                              <span className="location-option-fullname">{loc.fullname}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

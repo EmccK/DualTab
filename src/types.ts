@@ -1,21 +1,43 @@
-// 网站类型
+// 图标类型: image(图片) 或 text(文字)
+export type IconType = 'image' | 'text'
+
+// 图标来源信息（图片类型）
+export interface IconSource {
+  data: string           // 图标 URL
+  isOfficial: boolean    // 是否为官方图标
+  mimeType?: string      // MIME 类型
+  uploaded?: boolean     // 是否已上传
+}
+
+// 背景颜色信息
+export interface BackgroundColor {
+  type: 'pure'           // 颜色类型，目前只支持纯色
+  data: string           // 颜色值，如 "#ffffff"
+}
+
+// 网站/图标类型
 export interface Site {
-  id: string
-  name: string
-  desc: string
-  url: string
-  icon: string
-  color: string
+  id: string                      // uuid
+  uuid?: string                   // 兼容 Monknow 的 uuid 字段
+  name: string                    // label
+  desc: string                    // desc
+  url: string                     // url
+  type: IconType                  // 图标类型: image 或 text
+  icoSrc?: IconSource             // 图片图标来源（type=image 时使用）
+  icoText?: string                // 文字图标内容（type=text 时使用）
+  backgroundColor: BackgroundColor // 背景颜色
+  icoScalePercentage?: number     // 图标缩放比例 (50-150)
 }
 
 // 导航分组类型
 export interface NavGroup {
-  id: string
-  name: string
-  icon: string
+  id: string              // uuid
+  uuid?: string           // 兼容 Monknow 的 uuid 字段
+  name: string            // label
+  icon: string            // icoSrc
   badge?: number
-  sites: Site[]
-  isCustom?: boolean  // 是否为用户自定义分组
+  sites: Site[]           // 该分组下的图标列表
+  isCustom?: boolean      // 是否为用户自定义分组
 }
 
 // 天气信息类型

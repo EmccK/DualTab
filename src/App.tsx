@@ -72,15 +72,6 @@ function App() {
     loadData()
   }, [loadData])
 
-  // 处理删除网站
-  const handleDeleteSite = useCallback((siteId: string) => {
-    deleteSite(siteId)
-    // 如果正在编辑该网站，关闭弹窗
-    if (editingSite?.id === siteId) {
-      closeSiteModal()
-    }
-  }, [deleteSite, editingSite?.id, closeSiteModal])
-
   // 处理删除分组
   const handleDeleteGroup = useCallback((groupId: string) => {
     deleteGroup(groupId)
@@ -133,7 +124,7 @@ function App() {
                 key={site.id}
                 site={site}
                 onEdit={openEditSiteModal}
-                onDelete={handleDeleteSite}
+                onDelete={deleteSite}
                 openTarget={settings.openTarget}
               />
             ))}
@@ -169,7 +160,6 @@ function App() {
         onClose={closeSiteModal}
         site={editingSite}
         onSave={editingSite ? updateSite : addSite}
-        onDelete={editingSite ? () => handleDeleteSite(editingSite.id) : undefined}
         userSecret={user?.secret}
       />
 

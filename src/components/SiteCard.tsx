@@ -8,13 +8,41 @@ interface SiteCardProps {
   site: Site
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
-  openTarget?: OpenTarget  // 打开链接方式
+  openTarget?: OpenTarget  // 全局打开链接方式
 }
 
 // 网站卡片组件
 export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTarget = 'currentTab' }: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
+
+  // 获取背景颜色（添加空值检查）
+  const bgColor = site.backgroundColor?.data || '#ffffff'
+
+  // 获取图标 URL
+  const iconUrl = site.icoSrc?.data || ''
+
+  // 获取图标显示内容
+  const getIconContent = () => {
+    // 如果是文字类型，显示文字
+    if (site.type === 'text') {
+      return (
+        <span className="site-card-icon-text">
+          {site.icoText || site.name.slice(0, 2)}
+        </span>
+      )
+    }
+    // 否则显示图片，支持缩放
+    const scale = site.icoScalePercentage || 100
+    return (
+      <img
+        src={iconUrl}
+        alt={site.name}
+        loading="lazy"
+        style={scale !== 100 ? { transform: `scale(${scale / 100})` } : undefined}
+      />
+    )
+  }
 
   // 点击打开网站 - 根据设置决定打开方式
   const handleClick = () => {
@@ -77,8 +105,8 @@ export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTar
   }
 
   // 计算阴影颜色（基于书签背景色）
-  const shadowColor = site.color ? hexToRgba(site.color, 0.4) : 'rgba(0, 0, 0, 0.2)'
-  const hoverShadowColor = site.color ? hexToRgba(site.color, 0.5) : 'rgba(0, 0, 0, 0.35)'
+  const shadowColor = bgColor ? hexToRgba(bgColor, 0.4) : 'rgba(0, 0, 0, 0.2)'
+  const hoverShadowColor = bgColor ? hexToRgba(bgColor, 0.5) : 'rgba(0, 0, 0, 0.35)'
 
   return (
     <>
@@ -91,8 +119,8 @@ export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTar
           '--hover-shadow-color': hoverShadowColor
         } as React.CSSProperties}
       >
-        <div className="site-card-icon" style={{ backgroundColor: site.color }}>
-          <img src={site.icon} alt={site.name} loading="lazy" />
+        <div className="site-card-icon" style={{ backgroundColor: bgColor }}>
+          {getIconContent()}
         </div>
         <div className="site-card-info">
           <div className="site-card-title">{site.name}</div>
