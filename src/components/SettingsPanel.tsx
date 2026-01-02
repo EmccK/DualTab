@@ -19,7 +19,7 @@ interface SettingsPanelProps {
 }
 
 // 设置面板选项卡类型
-type SettingsTab = 'general' | 'theme' | 'appearance' | 'about'
+type SettingsTab = 'general' | 'theme' | 'appearance'
 
 // 编辑弹窗类型
 type EditModalType = 'nickname' | 'avatar' | 'password' | null
@@ -370,8 +370,7 @@ export function SettingsPanel({
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'general', label: '常规' },
     { id: 'theme', label: '主题&壁纸' },
-    { id: 'appearance', label: '外观' },
-    { id: 'about', label: '反馈&其他' }
+    { id: 'appearance', label: '外观' }
   ]
 
   return (
@@ -1365,161 +1364,6 @@ export function SettingsPanel({
                         </div>
                       </>
                     )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 反馈&其他 */}
-            {activeTab === 'about' && (
-              <div className="settings-panel-content">
-                {/* 关于 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">关于</h3>
-                  <div className="about-info">
-                    <p className="about-version">DualTab v1.0.0</p>
-                    <p className="about-desc">一个简洁美观的新标签页扩展</p>
-                    <p className="about-desc">灵感来自 Monknow 新标签页</p>
-                  </div>
-                </div>
-
-                {/* 快捷键 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">快捷键</h3>
-                  <div className="shortcuts-list">
-                    <div className="shortcut-item">
-                      <span className="shortcut-label">聚焦搜索框</span>
-                      <span className="shortcut-key">/</span>
-                    </div>
-                    <div className="shortcut-item">
-                      <span className="shortcut-label">关闭弹窗</span>
-                      <span className="shortcut-key">Esc</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 反馈 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">反馈与支持</h3>
-                  <div className="feedback-actions">
-                    <button
-                      className="feedback-button"
-                      onClick={() => window.open('https://github.com/EmccK/DualTab/issues', '_blank')}
-                    >
-                      反馈问题
-                    </button>
-                    <button
-                      className="feedback-button secondary"
-                      onClick={() => window.open('https://github.com/EmccK/DualTab', '_blank')}
-                    >
-                      查看源码
-                    </button>
-                  </div>
-                </div>
-
-                {/* 数据管理 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">数据管理</h3>
-                  <div className="data-actions">
-                    <button
-                      className="data-button"
-                      onClick={() => {
-                        // 导出数据
-                        const data = {
-                          settings,
-                          exportTime: new Date().toISOString()
-                        }
-                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = `dualtab-settings-${new Date().toISOString().split('T')[0]}.json`
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      }}
-                    >
-                      导出设置
-                    </button>
-                    <label className="data-button">
-                      导入设置
-                      <input
-                        type="file"
-                        accept=".json"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) {
-                            const reader = new FileReader()
-                            reader.onload = (event) => {
-                              try {
-                                const data = JSON.parse(event.target?.result as string)
-                                if (data.settings) {
-                                  // 验证导入的设置字段
-                                  const importedSettings = data.settings
-                                  const validatedSettings: Partial<Settings> = {}
-
-                                  // 验证主题设置
-                                  if (importedSettings.theme === 'dark' || importedSettings.theme === 'light') {
-                                    validatedSettings.theme = importedSettings.theme
-                                  }
-                                  if (typeof importedSettings.wallpaper === 'string') {
-                                    validatedSettings.wallpaper = importedSettings.wallpaper
-                                  }
-                                  if (importedSettings.wallpaperType === 'image' || importedSettings.wallpaperType === 'color') {
-                                    validatedSettings.wallpaperType = importedSettings.wallpaperType
-                                  }
-
-                                  // 验证常规设置
-                                  const validOpenTargets = ['currentTab', 'newTab', 'backgroundTab', 'newWindow', 'newIncognitoWindow']
-                                  if (validOpenTargets.includes(importedSettings.openTarget)) {
-                                    validatedSettings.openTarget = importedSettings.openTarget
-                                  }
-                                  if (typeof importedSettings.searchEngine === 'string') {
-                                    validatedSettings.searchEngine = importedSettings.searchEngine
-                                  }
-                                  if (importedSettings.clockFormat === '12h' || importedSettings.clockFormat === '24h') {
-                                    validatedSettings.clockFormat = importedSettings.clockFormat
-                                  }
-                                  if (typeof importedSettings.showSeconds === 'boolean') {
-                                    validatedSettings.showSeconds = importedSettings.showSeconds
-                                  }
-                                  if (typeof importedSettings.showWeather === 'boolean') {
-                                    validatedSettings.showWeather = importedSettings.showWeather
-                                  }
-                                  if (importedSettings.temperatureUnit === 'celsius' || importedSettings.temperatureUnit === 'fahrenheit') {
-                                    validatedSettings.temperatureUnit = importedSettings.temperatureUnit
-                                  }
-                                  if (importedSettings.location === null || (typeof importedSettings.location === 'object' && importedSettings.location.woeid)) {
-                                    validatedSettings.location = importedSettings.location
-                                  }
-
-                                  // 验证外观设置
-                                  if (['small', 'medium', 'large'].includes(importedSettings.iconSize)) {
-                                    validatedSettings.iconSize = importedSettings.iconSize
-                                  }
-                                  if (typeof importedSettings.showSiteLabel === 'boolean') {
-                                    validatedSettings.showSiteLabel = importedSettings.showSiteLabel
-                                  }
-                                  if (typeof importedSettings.showSiteDesc === 'boolean') {
-                                    validatedSettings.showSiteDesc = importedSettings.showSiteDesc
-                                  }
-                                  if (importedSettings.sidebarPosition === 'left' || importedSettings.sidebarPosition === 'right') {
-                                    validatedSettings.sidebarPosition = importedSettings.sidebarPosition
-                                  }
-
-                                  // 合并验证后的设置
-                                  onSettingsChange({ ...settings, ...validatedSettings })
-                                }
-                              } catch (err) {
-                                console.error('导入设置失败:', err)
-                                alert('导入失败：文件格式不正确')
-                              }
-                            }
-                            reader.readAsText(file)
-                          }
-                        }}
-                      />
-                    </label>
                   </div>
                 </div>
               </div>
