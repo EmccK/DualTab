@@ -308,7 +308,7 @@ ol, ul {
   margin-right: auto;
 }
 
-/* 时间天气覆盖层 - 全屏覆盖带毛玻璃效果 */
+/* 时间天气覆盖层 - 全屏覆盖带毛玻璃效果 (Monknow 风格) */
 .time-weather-overlay {
   position: absolute;
   inset: 0;
@@ -317,17 +317,22 @@ ol, ul {
   align-items: center;
   justify-content: center;
   z-index: 10;
-  opacity: 1;
-  transition: opacity 0.6s ease-in-out;
-  pointer-events: auto;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
 }
 
+/* 隐藏状态 - 整体向上滑出 */
 .time-weather-overlay.hidden {
+  transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
 }
 
+/* 显示状态 - 从上方滑入 */
 .time-weather-overlay.visible {
+  transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
@@ -342,12 +347,24 @@ ol, ul {
 
 /* 深色主题毛玻璃背景 */
 .dark-theme .time-weather-blur-bg {
-  background-color: rgba(51, 52, 54, 0.9);
+  background-color: rgba(51, 52, 54, 0.85);
 }
 
 /* 浅色主题毛玻璃背景 */
 .light-theme .time-weather-blur-bg {
-  background-color: rgba(220, 220, 220, 0.9);
+  background-color: rgba(240, 240, 240, 0.85);
+}
+
+/* 时间天气内容容器 */
+.time-weather-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
 }
 
 /* 搜索框容器 - Monknow 风格 */
@@ -789,27 +806,21 @@ ol, ul {
   z-index: 99;
 }
 
+/* 时间天气主内容区 */
+.time-weather-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* 时间天气容器 - Monknow 风格 */
 .time-weather-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 1;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* 时间天气隐藏状态 */
-.time-weather-container.hidden {
-  opacity: 0;
-}
-
-/* 时间天气显示状态 */
-.time-weather-container.visible {
-  opacity: 1;
-  transition: opacity 0.6s ease-in-out;
 }
 
 /* 时间显示区域 - Monknow 风格 */
@@ -961,13 +972,21 @@ ol, ul {
   }
 }
 
-/* 空闲提示文字 - Monknow 风格 */
-.idle-hint {
+/* 空闲提示文字容器 - Monknow 风格 */
+.idle-hint-wrapper {
   position: absolute;
   bottom: 12vh;
-  font-size: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* 空闲提示文字 - Monknow 风格 */
+.idle-hint {
+  font-size: 14px;
   line-height: 1.5;
-  padding-bottom: 12vh;
+  margin-top: 16px;
 }
 
 .dark-theme .idle-hint {
@@ -980,13 +999,15 @@ ol, ul {
 
 @media (min-width: 1200px) {
   .idle-hint {
-    font-size: 14px;
+    font-size: 18px;
+    margin-top: 20px;
   }
 }
 
 @media (min-width: 1800px) {
   .idle-hint {
-    font-size: 18px;
+    font-size: 24px;
+    margin-top: 24px;
   }
 }
 
