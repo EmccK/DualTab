@@ -98,6 +98,17 @@ export function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
     setError('')
   }
 
+  // 处理回车键提交
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !loading) {
+      if (mode === 'login') {
+        handleLogin()
+      } else {
+        handleRegister()
+      }
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -124,6 +135,7 @@ export function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
             placeholder="密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={mode === 'login' ? handleKeyDown : undefined}
             disabled={loading}
           />
 
@@ -134,6 +146,7 @@ export function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
                 placeholder="验证码"
                 value={captcha}
                 onChange={(e) => setCaptcha(e.target.value)}
+                onKeyDown={handleKeyDown}
                 disabled={loading}
               />
               <img 

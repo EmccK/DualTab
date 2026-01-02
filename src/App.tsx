@@ -115,8 +115,6 @@ function App() {
           }}
           onOpenSettings={openSettings}
           user={user}
-          onLoginClick={openLoginModal}
-          onLogout={logout}
         />
 
         {/* 内容区 */}

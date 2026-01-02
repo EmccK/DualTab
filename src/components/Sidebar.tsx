@@ -11,8 +11,6 @@ interface SidebarProps {
   onOpenAllSites: (group: NavGroup) => void
   onOpenSettings: () => void
   user: User | null
-  onLoginClick: () => void
-  onLogout: () => void
 }
 
 // 右键菜单状态
@@ -24,18 +22,16 @@ interface ContextMenuState {
 }
 
 // 侧边栏组件
-export function Sidebar({ 
-  groups, 
-  activeGroupId, 
-  onGroupSelect, 
+export function Sidebar({
+  groups,
+  activeGroupId,
+  onGroupSelect,
   onAddGroup,
   onEditGroup,
   onDeleteGroup,
   onOpenAllSites,
   onOpenSettings,
-  user,
-  onLoginClick,
-  onLogout
+  user
 }: SidebarProps) {
   // 右键菜单状态
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -90,7 +86,7 @@ export function Sidebar({
       {/* 用户头像 */}
       <div className="sidebar-header">
         {user?.isLoggedIn ? (
-          <div className="user-avatar logged-in" onClick={onLogout} title="点击登出">
+          <div className="user-avatar logged-in" onClick={onOpenSettings} title="点击打开设置">
             {user.avatar ? (
               <img src={user.avatar} alt={user.name} className="avatar-img" />
             ) : (
@@ -99,7 +95,7 @@ export function Sidebar({
             <span className="user-name">{user.name || 'Guest'}</span>
           </div>
         ) : (
-          <div className="user-avatar" onClick={onLoginClick}>
+          <div className="user-avatar" onClick={onOpenSettings} title="点击打开设置">
             <div className="avatar-placeholder" />
             <span className="login-text">登录</span>
           </div>
