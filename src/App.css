@@ -476,22 +476,29 @@ ol, ul {
   pointer-events: auto;
 }
 
-/* 毛玻璃背景层 */
+/* 模糊背景层 - 使用预生成的模糊图片 */
 .time-weather-blur-bg {
   position: absolute;
   inset: 0;
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* 深色主题毛玻璃背景 */
-.dark-theme .time-weather-blur-bg {
-  background-color: rgba(51, 52, 54, 0.85);
+/* 深色主题模糊背景叠加层 */
+.dark-theme .time-weather-blur-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
-/* 浅色主题毛玻璃背景 */
-.light-theme .time-weather-blur-bg {
-  background-color: rgba(240, 240, 240, 0.85);
+/* 浅色主题模糊背景叠加层 */
+.light-theme .time-weather-blur-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* 时间天气内容容器 */

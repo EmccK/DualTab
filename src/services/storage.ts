@@ -47,5 +47,6 @@ export const STORAGE_KEYS = {
   GROUPS: 'monknow_groups',
   SETTINGS: 'monknow_settings',
   USER: 'monknow_user',
-  LAST_GROUP_ID: 'monknow_last_group_id'  // 最后访问的分组 ID
+  LAST_GROUP_ID: 'monknow_last_group_id',  // 最后访问的分组 ID
+  WALLPAPER_CACHE: 'monknow_wallpaper_cache'  // 壁纸缓存
 }

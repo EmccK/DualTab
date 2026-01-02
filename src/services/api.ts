@@ -1054,3 +1054,212 @@ export async function syncSearcherToServer(secret: string, settings: Settings): 
 
   return updateUserData(secret, 'searcher', JSON.stringify(searcherData))
 }
+
+// Monknow background 数据结构
+interface MonkNowBackgroundData {
+  version: number
+  setting: {
+    value: 'lib' | 'local' | 'color'  // 壁纸来源
+    blurred: boolean                   // 是否模糊
+    slideIntervalSeconds: number       // 更换频率（秒）
+    libCategories: number[]            // 官方库类别
+  }
+  data: {
+    wallpaperDict: {
+      color: {
+        id: null
+        uuid: 'color'
+        type: 'color'
+        data: {
+          type: 'pure'
+          data: string  // 颜色值
+        }
+      }
+      local: {
+        id: null
+        uuid: 'local'
+        type: 'image'
+        data: {
+          isOfficial: boolean
+          uploaded: boolean
+          mimeType: string
+          data: string  // 图片URL
+        }
+        blurredData?: {
+          isOfficial: boolean
+          uploaded: boolean
+          mimeType: string
+          data: string
+        }
+        overviewData?: {
+          isOfficial: boolean
+          uploaded: boolean
+          mimeType: string
+          data: string
+        }
+      }
+    }
+  }
+}
+
+const MONKNOW_BACKGROUND_VERSION = 1
+
+/**
+ * 同步壁纸设置到服务器
+ * @param secret 用户 token
+ * @param settings 本地设置
+ */
+export async function syncBackgroundToServer(secret: string, settings: Settings): Promise<boolean> {
+  const backgroundData: MonkNowBackgroundData = {
+    version: MONKNOW_BACKGROUND_VERSION,
+    setting: {
+      value: settings.wallpaperSource,
+      blurred: settings.wallpaperBlurred,
+      slideIntervalSeconds: settings.wallpaperInterval,
+      libCategories: [settings.wallpaperCategory]
+    },
+    data: {
+      wallpaperDict: {
+        color: {
+          id: null,
+          uuid: 'color',
+          type: 'color',
+          data: {
+            type: 'pure',
+            data: settings.wallpaperColor
+          }
+        },
+        local: {
+          id: null,
+          uuid: 'local',
+          type: 'image',
+          data: {
+            isOfficial: false,
+            uploaded: !!settings.localWallpaper,
+            mimeType: 'image/png',
+            data: settings.localWallpaper || ''
+          },
+          ...(settings.localWallpaperBlurred ? {
+            blurredData: {
+              isOfficial: false,
+              uploaded: true,
+              mimeType: 'image/png',
+              data: settings.localWallpaperBlurred
+            }
+          } : {})
+        }
+      }
+    }
+  }
+
+  return updateUserData(secret, 'background', JSON.stringify(backgroundData))
+}
+
+/**
+ * 解析 Monknow background 数据为本地设置格式
+ * @param backgroundJson background 数据 JSON 字符串
+ */
+export function parseMonknowBackground(backgroundJson: string): Partial<Settings> | null {
+  try {
+    const backgroundData: MonkNowBackgroundData = JSON.parse(backgroundJson)
+
+    const settings: Partial<Settings> = {
+      wallpaperSource: backgroundData.setting.value,
+      wallpaperBlurred: backgroundData.setting.blurred,
+      wallpaperInterval: backgroundData.setting.slideIntervalSeconds as Settings['wallpaperInterval'],
+      wallpaperCategory: (backgroundData.setting.libCategories[0] || 8) as Settings['wallpaperCategory'],
+      wallpaperColor: backgroundData.data.wallpaperDict.color.data.data,
+      localWallpaper: backgroundData.data.wallpaperDict.local.data.data || null,
+      localWallpaperBlurred: backgroundData.data.wallpaperDict.local.blurredData?.data || null
+    }
+
+    return settings
+  } catch (e) {
+    console.error('解析 Monknow background 数据失败:', e)
+    return null
+  }
+}
+
+/**
+ * 获取官方壁纸库随机壁纸
+ * @param secret 用户 token
+ * @param categoryId 类别 ID
+ * @param theme 主题类型
+ */
+export async function getRandomWallpaper(
+  secret: string,
+  categoryId: number,
+  theme: 'bright' | 'dark' = 'bright'
+): Promise<{
+  url: string
+  blurUrl: string
+  overviewUrl: string
+  mimeType: string
+  udId: number
+} | null> {
+  try {
+    // 将主题转换为 API 参数
+    const themeValue = theme === 'bright' ? 1 : 2
+
+    const res = await fetch(
+      `${API_BASE}/wallpaper/random?cate_id=${categoryId}&theme=${themeValue}`,
+      {
+        method: 'GET',
+        headers: getHeaders(secret)
+      }
+    )
+
+    const result = await res.json()
+    if (result.msg !== 'success' || !result.data?.wallpaper) {
+      return null
+    }
+
+    const wallpaper = result.data.wallpaper
+    return {
+      url: wallpaper.url,
+      blurUrl: wallpaper.blurUrl,
+      overviewUrl: wallpaper.overviewUrl,
+      mimeType: wallpaper.mimeType,
+      udId: wallpaper.udId
+    }
+  } catch (err) {
+    console.error('获取随机壁纸失败:', err)
+    return null
+  }
+}
+
+/**
+ * 上传壁纸图片
+ * @param secret 用户 token
+ * @param file 图片文件
+ */
+export async function uploadWallpaper(
+  secret: string,
+  file: File
+): Promise<{
+  url: string
+  blurUrl: string
+  overviewUrl: string
+} | null> {
+  try {
+    // 上传原图
+    const imageUrl = await uploadImage(secret, file, 'wallpaper')
+    if (!imageUrl) {
+      return null
+    }
+
+    // 生成模糊版和预览版的 URL（服务器会自动处理）
+    const baseUrl = imageUrl.replace(/\/wallpaper\//, '/wallpaper/')
+    const blurUrl = baseUrl.replace(/\/wallpaper\//, '/wallpaper/blur/')
+    const overviewUrl = baseUrl.replace(/\/wallpaper\//, '/wallpaper/overview/')
+
+    return {
+      url: imageUrl,
+      blurUrl,
+      overviewUrl
+    }
+  } catch (err) {
+    console.error('上传壁纸失败:', err)
+    return null
+  }
+}

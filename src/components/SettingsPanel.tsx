@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Settings, User, OpenTarget } from '../types'
-import { WALLPAPERS, SOLID_COLORS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS } from '../constants'
-import { updateNickname, updatePortrait, changePassword, uploadImage } from '../services/api'
+import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval } from '../types'
+import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS } from '../constants'
+import { updateNickname, updatePortrait, changePassword, uploadImage, uploadWallpaper } from '../services/api'
 import { OptionSelect } from './OptionSelect'
 import './SettingsPanel.css'
 
@@ -14,13 +14,12 @@ interface SettingsPanelProps {
   onLoginClick: () => void
   onLogout: () => void
   onUserUpdate?: (user: User) => void  // 用户信息更新回调
+  currentWallpaper?: string | null     // 当前显示的壁纸URL（官方库）
+  onNextWallpaper?: () => void         // 切换下一张壁纸
 }
 
 // 设置面板选项卡类型
 type SettingsTab = 'general' | 'theme' | 'appearance' | 'about'
-
-// 壁纸选项卡类型
-type WallpaperTab = 'official' | 'local' | 'solid'
 
 // 编辑弹窗类型
 type EditModalType = 'nickname' | 'avatar' | 'password' | null
@@ -92,10 +91,25 @@ export function SettingsPanel({
   user,
   onLoginClick,
   onLogout,
-  onUserUpdate
+  onUserUpdate,
+  currentWallpaper,
+  onNextWallpaper
 }: SettingsPanelProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('theme')
-  const [wallpaperTab, setWallpaperTab] = useState<WallpaperTab>('official')
+  // 壁纸选项卡根据当前设置初始化
+  const [wallpaperTab, setWallpaperTab] = useState<WallpaperSource>(settings.wallpaperSource || 'lib')
+
+  // 壁纸上传状态
+  const [isUploadingWallpaper, setIsUploadingWallpaper] = useState(false)
+  const wallpaperInputRef = useRef<HTMLInputElement>(null)
+
+  // 颜色输入状态
+  const [colorInputValue, setColorInputValue] = useState(settings.wallpaperColor || '#276ce6')
+
+  // 同步外部设置变化到颜色输入
+  useEffect(() => {
+    setColorInputValue(settings.wallpaperColor || '#276ce6')
+  }, [settings.wallpaperColor])
 
   // 编辑弹窗状态
   const [editModal, setEditModal] = useState<EditModalType>(null)
@@ -634,104 +648,323 @@ export function SettingsPanel({
                       <div className="wallpaper-type-grid">
                         {/* 官方库 */}
                         <div
-                          className={`wallpaper-type-item ${wallpaperTab === 'official' ? 'selected' : ''}`}
-                          onClick={() => setWallpaperTab('official')}
+                          className={`wallpaper-type-item ${wallpaperTab === 'lib' ? 'selected' : ''}`}
+                          onClick={() => {
+                            setWallpaperTab('lib')
+                            updateSetting('wallpaperSource', 'lib')
+                          }}
                         >
                           <div
                             className="wallpaper-type-preview"
-                            style={{ backgroundImage: `url(${WALLPAPERS[0]})` }}
+                            style={{
+                              backgroundImage: currentWallpaper ? `url(${currentWallpaper})` : `url(${WALLPAPERS[0]})`,
+                              filter: settings.wallpaperSource === 'lib' && settings.wallpaperBlurred ? 'blur(3px)' : 'none'
+                            }}
                           />
                           <span className="wallpaper-type-label">官方库</span>
                         </div>
                         {/* 本地 */}
                         <div
                           className={`wallpaper-type-item ${wallpaperTab === 'local' ? 'selected' : ''}`}
-                          onClick={() => setWallpaperTab('local')}
+                          onClick={() => {
+                            setWallpaperTab('local')
+                            updateSetting('wallpaperSource', 'local')
+                          }}
                         >
-                          <div className="wallpaper-type-preview local-preview" />
+                          <div
+                            className="wallpaper-type-preview local-preview"
+                            style={settings.localWallpaper ? {
+                              backgroundImage: `url(${settings.localWallpaper})`,
+                              filter: settings.wallpaperSource === 'local' && settings.wallpaperBlurred ? 'blur(3px)' : 'none'
+                            } : {}}
+                          />
                           <span className="wallpaper-type-label">本地</span>
                         </div>
                         {/* 纯色 */}
                         <div
-                          className={`wallpaper-type-item ${wallpaperTab === 'solid' ? 'selected' : ''}`}
-                          onClick={() => setWallpaperTab('solid')}
+                          className={`wallpaper-type-item ${wallpaperTab === 'color' ? 'selected' : ''}`}
+                          onClick={() => {
+                            setWallpaperTab('color')
+                            updateSetting('wallpaperSource', 'color')
+                          }}
                         >
                           <div
                             className="wallpaper-type-preview"
-                            style={{ backgroundColor: '#808080' }}
+                            style={{ backgroundColor: settings.wallpaperColor || '#276ce6' }}
                           />
                           <span className="wallpaper-type-label">纯色</span>
                         </div>
                       </div>
 
-                      {/* 官方壁纸列表 */}
-                      {wallpaperTab === 'official' && (
-                        <div className="wallpaper-grid">
-                          {WALLPAPERS.map((wp, index) => (
-                            <div
-                              key={index}
-                              className={`wallpaper-item ${settings.wallpaper === wp && settings.wallpaperType === 'image' ? 'selected' : ''}`}
-                              style={{ backgroundImage: `url(${wp})` }}
-                              onClick={() => {
-                                updateSetting('wallpaper', wp)
-                                updateSetting('wallpaperType', 'image')
-                              }}
+                      {/* 分隔线 */}
+                      <div className="wallpaper-divider" />
+
+                      {/* 官方库选项 */}
+                      {wallpaperTab === 'lib' && (
+                        <div className="wallpaper-options">
+                          {/* 类别选择 */}
+                          <div className="settings-item">
+                            <span className="settings-item-label">类别</span>
+                            <OptionSelect
+                              options={WALLPAPER_CATEGORIES.map(cat => ({ value: String(cat.value), label: cat.label }))}
+                              value={String(settings.wallpaperCategory)}
+                              onChange={(value) => updateSetting('wallpaperCategory', Number(value) as WallpaperCategory)}
                             />
-                          ))}
+                          </div>
+                          {/* 下一个按钮 */}
+                          <div
+                            className="settings-item settings-item-clickable"
+                            onClick={onNextWallpaper}
+                          >
+                            <span className="settings-item-label">下一个</span>
+                            <svg className="settings-item-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
+                          {/* 更换频率 */}
+                          <div className="settings-item">
+                            <span className="settings-item-label">更换频率</span>
+                            <OptionSelect
+                              options={WALLPAPER_INTERVALS.map(int => ({ value: String(int.value), label: int.label }))}
+                              value={String(settings.wallpaperInterval)}
+                              onChange={(value) => updateSetting('wallpaperInterval', Number(value) as WallpaperInterval)}
+                            />
+                          </div>
+                          {/* 模糊开关 */}
+                          <div className="settings-item">
+                            <span className="settings-item-label">模糊</span>
+                            <div
+                              className={`settings-switch ${settings.wallpaperBlurred ? 'active' : ''}`}
+                              onClick={() => updateSetting('wallpaperBlurred', !settings.wallpaperBlurred)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
+                          {/* 下载按钮 */}
+                          <div
+                            className="settings-item settings-item-clickable"
+                            onClick={async () => {
+                              if (currentWallpaper) {
+                                try {
+                                  // 使用 fetch + Blob 方式下载跨域图片
+                                  const response = await fetch(currentWallpaper)
+                                  const blob = await response.blob()
+                                  const url = URL.createObjectURL(blob)
+                                  const link = document.createElement('a')
+                                  link.href = url
+                                  link.download = 'wallpaper.jpg'
+                                  link.click()
+                                  URL.revokeObjectURL(url)
+                                } catch {
+                                  // 如果 fetch 失败，回退到直接打开
+                                  window.open(currentWallpaper, '_blank')
+                                }
+                              }
+                            }}
+                          >
+                            <span className="settings-item-label">下载</span>
+                            <svg className="settings-item-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
                         </div>
                       )}
 
-                      {/* 本地壁纸 */}
+                      {/* 本地壁纸选项 */}
                       {wallpaperTab === 'local' && (
-                        <div className="local-wallpaper-upload">
-                          <label className="upload-area">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  const reader = new FileReader()
-                                  reader.onload = (event) => {
-                                    const dataUrl = event.target?.result as string
-                                    updateSetting('wallpaper', dataUrl)
-                                    updateSetting('wallpaperType', 'image')
+                        <div className="wallpaper-options">
+                          {/* 更换按钮 */}
+                          <div
+                            className={`settings-item settings-item-clickable ${isUploadingWallpaper ? 'disabled' : ''}`}
+                            onClick={() => !isUploadingWallpaper && wallpaperInputRef.current?.click()}
+                          >
+                            <span className="settings-item-label">
+                              {isUploadingWallpaper ? '上传中...' : '更换'}
+                            </span>
+                            {!isUploadingWallpaper && (
+                              <svg className="settings-item-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                              </svg>
+                            )}
+                          </div>
+                          <input
+                            ref={wallpaperInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            style={{ display: 'none' }}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (!file) return
+
+                              // 验证文件类型
+                              const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+                              if (!allowedTypes.includes(file.type)) {
+                                alert('请选择 JPG、PNG、WebP 或 GIF 格式的图片')
+                                return
+                              }
+
+                              // 验证文件大小（最大 10MB）
+                              const maxSize = 10 * 1024 * 1024
+                              if (file.size > maxSize) {
+                                alert('图片大小不能超过 10MB')
+                                return
+                              }
+
+                              // 如果已登录，上传到服务器
+                              if (user?.secret) {
+                                setIsUploadingWallpaper(true)
+                                try {
+                                  const result = await uploadWallpaper(user.secret, file)
+                                  if (result) {
+                                    // 批量更新设置，store 会自动同步到服务器
+                                    onSettingsChange({
+                                      ...settings,
+                                      localWallpaper: result.url,
+                                      localWallpaperBlurred: result.blurUrl,
+                                      wallpaperSource: 'local'
+                                    })
                                   }
-                                  reader.readAsDataURL(file)
+                                } catch (err) {
+                                  console.error('上传壁纸失败:', err)
+                                } finally {
+                                  setIsUploadingWallpaper(false)
+                                }
+                              } else {
+                                // 未登录，使用本地 DataURL
+                                const reader = new FileReader()
+                                reader.onload = (event) => {
+                                  const dataUrl = event.target?.result as string
+                                  onSettingsChange({
+                                    ...settings,
+                                    localWallpaper: dataUrl,
+                                    wallpaperSource: 'local'
+                                  })
+                                }
+                                reader.readAsDataURL(file)
+                              }
+
+                              // 清空 input
+                              if (wallpaperInputRef.current) {
+                                wallpaperInputRef.current.value = ''
+                              }
+                            }}
+                          />
+                          {/* 模糊开关 */}
+                          <div className="settings-item">
+                            <span className="settings-item-label">模糊</span>
+                            <div
+                              className={`settings-switch ${settings.wallpaperBlurred ? 'active' : ''}`}
+                              onClick={() => updateSetting('wallpaperBlurred', !settings.wallpaperBlurred)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
+                          {/* 下载按钮 */}
+                          <div
+                            className="settings-item settings-item-clickable"
+                            onClick={async () => {
+                              if (settings.localWallpaper) {
+                                try {
+                                  // 使用 fetch + Blob 方式下载跨域图片
+                                  const response = await fetch(settings.localWallpaper)
+                                  const blob = await response.blob()
+                                  const url = URL.createObjectURL(blob)
+                                  const link = document.createElement('a')
+                                  link.href = url
+                                  link.download = 'wallpaper.jpg'
+                                  link.click()
+                                  URL.revokeObjectURL(url)
+                                } catch {
+                                  // 如果 fetch 失败，回退到直接打开
+                                  window.open(settings.localWallpaper, '_blank')
+                                }
+                              }
+                            }}
+                          >
+                            <span className="settings-item-label">下载</span>
+                            <svg className="settings-item-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5v14l11-7z"/>
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 纯色壁纸选项 */}
+                      {wallpaperTab === 'color' && (
+                        <div className="wallpaper-options">
+                          {/* 背景颜色标题 */}
+                          <div className="color-section-title">背景颜色</div>
+                          {/* 预设颜色网格 */}
+                          <div className="wallpaper-colors-grid">
+                            {WALLPAPER_COLORS.map((color, index) => (
+                              <div
+                                key={index}
+                                className={`wallpaper-color-item ${settings.wallpaperColor === color ? 'selected' : ''}`}
+                                style={{ backgroundColor: color }}
+                                onClick={() => {
+                                  updateSetting('wallpaperColor', color)
+                                  setColorInputValue(color)
+                                }}
+                              />
+                            ))}
+                            {/* 自定义颜色选择器 */}
+                            <div className="wallpaper-color-item custom-color">
+                              <input
+                                type="color"
+                                value={settings.wallpaperColor}
+                                onChange={(e) => {
+                                  updateSetting('wallpaperColor', e.target.value)
+                                  setColorInputValue(e.target.value)
+                                }}
+                                className="color-picker-input"
+                              />
+                              <div className="custom-color-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                  <rect x="3" y="3" width="7" height="7" fill="#f44336"/>
+                                  <rect x="14" y="3" width="7" height="7" fill="#4caf50"/>
+                                  <rect x="3" y="14" width="7" height="7" fill="#2196f3"/>
+                                  <rect x="14" y="14" width="7" height="7" fill="#ffeb3b"/>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          {/* 颜色值输入框 */}
+                          <div className="color-input-wrapper">
+                            <input
+                              type="text"
+                              className="color-input"
+                              value={colorInputValue}
+                              onChange={(e) => {
+                                setColorInputValue(e.target.value)
+                                // 验证颜色格式
+                                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                                  updateSetting('wallpaperColor', e.target.value)
                                 }
                               }}
-                            />
-                            <div className="upload-icon">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 4V16M12 4L8 8M12 4L16 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </div>
-                            <span className="upload-text">点击上传本地图片</span>
-                            <span className="upload-hint">支持 JPG、PNG 格式</span>
-                          </label>
-                        </div>
-                      )}
-
-                      {/* 纯色壁纸 */}
-                      {wallpaperTab === 'solid' && (
-                        <div className="solid-colors-grid">
-                          {SOLID_COLORS.map((color, index) => (
-                            <div
-                              key={index}
-                              className={`solid-color-item ${settings.wallpaper === color && settings.wallpaperType === 'color' ? 'selected' : ''}`}
-                              style={{ backgroundColor: color }}
-                              onClick={() => {
-                                updateSetting('wallpaper', color)
-                                updateSetting('wallpaperType', 'color')
+                              onBlur={() => {
+                                // 失焦时如果格式不对，恢复为当前设置值
+                                if (!/^#[0-9A-Fa-f]{6}$/.test(colorInputValue)) {
+                                  setColorInputValue(settings.wallpaperColor)
+                                }
                               }}
+                              placeholder="#276ce6"
                             />
-                          ))}
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* 壁纸上传中提示 */}
+                {isUploadingWallpaper && (
+                  <div className="upload-loading-overlay">
+                    <div className="upload-loading-content">
+                      <div className="upload-loading-spinner" />
+                      <p className="upload-loading-text">上传壁纸中...</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

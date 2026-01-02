@@ -7,7 +7,7 @@ import { create } from 'zustand'
 import type { NavGroup, Site, Settings, User } from '../types'
 import { DEFAULT_NAV_GROUPS, DEFAULT_SETTINGS } from '../constants'
 import { getStorage, setStorage, removeStorage, STORAGE_KEYS } from '../services/storage'
-import { getUserAllData, parseMonkNowIcons, syncIconsToServer, syncSettingsToServer, syncSidebarToServer, syncSearcherToServer, parseMonknowCommon, parseMonknowSidebar } from '../services/api'
+import { getUserAllData, parseMonkNowIcons, syncIconsToServer, syncSettingsToServer, syncSidebarToServer, syncSearcherToServer, syncBackgroundToServer, parseMonknowCommon, parseMonknowSidebar } from '../services/api'
 import type { UserInfo } from '../services/api'
 
 // 设置同步防抖定时器
@@ -15,6 +15,7 @@ let commonSyncTimer: ReturnType<typeof setTimeout> | null = null
 let sidebarSyncTimer: ReturnType<typeof setTimeout> | null = null
 let iconsSyncTimer: ReturnType<typeof setTimeout> | null = null
 let searcherSyncTimer: ReturnType<typeof setTimeout> | null = null
+let backgroundSyncTimer: ReturnType<typeof setTimeout> | null = null
 const SETTINGS_SYNC_DELAY = 1000 // 1秒防抖延迟
 
 // 侧边栏相关的设置 key
@@ -37,6 +38,17 @@ const ICONS_SETTINGS_KEYS: (keyof Settings)[] = [
 
 // 搜索相关的设置 key（同步到 searcher 类型）
 const SEARCHER_SETTINGS_KEYS: (keyof Settings)[] = ['searchOpenTarget', 'searchEngine']
+
+// 壁纸相关的设置 key（同步到 background 类型）
+const BACKGROUND_SETTINGS_KEYS: (keyof Settings)[] = [
+  'wallpaperSource',
+  'wallpaperBlurred',
+  'wallpaperInterval',
+  'wallpaperCategory',
+  'wallpaperColor',
+  'localWallpaper',
+  'localWallpaperBlurred'
+]
 
 /**
  * 防抖同步 common 设置到服务器
@@ -99,17 +111,34 @@ function debouncedSyncSearcher(secret: string, settings: Settings) {
 }
 
 /**
+ * 防抖同步 background 设置到服务器
+ */
+function debouncedSyncBackground(secret: string, settings: Settings) {
+  if (backgroundSyncTimer) {
+    clearTimeout(backgroundSyncTimer)
+  }
+  backgroundSyncTimer = setTimeout(() => {
+    syncBackgroundToServer(secret, settings).catch(err => {
+      console.warn('同步 background 设置到服务器失败:', err)
+    })
+    backgroundSyncTimer = null
+  }, SETTINGS_SYNC_DELAY)
+}
+
+/**
  * 根据变更的设置 key 同步到服务器
  */
 function syncSettingsChange(secret: string, settings: Settings, changedKeys: (keyof Settings)[], groups: NavGroup[]) {
   const hasSidebarChange = changedKeys.some(key => SIDEBAR_SETTINGS_KEYS.includes(key))
   const hasIconsChange = changedKeys.some(key => ICONS_SETTINGS_KEYS.includes(key))
   const hasSearcherChange = changedKeys.some(key => SEARCHER_SETTINGS_KEYS.includes(key))
-  // common 设置：不属于 sidebar、icons、searcher 的其他设置
+  const hasBackgroundChange = changedKeys.some(key => BACKGROUND_SETTINGS_KEYS.includes(key))
+  // common 设置：不属于 sidebar、icons、searcher、background 的其他设置
   const hasCommonChange = changedKeys.some(key =>
     !SIDEBAR_SETTINGS_KEYS.includes(key) &&
     !ICONS_SETTINGS_KEYS.includes(key) &&
-    !SEARCHER_SETTINGS_KEYS.includes(key)
+    !SEARCHER_SETTINGS_KEYS.includes(key) &&
+    !BACKGROUND_SETTINGS_KEYS.includes(key)
   )
 
   if (hasSidebarChange) {
@@ -120,6 +149,9 @@ function syncSettingsChange(secret: string, settings: Settings, changedKeys: (ke
   }
   if (hasSearcherChange) {
     debouncedSyncSearcher(secret, settings)
+  }
+  if (hasBackgroundChange) {
+    debouncedSyncBackground(secret, settings)
   }
   if (hasCommonChange) {
     debouncedSyncCommon(secret, settings)

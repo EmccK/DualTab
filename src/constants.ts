@@ -1,4 +1,4 @@
-import type { NavGroup, SearchEngine, Site, ThemeType } from './types'
+import type { NavGroup, SearchEngine, Site, ThemeType, WallpaperCategory, WallpaperInterval, WallpaperSource } from './types'
 
 // 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
@@ -83,6 +83,37 @@ export const SOLID_COLORS = [
   '#333436', '#202124', '#1a1a2e', '#16213e', '#0f3460'
 ]
 
+// 壁纸纯色预设（Monknow 风格）
+export const WALLPAPER_COLORS = [
+  '#808080',  // 灰色
+  '#c0392b',  // 红色
+  '#f39c12',  // 橙色
+  '#27ae60',  // 绿色
+  '#1abc9c',  // 青色
+  '#276ce6',  // 蓝色（默认）
+  '#9b59b6',  // 紫色
+  '#2c3e50',  // 深灰
+]
+
+// 壁纸类别选项（Monknow 风格）
+export const WALLPAPER_CATEGORIES: { value: WallpaperCategory; label: string }[] = [
+  { value: 8, label: '自然' },
+  { value: 9, label: '人物' },
+  { value: 10, label: '动物' },
+  { value: 11, label: '建筑' },
+  { value: 12, label: '动漫' }
+]
+
+// 壁纸更换频率选项（Monknow 风格）
+export const WALLPAPER_INTERVALS: { value: WallpaperInterval; label: string }[] = [
+  { value: 0, label: '从不' },
+  { value: 60, label: '1分钟' },
+  { value: 3600, label: '1小时' },
+  { value: 21600, label: '6小时' },
+  { value: 43200, label: '12小时' },
+  { value: 86400, label: '24小时' }
+]
+
 
 // 创建图片类型 Site 的辅助函数
 const createImageSite = (id: string, name: string, desc: string, url: string, iconUrl: string, bgColor: string): Site => ({
@@ -150,6 +181,15 @@ export const DEFAULT_SETTINGS = {
   theme: 'auto' as ThemeType,  // 默认跟随系统
   wallpaper: WALLPAPERS[0],
   wallpaperType: 'image' as const,
+
+  // 壁纸设置（Monknow 风格）
+  wallpaperSource: 'lib' as WallpaperSource,  // 默认官方库
+  wallpaperBlurred: false,                     // 默认不模糊
+  wallpaperInterval: 86400 as WallpaperInterval,  // 默认24小时
+  wallpaperCategory: 8 as WallpaperCategory,  // 默认自然类别
+  wallpaperColor: '#276ce6',                  // 默认蓝色
+  localWallpaper: null as string | null,      // 本地壁纸
+  localWallpaperBlurred: null as string | null,  // 本地壁纸模糊版
 
   // 常规设置
   openTarget: 'currentTab' as const,        // 图标打开方式

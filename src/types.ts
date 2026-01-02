@@ -74,12 +74,71 @@ export type IconLayout = 'simple' | 'particular'
 // 主题类型: dark(深色) / light(浅色) / auto(跟随系统)
 export type ThemeType = 'dark' | 'light' | 'auto'
 
+// 壁纸来源类型: lib(官方库) / local(本地) / color(纯色)
+export type WallpaperSource = 'lib' | 'local' | 'color'
+
+// 壁纸类别 ID
+export type WallpaperCategory = 8 | 9 | 10 | 11 | 12  // 自然、人物、动物、建筑、动漫
+
+// 壁纸更换频率（秒）
+export type WallpaperInterval = 0 | 60 | 3600 | 21600 | 43200 | 86400  // 从不、1分钟、1小时、6小时、12小时、24小时
+
+// 壁纸数据类型
+export interface WallpaperData {
+  id: number | null
+  uuid: string
+  type: 'color' | 'image'
+  data: {
+    type?: 'pure'  // 纯色类型
+    data: string   // 颜色值或图片URL
+    isOfficial?: boolean
+    uploaded?: boolean
+    mimeType?: string
+  }
+  blurredData?: {
+    isOfficial?: boolean
+    uploaded?: boolean
+    mimeType?: string
+    data: string
+  }
+  overviewData?: {
+    isOfficial?: boolean
+    uploaded?: boolean
+    mimeType?: string
+    data: string
+  }
+}
+
+// 壁纸设置类型
+export interface WallpaperSettings {
+  value: WallpaperSource           // 当前选择的壁纸来源
+  blurred: boolean                 // 是否模糊
+  slideIntervalSeconds: WallpaperInterval  // 更换频率（秒）
+  libCategories: WallpaperCategory[]       // 官方库类别
+}
+
+// 壁纸字典类型
+export interface WallpaperDict {
+  color: WallpaperData
+  local: WallpaperData
+  lib?: WallpaperData
+}
+
 // 设置配置类型
 export interface Settings {
   // 主题设置
   theme: ThemeType
   wallpaper: string
   wallpaperType: 'image' | 'color'
+
+  // 壁纸设置（Monknow 风格）
+  wallpaperSource: WallpaperSource         // 壁纸来源
+  wallpaperBlurred: boolean                // 是否模糊
+  wallpaperInterval: WallpaperInterval     // 更换频率
+  wallpaperCategory: WallpaperCategory     // 官方库类别
+  wallpaperColor: string                   // 纯色壁纸颜色
+  localWallpaper: string | null            // 本地壁纸URL
+  localWallpaperBlurred: string | null     // 本地壁纸模糊版URL
 
   // 常规设置
   openTarget: OpenTarget              // 图标打开方式

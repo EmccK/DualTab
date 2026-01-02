@@ -10,6 +10,18 @@ import { SettingsPanel } from './components/SettingsPanel'
 import { SiteModal } from './components/SiteModal'
 import { GroupModal } from './components/GroupModal'
 import { LoginModal } from './components/LoginModal'
+import { getRandomWallpaper } from './services/api'
+import { getStorage, setStorage, STORAGE_KEYS } from './services/storage'
+
+// 壁纸缓存类型
+interface WallpaperCache {
+  light: string | null
+  lightBlurred: string | null
+  dark: string | null
+  darkBlurred: string | null
+  fetchTime: number
+  category: number
+}
 
 // 空闲超时时间（毫秒）- 用户停止操作后多久显示时间天气
 const IDLE_TIMEOUT = 5000
@@ -77,6 +89,14 @@ function App() {
   // 系统主题状态（用于 auto 模式）
   const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(getSystemTheme)
 
+  // 官方库壁纸状态（深色和浅色各一套）
+  const [libWallpaperLight, setLibWallpaperLight] = useState<string | null>(null)
+  const [libWallpaperLightBlurred, setLibWallpaperLightBlurred] = useState<string | null>(null)
+  const [libWallpaperDark, setLibWallpaperDark] = useState<string | null>(null)
+  const [libWallpaperDarkBlurred, setLibWallpaperDarkBlurred] = useState<string | null>(null)
+  const lastWallpaperFetchTime = useRef<number>(0)
+  const wallpaperCacheLoaded = useRef<boolean>(false)
+
   // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -94,6 +114,108 @@ function App() {
     }
     return settings.theme
   }, [settings.theme, systemTheme])
+
+  // 从缓存加载壁纸（仅初始化时执行一次）
+  useEffect(() => {
+    if (wallpaperCacheLoaded.current) return
+    wallpaperCacheLoaded.current = true
+
+    getStorage<WallpaperCache>(STORAGE_KEYS.WALLPAPER_CACHE).then(cache => {
+      if (cache && cache.category === settings.wallpaperCategory) {
+        // 恢复缓存的壁纸
+        setLibWallpaperLight(cache.light)
+        setLibWallpaperLightBlurred(cache.lightBlurred)
+        setLibWallpaperDark(cache.dark)
+        setLibWallpaperDarkBlurred(cache.darkBlurred)
+        lastWallpaperFetchTime.current = cache.fetchTime
+      }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 获取官方库壁纸（同时获取深色和浅色）
+  const fetchLibWallpaper = useCallback(async (forceRefresh = false) => {
+    // 如果不是官方库模式，不获取
+    if (settings.wallpaperSource !== 'lib') return
+
+    // 检查是否需要获取新壁纸（根据更换频率）
+    const now = Date.now()
+    const interval = settings.wallpaperInterval * 1000
+    if (!forceRefresh && interval > 0 && lastWallpaperFetchTime.current > 0) {
+      const elapsed = now - lastWallpaperFetchTime.current
+      if (elapsed < interval) return
+    }
+
+    try {
+      // 并行获取深色和浅色壁纸
+      const [lightResult, darkResult] = await Promise.all([
+        getRandomWallpaper(user?.secret || '', settings.wallpaperCategory, 'bright'),
+        getRandomWallpaper(user?.secret || '', settings.wallpaperCategory, 'dark')
+      ])
+
+      const newLight = lightResult?.url || null
+      const newLightBlurred = lightResult?.blurUrl || null
+      const newDark = darkResult?.url || null
+      const newDarkBlurred = darkResult?.blurUrl || null
+
+      setLibWallpaperLight(newLight)
+      setLibWallpaperLightBlurred(newLightBlurred)
+      setLibWallpaperDark(newDark)
+      setLibWallpaperDarkBlurred(newDarkBlurred)
+      lastWallpaperFetchTime.current = now
+
+      // 保存到缓存
+      const cache: WallpaperCache = {
+        light: newLight,
+        lightBlurred: newLightBlurred,
+        dark: newDark,
+        darkBlurred: newDarkBlurred,
+        fetchTime: now,
+        category: settings.wallpaperCategory
+      }
+      setStorage(STORAGE_KEYS.WALLPAPER_CACHE, cache)
+    } catch (err) {
+      console.error('获取官方库壁纸失败:', err)
+    }
+  }, [settings.wallpaperSource, settings.wallpaperInterval, settings.wallpaperCategory, user?.secret])
+
+  // 初始化时检查是否需要获取壁纸
+  useEffect(() => {
+    if (!isLoaded || settings.wallpaperSource !== 'lib') return
+
+    // 如果没有缓存的壁纸，获取新的
+    if (!libWallpaperLight && !libWallpaperDark) {
+      fetchLibWallpaper()
+    }
+  }, [isLoaded, settings.wallpaperSource, libWallpaperLight, libWallpaperDark, fetchLibWallpaper])
+
+  // 壁纸类别变化时重新获取
+  const prevCategory = useRef(settings.wallpaperCategory)
+  useEffect(() => {
+    if (settings.wallpaperSource === 'lib' && prevCategory.current !== settings.wallpaperCategory) {
+      prevCategory.current = settings.wallpaperCategory
+      fetchLibWallpaper(true)
+    }
+  }, [settings.wallpaperSource, settings.wallpaperCategory, fetchLibWallpaper])
+
+  // 定时更换壁纸（仅在页面可见时）
+  useEffect(() => {
+    if (settings.wallpaperSource !== 'lib' || settings.wallpaperInterval === 0) return
+
+    const intervalId = setInterval(() => {
+      // 仅在页面可见时更换壁纸
+      if (document.visibilityState === 'visible') {
+        fetchLibWallpaper(true)
+      }
+    }, settings.wallpaperInterval * 1000)
+
+    return () => clearInterval(intervalId)
+  }, [settings.wallpaperSource, settings.wallpaperInterval, fetchLibWallpaper])
+
+  // 手动切换下一张壁纸
+  const handleNextWallpaper = useCallback(() => {
+    fetchLibWallpaper(true)
+  }, [fetchLibWallpaper])
 
   // 当前分组
   const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0]
@@ -250,10 +372,68 @@ function App() {
     closeGroupModal()
   }, [deleteGroup, closeGroupModal])
 
-  // 壁纸样式
-  const wallpaperStyle = settings.wallpaperType === 'color'
-    ? { backgroundColor: settings.wallpaper }
-    : { backgroundImage: `url(${settings.wallpaper})` }
+  // 计算当前壁纸样式
+  const wallpaperStyle = useMemo(() => {
+    const { wallpaperSource, wallpaperBlurred, wallpaperColor, localWallpaper, localWallpaperBlurred } = settings
+
+    // 根据壁纸来源计算样式
+    switch (wallpaperSource) {
+      case 'color':
+        // 纯色壁纸
+        return { backgroundColor: wallpaperColor || '#276ce6' }
+
+      case 'local':
+        // 本地壁纸
+        if (localWallpaper) {
+          const url = wallpaperBlurred && localWallpaperBlurred ? localWallpaperBlurred : localWallpaper
+          return { backgroundImage: `url(${url})` }
+        }
+        return { backgroundColor: '#276ce6' }
+
+      case 'lib':
+      default: {
+        // 官方库壁纸 - 根据当前主题选择对应的壁纸
+        const currentLibWallpaper = effectiveTheme === 'dark' ? libWallpaperDark : libWallpaperLight
+        const currentLibWallpaperBlurred = effectiveTheme === 'dark' ? libWallpaperDarkBlurred : libWallpaperLightBlurred
+        if (currentLibWallpaper) {
+          const url = wallpaperBlurred && currentLibWallpaperBlurred ? currentLibWallpaperBlurred : currentLibWallpaper
+          return { backgroundImage: `url(${url})` }
+        }
+        // 如果还没加载到壁纸，使用默认壁纸
+        return { backgroundImage: `url(${settings.wallpaper})` }
+      }
+    }
+  }, [settings, effectiveTheme, libWallpaperLight, libWallpaperLightBlurred, libWallpaperDark, libWallpaperDarkBlurred])
+
+  // 获取当前显示的壁纸URL（用于设置面板预览）
+  const currentWallpaperUrl = useMemo(() => {
+    switch (settings.wallpaperSource) {
+      case 'lib':
+        // 根据当前主题返回对应的壁纸
+        return effectiveTheme === 'dark' ? libWallpaperDark : libWallpaperLight
+      case 'local':
+        return settings.localWallpaper
+      case 'color':
+        return null
+      default:
+        return effectiveTheme === 'dark' ? libWallpaperDark : libWallpaperLight
+    }
+  }, [settings.wallpaperSource, settings.localWallpaper, effectiveTheme, libWallpaperLight, libWallpaperDark])
+
+  // 获取模糊背景URL（用于时间天气遮罩）
+  const blurredWallpaperUrl = useMemo(() => {
+    switch (settings.wallpaperSource) {
+      case 'lib':
+        // 根据当前主题返回对应的模糊壁纸
+        return effectiveTheme === 'dark' ? libWallpaperDarkBlurred : libWallpaperLightBlurred
+      case 'local':
+        return settings.localWallpaperBlurred || settings.localWallpaper
+      case 'color':
+        return null
+      default:
+        return effectiveTheme === 'dark' ? libWallpaperDarkBlurred : libWallpaperLightBlurred
+    }
+  }, [settings.wallpaperSource, settings.localWallpaper, settings.localWallpaperBlurred, effectiveTheme, libWallpaperLightBlurred, libWallpaperDarkBlurred])
 
   // 侧边栏鼠标进入处理（取消延迟关闭）
   const handleSidebarEnter = useCallback(() => {
@@ -339,11 +519,14 @@ function App() {
           </main>
         </div>
 
-        {/* 时间天气覆盖层 - 空闲时显示，带毛玻璃效果 */}
+        {/* 时间天气覆盖层 - 空闲时显示 */}
         <div
           className={`time-weather-overlay ${showTimeWeather ? 'visible' : 'hidden'}`}
         >
-          <div className="time-weather-blur-bg" />
+          <div
+            className="time-weather-blur-bg"
+            style={blurredWallpaperUrl ? { backgroundImage: `url(${blurredWallpaperUrl})` } : { backgroundColor: settings.wallpaperColor || '#276ce6' }}
+          />
           <TimeWeather visible={showTimeWeather} settings={settings} />
         </div>
       </div>
@@ -358,6 +541,8 @@ function App() {
         onLoginClick={openLoginModal}
         onLogout={logout}
         onUserUpdate={(updatedUser) => useAppStore.getState().setUser(updatedUser)}
+        currentWallpaper={currentWallpaperUrl}
+        onNextWallpaper={handleNextWallpaper}
       />
 
       {/* 添加/编辑网站弹窗 */}
