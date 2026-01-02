@@ -66,7 +66,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   // 分组操作
   setGroups: (groups) => set({ groups }),
 
-  setActiveGroupId: (id) => set({ activeGroupId: id }),
+  setActiveGroupId: (id) => {
+    set({ activeGroupId: id })
+    // 如果开启了记住最后访问的分组，保存到本地存储
+    const { settings } = get()
+    if (settings.rememberLastGroup) {
+      setStorage(STORAGE_KEYS.LAST_GROUP_ID, id)
+    }
+  },
 
   addGroup: (group) => {
     set(state => ({
@@ -206,18 +213,35 @@ export const useAppStore = create<AppState>((set, get) => ({
   // 数据操作
   loadData: async () => {
     // 1. 从本地读取数据
-    const [savedGroups, savedSettings, savedUser] = await Promise.all([
+    const [savedGroups, savedSettings, savedUser, savedLastGroupId] = await Promise.all([
       getStorage<NavGroup[]>(STORAGE_KEYS.GROUPS),
       getStorage<Settings>(STORAGE_KEYS.SETTINGS),
-      getStorage<User>(STORAGE_KEYS.USER)
+      getStorage<User>(STORAGE_KEYS.USER),
+      getStorage<string>(STORAGE_KEYS.LAST_GROUP_ID)
     ])
+
+    // 合并设置（确保新增的设置项有默认值）
+    const mergedSettings = { ...DEFAULT_SETTINGS, ...savedSettings }
+
+    // 确定初始分组 ID
+    const groups = savedGroups && savedGroups.length > 0 ? savedGroups : DEFAULT_NAV_GROUPS
+    let initialGroupId = groups[0]?.id || 'home'
+
+    // 如果开启了记住最后访问的分组，且有保存的分组 ID，则使用它
+    if (mergedSettings.rememberLastGroup && savedLastGroupId) {
+      // 验证保存的分组 ID 是否存在
+      const groupExists = groups.some(g => g.id === savedLastGroupId)
+      if (groupExists) {
+        initialGroupId = savedLastGroupId
+      }
+    }
 
     // 设置本地数据
     set({
-      settings: savedSettings || DEFAULT_SETTINGS,
+      settings: mergedSettings,
       user: savedUser || null,
-      groups: savedGroups && savedGroups.length > 0 ? savedGroups : DEFAULT_NAV_GROUPS,
-      activeGroupId: savedGroups && savedGroups.length > 0 ? savedGroups[0].id : 'home',
+      groups: groups,
+      activeGroupId: initialGroupId,
       isLoaded: true
     })
 
@@ -228,9 +252,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         if (serverData?.icons) {
           const parsed = parseMonkNowIcons(serverData.icons)
           if (parsed?.groups && parsed.groups.length > 0) {
+            // 同步分组数据，但保留当前选中的分组（如果存在）
+            const currentActiveId = get().activeGroupId
+            const groupStillExists = parsed.groups.some(g => g.id === currentActiveId)
+
             set({
               groups: parsed.groups,
-              activeGroupId: parsed.groups[0].id
+              // 如果当前分组在新数据中仍然存在，保持不变；否则切换到第一个分组
+              activeGroupId: groupStillExists ? currentActiveId : parsed.groups[0].id
             })
             await setStorage(STORAGE_KEYS.GROUPS, parsed.groups)
             console.log('从服务器同步书签成功')

@@ -165,7 +165,19 @@ export const DEFAULT_SETTINGS = {
   iconSize: 'medium' as const,
   showSiteLabel: true,
   showSiteDesc: true,
-  sidebarPosition: 'left' as const
+  sidebarPosition: 'left' as const,
+
+  // 图标设置 - Monknow 风格默认值
+  iconLayout: 'particular' as const,  // 默认详细布局
+  iconSizePercentage: 80,             // 默认 80%
+  iconBorderRadius: 20,               // 默认 20% 圆角
+  iconOpacity: 100,                   // 默认 100% 不透明
+  iconShadow: true,                   // 默认显示阴影
+  iconRowGap: 26,                     // 默认行间距 26%
+  iconColumnGap: 34,                  // 默认列间距 34%
+  showAddButton: true,                // 默认显示添加按钮
+  scrollToSwitchGroup: true,          // 默认开启滚动切换分组
+  rememberLastGroup: false            // 默认不记住最后访问的分组
 }
 
 // 打开方式选项 - Monknow 风格（只有三个选项）

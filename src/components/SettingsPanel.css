@@ -794,14 +794,15 @@
 
 /* 开关按钮 - Monknow 风格 (xGHROUQivEs3LgSeXxvd) */
 .settings-switch {
-  width: 22px;
-  height: 16px;
-  border-radius: 8px;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
   padding: 2px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
   user-select: none;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .dark-theme .settings-switch {
@@ -817,8 +818,8 @@
 }
 
 .settings-switch-thumb {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
@@ -832,7 +833,7 @@
 }
 
 .settings-switch.active .settings-switch-thumb {
-  transform: translateX(10px);
+  transform: translateX(16px);
   background-color: #1890ff;
 }
 
@@ -1958,4 +1959,62 @@
 
 .light-theme .avatar-preview-hint {
   color: #676767;
+}
+
+/* 图标设置卡片 - Monknow 风格 (mq4ppDUp2DpTKdnJhFIi) */
+.icon-settings-card {
+  padding: 0 8px 16px;
+}
+
+/* 滑块设置项 */
+.settings-item.slider-item {
+  cursor: default;
+}
+
+.settings-item.slider-item:hover {
+  background-color: transparent;
+}
+
+.dark-theme .settings-item.slider-item:hover {
+  background-color: transparent;
+}
+
+.light-theme .settings-item.slider-item:hover {
+  background-color: transparent;
+}
+
+/* 滑块包装器 */
+.settings-slider-wrapper {
+  flex: 1;
+  max-width: 200px;
+  margin-left: 16px;
+  padding-right: 48px;
+  position: relative;
+}
+
+/* 可点击的设置项 - Monknow 风格 */
+.settings-item-clickable {
+  cursor: pointer;
+}
+
+/* 设置项右侧箭头图标 */
+.settings-item-arrow {
+  flex-shrink: 0;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.dark-theme .settings-item-arrow {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .settings-item-arrow {
+  color: #676767;
+}
+
+.dark-theme .settings-item-clickable:hover .settings-item-arrow {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.light-theme .settings-item-clickable:hover .settings-item-arrow {
+  color: #333;
 }

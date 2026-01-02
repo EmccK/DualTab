@@ -68,6 +68,9 @@ export interface LocationInfo {
   shortname: string
 }
 
+// 图标布局类型
+export type IconLayout = 'simple' | 'particular'
+
 // 设置配置类型
 export interface Settings {
   // 主题设置
@@ -90,6 +93,18 @@ export interface Settings {
   showSiteLabel: boolean       // 显示网站标签
   showSiteDesc: boolean        // 显示网站描述
   sidebarPosition: 'left' | 'right'  // 侧边栏位置
+
+  // 图标设置 - Monknow 风格
+  iconLayout: IconLayout              // 图标布局: simple(简洁) / particular(详细)
+  iconSizePercentage: number          // 图标大小百分比 (50-150)
+  iconBorderRadius: number            // 图标圆角百分比 (0-50)
+  iconOpacity: number                 // 图标透明度百分比 (0-100)
+  iconShadow: boolean                 // 显示图标阴影
+  iconRowGap: number                  // 行间距百分比 (0-100)
+  iconColumnGap: number               // 列间距百分比 (0-100)
+  showAddButton: boolean              // 显示添加按钮
+  scrollToSwitchGroup: boolean        // 滚动以切换分组
+  rememberLastGroup: boolean          // 记住最后访问的分组
 }
 
 // 用户信息类型

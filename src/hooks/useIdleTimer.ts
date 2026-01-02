@@ -10,13 +10,15 @@ interface UseIdleTimerOptions {
   onIdle: () => void        // 空闲时回调
   onActive?: () => void     // 活动时回调
   element?: HTMLElement     // 监听的元素，默认为 document
+  excludeWheel?: boolean    // 是否排除 wheel 事件（用于外部统一处理）
 }
 
 export function useIdleTimer({
   timeout,
   onIdle,
   onActive,
-  element
+  element,
+  excludeWheel = false
 }: UseIdleTimerOptions) {
   const timerRef = useRef<number | null>(null)
   const isIdleRef = useRef(false)
@@ -60,7 +62,10 @@ export function useIdleTimer({
 
     // 监听多种交互事件（不监听 mousemove，避免频繁触发）
     target.addEventListener('click', handleInteraction)
-    target.addEventListener('wheel', handleInteraction, { passive: true })
+    // 根据选项决定是否监听 wheel 事件
+    if (!excludeWheel) {
+      target.addEventListener('wheel', handleInteraction, { passive: true })
+    }
     target.addEventListener('scroll', handleInteraction, { passive: true })
     target.addEventListener('keydown', handleInteraction)
 
@@ -69,7 +74,9 @@ export function useIdleTimer({
 
     return () => {
       target.removeEventListener('click', handleInteraction)
-      target.removeEventListener('wheel', handleInteraction)
+      if (!excludeWheel) {
+        target.removeEventListener('wheel', handleInteraction)
+      }
       target.removeEventListener('scroll', handleInteraction)
       target.removeEventListener('keydown', handleInteraction)
 
@@ -78,7 +85,7 @@ export function useIdleTimer({
         clearTimeout(timerRef.current)
       }
     }
-  }, [element, resetTimer])
+  }, [element, resetTimer, excludeWheel])
 
   return { resetTimer }
 }

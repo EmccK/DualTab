@@ -450,6 +450,31 @@ export function SettingsPanel({
                         />
                       </div>
                     </div>
+
+                    {/* 分组设置 - Monknow 风格 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">分组</h3>
+                      {/* 滚动以切换分组 */}
+                      <div className="settings-item">
+                        <span className="settings-item-label">滚动以切换分组</span>
+                        <div
+                          className={`settings-switch ${settings.scrollToSwitchGroup ? 'active' : ''}`}
+                          onClick={() => updateSetting('scrollToSwitchGroup', !settings.scrollToSwitchGroup)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                      {/* 记住最后访问的分组 */}
+                      <div className="settings-item">
+                        <span className="settings-item-label">记住最后访问的分组</span>
+                        <div
+                          className={`settings-switch ${settings.rememberLastGroup ? 'active' : ''}`}
+                          onClick={() => updateSetting('rememberLastGroup', !settings.rememberLastGroup)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
