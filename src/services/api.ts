@@ -3,7 +3,10 @@
  * 处理用户认证和数据同步
  */
 
+import type { LocationInfo } from '../types'
+
 const API_BASE = 'https://dynamic-api.monknow.com'
+const WEATHER_API_BASE = 'https://weather-api.monknow.com'
 
 // 通用请求头（不含 secret）
 const getBaseHeaders = () => ({
@@ -375,16 +378,16 @@ export async function syncIconsToServer(
 export function parseMonkNowIcons(iconsJson: string): { groups: import('../types').NavGroup[] } | null {
   try {
     const iconsData: MonkNowIconsData = JSON.parse(iconsJson)
-    
+
     const groups = iconsData.data.groups.map(groupUuid => {
       const group = iconsData.data.groupDict[groupUuid]
       if (!group) return null
-      
+
       const sites = group.data
         .map(iconUuid => {
           const icon = iconsData.data.iconDict[iconUuid]
           if (!icon) return null
-          
+
           return {
             id: icon.uuid,
             name: icon.label,
@@ -395,7 +398,7 @@ export function parseMonkNowIcons(iconsJson: string): { groups: import('../types
           }
         })
         .filter((s): s is NonNullable<typeof s> => s !== null)
-      
+
       return {
         id: group.uuid,
         name: group.label,
@@ -404,10 +407,287 @@ export function parseMonkNowIcons(iconsJson: string): { groups: import('../types
         isCustom: false
       }
     }).filter((g): g is NonNullable<typeof g> => g !== null)
-    
+
     return { groups }
   } catch (e) {
     console.error('解析 MonkNow 数据失败:', e)
+    return null
+  }
+}
+
+/**
+ * 搜索位置
+ * 使用 Monknow 天气 API 搜索城市位置
+ * @param keyword 搜索关键词
+ * @param secret 用户 token（可选）
+ */
+export async function searchLocations(keyword: string, secret?: string): Promise<LocationInfo[]> {
+  try {
+    const lang = navigator.language || 'zh-CN'
+    const url = `${WEATHER_API_BASE}/home/locations?keyword=${encodeURIComponent(keyword)}&lang=${lang}`
+
+    const headers: Record<string, string> = {}
+    if (secret) {
+      headers['secret'] = secret
+    }
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers
+    })
+
+    const result = await res.json()
+    if (!result.data?.locations) {
+      return []
+    }
+
+    // 转换 API 返回的数据格式
+    return result.data.locations.map((loc: {
+      woeid: number
+      lat: number
+      lon: number
+      qualifiedName: string
+      city: string
+    }) => ({
+      woeid: loc.woeid,
+      latitude: loc.lat,
+      longitude: loc.lon,
+      fullname: loc.qualifiedName,
+      shortname: loc.city
+    }))
+  } catch (err) {
+    console.error('搜索位置失败:', err)
+    return []
+  }
+}
+
+// 天气信息类型
+export interface WeatherData {
+  currentTemperatureFahrenheit: number
+  lowTemperatureFahrenheit: number
+  highTemperatureFahrenheit: number
+  yahooConditionCode: number
+}
+
+/**
+ * 获取天气信息
+ * @param location 位置信息
+ * @param secret 用户 token（可选）
+ */
+export async function getWeather(location: LocationInfo, secret?: string): Promise<WeatherData | null> {
+  try {
+    const url = `${WEATHER_API_BASE}/home/weather?woeid=${location.woeid}&lat=${location.latitude}&lon=${location.longitude}`
+
+    const headers: Record<string, string> = {}
+    if (secret) {
+      headers['secret'] = secret
+    }
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers
+    })
+
+    const result = await res.json()
+    if (!result.data?.weather) {
+      return null
+    }
+
+    const weather = result.data.weather
+    return {
+      currentTemperatureFahrenheit: weather.currentFahrenheit,
+      lowTemperatureFahrenheit: weather.lowFahrenheit,
+      highTemperatureFahrenheit: weather.highFahrenheit,
+      yahooConditionCode: weather.conditionCode
+    }
+  } catch (err) {
+    console.error('获取天气失败:', err)
+    return null
+  }
+}
+
+/**
+ * 华氏度转摄氏度
+ */
+export function fahrenheitToCelsius(fahrenheit: number): number {
+  return Math.round((fahrenheit - 32) * 5 / 9)
+}
+
+/**
+ * 更新用户昵称
+ * @param secret 用户 token
+ * @param name 新昵称
+ */
+export async function updateNickname(secret: string, name: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/user/changename`, {
+      method: 'PUT',
+      headers: getHeaders(secret),
+      body: JSON.stringify({ name })
+    })
+
+    const result = await res.json()
+    if (result.msg !== 'success') {
+      console.error('更新昵称失败:', result.msg)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.error('更新昵称失败:', err)
+    return false
+  }
+}
+
+/**
+ * 更新用户头像
+ * @param secret 用户 token
+ * @param avatarUrl 头像 URL
+ */
+export async function updatePortrait(secret: string, avatarUrl: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/user/changeavatar`, {
+      method: 'PUT',
+      headers: getHeaders(secret),
+      body: JSON.stringify({ avatar: avatarUrl })
+    })
+
+    const result = await res.json()
+    if (result.msg !== 'success') {
+      console.error('更新头像失败:', result.msg)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.error('更新头像失败:', err)
+    return false
+  }
+}
+
+/**
+ * 修改密码
+ * @param secret 用户 token
+ * @param oldPassword 旧密码
+ * @param newPassword 新密码
+ */
+export async function changePassword(
+  secret: string,
+  oldPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/user/changepwd`, {
+      method: 'PUT',
+      headers: getHeaders(secret),
+      body: JSON.stringify({
+        old: oldPassword,
+        new: newPassword
+      })
+    })
+
+    const result = await res.json()
+    if (result.msg !== 'success') {
+      return { success: false, message: result.msg || '修改密码失败' }
+    }
+    return { success: true, message: '密码修改成功' }
+  } catch (err) {
+    console.error('修改密码失败:', err)
+    return { success: false, message: '网络错误，请稍后重试' }
+  }
+}
+
+/**
+ * 获取 S3/OSS 签名信息
+ * @param secret 用户 token
+ * @param type 上传类型: avatar | icon | wallpaper
+ * @param mimeType 文件 MIME 类型
+ */
+interface S3SignResponse {
+  attribute: {
+    action: string
+    enctype: string
+    method: string
+  }
+  input: {
+    key: string
+    policy: string
+    OSSAccessKeyId: string
+    success_action_status: number
+    signature: string
+    'cache-control': string
+  }
+}
+
+async function getS3Sign(
+  secret: string,
+  type: 'avatar' | 'icon' | 'wallpaper',
+  mimeType: string
+): Promise<S3SignResponse | null> {
+  try {
+    const res = await fetch(
+      `${API_BASE}/home/s3sign?type=${type}&mime=${encodeURIComponent(mimeType)}`,
+      {
+        method: 'GET',
+        headers: getHeaders(secret)
+      }
+    )
+
+    const result = await res.json()
+    if (result.msg !== 'success' || !result.data?.normal) {
+      console.error('获取签名失败:', result.msg)
+      return null
+    }
+    return result.data.normal
+  } catch (err) {
+    console.error('获取签名失败:', err)
+    return null
+  }
+}
+
+/**
+ * 上传图片到 OSS
+ * @param secret 用户 token
+ * @param file 图片文件
+ * @param type 上传类型: avatar | icon | wallpaper
+ */
+export async function uploadImage(
+  secret: string,
+  file: File,
+  type: 'avatar' | 'icon' | 'wallpaper' = 'avatar'
+): Promise<string | null> {
+  try {
+    // 1. 获取 OSS 签名
+    const signData = await getS3Sign(secret, type, file.type)
+    if (!signData) {
+      return null
+    }
+
+    const { attribute, input } = signData
+
+    // 2. 上传到 OSS
+    const formData = new FormData()
+    formData.append('key', input.key)
+    formData.append('policy', input.policy)
+    formData.append('OSSAccessKeyId', input.OSSAccessKeyId)
+    formData.append('success_action_status', String(input.success_action_status))
+    formData.append('signature', input.signature)
+    formData.append('cache-control', input['cache-control'])
+    formData.append('file', file)
+
+    const uploadRes = await fetch(attribute.action, {
+      method: attribute.method,
+      body: formData
+    })
+
+    if (!uploadRes.ok) {
+      console.error('上传到 OSS 失败:', uploadRes.status)
+      return null
+    }
+
+    // 3. 返回完整的图片 URL
+    const imageUrl = `${attribute.action}/${input.key}`
+    return imageUrl
+  } catch (err) {
+    console.error('上传图片失败:', err)
     return null
   }
 }

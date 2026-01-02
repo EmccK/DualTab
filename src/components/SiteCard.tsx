@@ -1,27 +1,40 @@
 import { memo } from 'react'
-import type { Site } from '../types'
+import type { Site, OpenTarget } from '../types'
 import { ContextMenu } from './ContextMenu'
 import { useContextMenu } from '../hooks'
-import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito } from '../utils'
+import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito, openInNewWindow } from '../utils'
 
 interface SiteCardProps {
   site: Site
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
-  openInNewTabSetting?: boolean  // 是否在新标签页打开
+  openTarget?: OpenTarget  // 打开链接方式
 }
 
 // 网站卡片组件
-export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openInNewTabSetting = true }: SiteCardProps) {
+export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTarget = 'currentTab' }: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
 
   // 点击打开网站 - 根据设置决定打开方式
   const handleClick = () => {
-    if (openInNewTabSetting) {
-      openInNewTab(site.url, true)
-    } else {
-      openInCurrentTab(site.url)
+    switch (openTarget) {
+      case 'newTab':
+        openInNewTab(site.url, true)
+        break
+      case 'backgroundTab':
+        openInNewTab(site.url, false)
+        break
+      case 'newWindow':
+        openInNewWindow(site.url, false)
+        break
+      case 'newIncognitoWindow':
+        openInIncognito(site.url)
+        break
+      case 'currentTab':
+      default:
+        openInCurrentTab(site.url)
+        break
     }
   }
 

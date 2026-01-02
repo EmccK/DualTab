@@ -125,7 +125,7 @@ function App() {
           <SearchBox
             currentEngineId={settings.searchEngine}
             onEngineChange={(id) => updateSettings({ searchEngine: id })}
-            openInNewTab={settings.openInNewTab}
+            openTarget={settings.openTarget}
           />
 
           {/* 网站网格 */}
@@ -136,7 +136,7 @@ function App() {
                 site={site}
                 onEdit={openEditSiteModal}
                 onDelete={handleDeleteSite}
-                openInNewTabSetting={settings.openInNewTab}
+                openTarget={settings.openTarget}
               />
             ))}
             {/* 添加网站卡片 */}
@@ -162,6 +162,7 @@ function App() {
         user={user}
         onLoginClick={openLoginModal}
         onLogout={logout}
+        onUserUpdate={(updatedUser) => useAppStore.getState().setUser(updatedUser)}
       />
 
       {/* 添加/编辑网站弹窗 */}

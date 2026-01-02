@@ -44,3 +44,15 @@ export const openInIncognito = (url: string): boolean => {
   }
   return false
 }
+
+// 在新窗口打开链接
+export const openInNewWindow = (url: string, incognito: boolean = false): boolean => {
+  const chromeAPI = getChromeAPI()
+  if (chromeAPI?.windows?.create) {
+    chromeAPI.windows.create({ url, incognito })
+    return true
+  } else {
+    window.open(url, '_blank', 'noopener,noreferrer')
+    return true
+  }
+}

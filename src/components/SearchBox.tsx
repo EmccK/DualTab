@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { KeyboardEvent, ChangeEvent } from 'react'
 import { SEARCH_ENGINES } from '../constants'
+import type { OpenTarget } from '../types'
 
 interface SearchBoxProps {
   currentEngineId: string
   onEngineChange: (engineId: string) => void
-  openInNewTab: boolean
+  openTarget: OpenTarget
 }
 
 // 搜索建议 API（使用 Google 搜索建议）
@@ -25,7 +26,7 @@ const fetchSuggestions = async (query: string): Promise<string[]> => {
 }
 
 // 搜索框组件 - Monknow 风格
-export function SearchBox({ currentEngineId, onEngineChange, openInNewTab }: SearchBoxProps) {
+export function SearchBox({ currentEngineId, onEngineChange, openTarget }: SearchBoxProps) {
   const [query, setQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
@@ -76,10 +77,26 @@ export function SearchBox({ currentEngineId, onEngineChange, openInNewTab }: Sea
     const q = searchQuery || query
     if (q.trim()) {
       const url = currentEngine.url + encodeURIComponent(q.trim())
-      if (openInNewTab) {
-        window.open(url, '_blank')
-      } else {
-        window.location.href = url
+      // 根据 openTarget 设置决定打开方式
+      switch (openTarget) {
+        case 'newTab':
+          window.open(url, '_blank')
+          break
+        case 'backgroundTab':
+          // 后台标签页需要 Chrome API，这里降级为新标签页
+          window.open(url, '_blank')
+          break
+        case 'newWindow':
+          window.open(url, '_blank', 'noopener,noreferrer')
+          break
+        case 'newIncognitoWindow':
+          // 隐身窗口需要 Chrome API，这里降级为新标签页
+          window.open(url, '_blank')
+          break
+        case 'currentTab':
+        default:
+          window.location.href = url
+          break
       }
     }
   }

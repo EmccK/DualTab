@@ -127,11 +127,13 @@ export const DEFAULT_SETTINGS = {
   wallpaperType: 'image' as const,
 
   // 常规设置
-  openInNewTab: true,
+  openTarget: 'currentTab' as const,  // 打开链接方式
   searchEngine: 'google',
   clockFormat: '24h' as const,
   showSeconds: false,
   showWeather: true,
+  temperatureUnit: 'celsius' as const,  // 温度单位
+  location: null,  // 位置信息
 
   // 外观设置
   iconSize: 'medium' as const,
@@ -139,3 +141,18 @@ export const DEFAULT_SETTINGS = {
   showSiteDesc: true,
   sidebarPosition: 'left' as const
 }
+
+// 打开链接方式选项
+export const OPEN_TARGET_OPTIONS = [
+  { value: 'currentTab', label: '当前页' },
+  { value: 'newTab', label: '新标签页' },
+  { value: 'backgroundTab', label: '后台标签页' },
+  { value: 'newWindow', label: '新窗口' },
+  { value: 'newIncognitoWindow', label: '隐身窗口' }
+]
+
+// 温度单位选项
+export const TEMPERATURE_UNIT_OPTIONS = [
+  { value: 'celsius', label: '摄氏度 (°C)' },
+  { value: 'fahrenheit', label: '华氏度 (°F)' }
+]
