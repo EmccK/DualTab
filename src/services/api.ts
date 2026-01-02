@@ -307,7 +307,8 @@ export async function updateUserData(
  */
 export async function syncIconsToServer(
   secret: string,
-  groups: import('../types').NavGroup[]
+  groups: import('../types').NavGroup[],
+  settings?: import('../types').Settings
 ): Promise<boolean> {
   // 构建 MonkNow 格式的数据
   const groupUuids: string[] = []
@@ -351,22 +352,23 @@ export async function syncIconsToServer(
     }
   })
 
+  // 使用实际设置值，如果没有传入则使用默认值
   const iconsData: MonkNowIconsData = {
     version: 6,
     updaterVersion: 2024042109,
     setting: {
-      openTarget: 'currentTab',
-      rowGapPercentage: 26,
-      columnGapPercentage: 34,
-      iconLayout: 'particular',
-      borderRadiusPercentage: 20,
-      opacityPercentage: 100,
-      sizePercentage: 80,
-      displayShadow: true,
+      openTarget: settings?.openTarget || 'currentTab',
+      rowGapPercentage: settings?.iconRowGap ?? 26,
+      columnGapPercentage: settings?.iconColumnGap ?? 34,
+      iconLayout: settings?.iconLayout || 'particular',
+      borderRadiusPercentage: settings?.iconBorderRadius ?? 20,
+      opacityPercentage: settings?.iconOpacity ?? 100,
+      sizePercentage: settings?.iconSizePercentage ?? 80,
+      displayShadow: settings?.iconShadow ?? true,
       displayNotificationBadge: true,
-      displayAddBtn: true,
-      rememberLastVisitedGroup: false,
-      scrollToSwitchGroup: true
+      displayAddBtn: settings?.showAddButton ?? true,
+      rememberLastVisitedGroup: settings?.rememberLastGroup ?? false,
+      scrollToSwitchGroup: settings?.scrollToSwitchGroup ?? true
     },
     data: {
       groups: groupUuids,
@@ -895,4 +897,160 @@ export function parseMonknowSidebar(sidebarJson: string): Partial<Settings> | nu
     console.error('解析 Monknow sidebar 数据失败:', e)
     return null
   }
+}
+
+// Monknow searcher 数据结构
+interface MonkNowSearcherData {
+  version: number
+  updaterVersion: number
+  setting: {
+    borderRadiusPercentage: number
+    displayShadow: boolean
+    heightPercentage: number
+    opacityPercentage: number
+    openTarget: string
+    value: string
+    widthPercentage: number
+  }
+  data: {
+    dict: Record<string, {
+      icoSrc: {
+        data: string
+        isOfficial: boolean
+        mimeType: string
+        uploaded: boolean
+      }
+      id: number
+      title: string
+      url: string
+      uuid: string
+    }>
+    officials: string[]
+  }
+}
+
+const MONKNOW_SEARCHER_VERSION = 6
+
+// 搜索引擎 UUID 映射（本地 id -> Monknow uuid）
+const SEARCHER_UUID_MAP: Record<string, string> = {
+  google: 'e58b5a00-74fe-4319-af0a-d4999565dd71',
+  bing: 'ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d',
+  yahoo: '2a5e69d9-bf13-4188-8da2-004551a913a0',
+  baidu: '0eb43a90-b4c7-43ce-9c73-ab110945f47d',
+  yandex: '118f7463-4411-4856-873f-2851faa3b543',
+  duckduckgo: '259d8e2b-340e-4690-8046-88a0b130cbd0'
+}
+
+// 默认搜索引擎数据（完整的 Monknow 格式）
+const DEFAULT_SEARCHER_DICT: MonkNowSearcherData['data']['dict'] = {
+  'e58b5a00-74fe-4319-af0a-d4999565dd71': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/e58b5a00-74fe-4319-af0a-d4999565dd71.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 1,
+    title: 'Google',
+    url: 'https://www.google.com/search?ie=utf-8&q=%s',
+    uuid: 'e58b5a00-74fe-4319-af0a-d4999565dd71'
+  },
+  'ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 2,
+    title: 'Bing',
+    url: 'https://www.bing.com/search?form=bing&q=%s',
+    uuid: 'ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d'
+  },
+  '2a5e69d9-bf13-4188-8da2-004551a913a0': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/2a5e69d9-bf13-4188-8da2-004551a913a0.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 3,
+    title: 'Yahoo',
+    url: 'https://search.yahoo.com/search?ei=UTF-8&p=%s',
+    uuid: '2a5e69d9-bf13-4188-8da2-004551a913a0'
+  },
+  '0eb43a90-b4c7-43ce-9c73-ab110945f47d': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/0eb43a90-b4c7-43ce-9c73-ab110945f47d.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 4,
+    title: 'Baidu',
+    url: 'https://www.baidu.com/s?tn=68018901_23_oem_dg&ch=3&ie=utf-8&wd=%s',
+    uuid: '0eb43a90-b4c7-43ce-9c73-ab110945f47d'
+  },
+  '118f7463-4411-4856-873f-2851faa3b543': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/118f7463-4411-4856-873f-2851faa3b543.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 5,
+    title: 'Yandex',
+    url: 'https://yandex.ru/search/?text=%s',
+    uuid: '118f7463-4411-4856-873f-2851faa3b543'
+  },
+  '259d8e2b-340e-4690-8046-88a0b130cbd0': {
+    icoSrc: {
+      data: 'https://static.monknow.com/newtab/searcher/259d8e2b-340e-4690-8046-88a0b130cbd0.svg',
+      isOfficial: true,
+      mimeType: 'image/svg+xml',
+      uploaded: true
+    },
+    id: 6,
+    title: 'DuckDuckGo',
+    url: 'https://duckduckgo.com/?q=%s',
+    uuid: '259d8e2b-340e-4690-8046-88a0b130cbd0'
+  }
+}
+
+const DEFAULT_SEARCHER_OFFICIALS = [
+  'e58b5a00-74fe-4319-af0a-d4999565dd71',
+  'ceb6c985-d09c-4fdc-b0ea-b304f1ee0f2d',
+  '2a5e69d9-bf13-4188-8da2-004551a913a0',
+  '0eb43a90-b4c7-43ce-9c73-ab110945f47d',
+  '118f7463-4411-4856-873f-2851faa3b543',
+  '259d8e2b-340e-4690-8046-88a0b130cbd0'
+]
+
+/**
+ * 同步搜索设置到服务器
+ * 使用本地搜索引擎数据直接同步
+ */
+export async function syncSearcherToServer(secret: string, settings: Settings): Promise<boolean> {
+  // 将本地搜索引擎 id 转换为 Monknow uuid
+  const searcherUuid = SEARCHER_UUID_MAP[settings.searchEngine] || SEARCHER_UUID_MAP.google
+
+  const searcherData: MonkNowSearcherData = {
+    version: MONKNOW_SEARCHER_VERSION,
+    updaterVersion: Date.now(),
+    setting: {
+      borderRadiusPercentage: 20,
+      displayShadow: true,
+      heightPercentage: 100,
+      opacityPercentage: 90,
+      openTarget: settings.searchOpenTarget || 'currentTab',
+      value: searcherUuid,
+      widthPercentage: 59
+    },
+    data: {
+      dict: DEFAULT_SEARCHER_DICT,
+      officials: DEFAULT_SEARCHER_OFFICIALS
+    }
+  }
+
+  return updateUserData(secret, 'searcher', JSON.stringify(searcherData))
 }
