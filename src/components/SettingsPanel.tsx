@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval, ViewLayout } from '../types'
-import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS, VIEW_LAYOUT_PRESETS } from '../constants'
+import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval, ViewLayout, StandbySettings, StandbyInactiveDelay } from '../types'
+import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS, VIEW_LAYOUT_PRESETS, STANDBY_INACTIVE_DELAYS } from '../constants'
 import { updateNickname, updatePortrait, changePassword, uploadImage, uploadWallpaper } from '../services/api'
 import { OptionSelect } from './OptionSelect'
 import './SettingsPanel.css'
@@ -137,6 +137,25 @@ export function SettingsPanel({
   // 更新设置
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     onSettingsChange({ ...settings, [key]: value })
+  }
+
+  // 更新待机页设置
+  const updateStandbySetting = <K extends keyof StandbySettings>(key: K, value: StandbySettings[K]) => {
+    const currentStandby = settings.standby || {
+      display: true,
+      openAfterAppReady: false,
+      openAfterAppInactiveDelaySeconds: 30 as StandbyInactiveDelay,
+      blurredBackground: true,
+      displayClock: true,
+      displayWeather: true
+    }
+    onSettingsChange({
+      ...settings,
+      standby: {
+        ...currentStandby,
+        [key]: value
+      }
+    })
   }
 
   // 切换主视图布局时，同时更新多个相关设置
@@ -1257,70 +1276,95 @@ export function SettingsPanel({
                       <div className="settings-item">
                         <span className="settings-item-label">开启待机页</span>
                         <div
-                          className={`settings-switch ${settings.showWeather ? 'active' : ''}`}
-                          onClick={() => updateSetting('showWeather', !settings.showWeather)}
+                          className={`settings-switch ${settings.standby?.display !== false ? 'active' : ''}`}
+                          onClick={() => updateStandbySetting('display', settings.standby?.display === false)}
                         >
                           <div className="settings-switch-thumb" />
                         </div>
                       </div>
-                      <div className="settings-item">
-                        <span className="settings-item-label">打开标签页时进入</span>
-                        <div
-                          className={`settings-switch ${settings.showSeconds ? 'active' : ''}`}
-                          onClick={() => updateSetting('showSeconds', !settings.showSeconds)}
-                        >
-                          <div className="settings-switch-thumb" />
-                        </div>
-                      </div>
-                      <div className="settings-item">
-                        <span className="settings-item-label">不活跃时进入</span>
-                        <select
-                          className="settings-select compact"
-                          value="30"
-                        >
-                          <option value="30">30秒</option>
-                          <option value="60">60秒</option>
-                          <option value="120">2分钟</option>
-                          <option value="300">5分钟</option>
-                        </select>
-                      </div>
+                      {/* 待机页开启时才显示以下设置项 */}
+                      {settings.standby?.display !== false && (
+                        <>
+                          <div className="settings-item">
+                            <span className="settings-item-label">打开标签页时进入</span>
+                            <div
+                              className={`settings-switch ${settings.standby?.openAfterAppReady ? 'active' : ''}`}
+                              onClick={() => updateStandbySetting('openAfterAppReady', !settings.standby?.openAfterAppReady)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
+                          <div className="settings-item">
+                            <span className="settings-item-label">不活跃时进入</span>
+                            <select
+                              className="settings-select compact"
+                              value={settings.standby?.openAfterAppInactiveDelaySeconds ?? 30}
+                              onChange={(e) => updateStandbySetting('openAfterAppInactiveDelaySeconds', Number(e.target.value) as StandbyInactiveDelay)}
+                            >
+                              {STANDBY_INACTIVE_DELAYS.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </>
+                      )}
                     </div>
 
-                    {/* 待机页背景 */}
-                    <div className="settings-card">
-                      <h3 className="settings-section-title">待机页背景</h3>
-                      <div className="settings-item">
-                        <span className="settings-item-label">模糊</span>
-                        <div
-                          className={`settings-switch ${settings.wallpaperBlurred ? 'active' : ''}`}
-                          onClick={() => updateSetting('wallpaperBlurred', !settings.wallpaperBlurred)}
-                        >
-                          <div className="settings-switch-thumb" />
+                    {/* 待机页开启时才显示以下卡片 */}
+                    {settings.standby?.display !== false && (
+                      <>
+                        {/* 待机页背景 */}
+                        <div className="settings-card">
+                          <h3 className="settings-section-title">待机页背景</h3>
+                          <div className="settings-item">
+                            <span className="settings-item-label">模糊</span>
+                            <div
+                              className={`settings-switch ${settings.standby?.blurredBackground !== false ? 'active' : ''}`}
+                              onClick={() => updateStandbySetting('blurredBackground', settings.standby?.blurredBackground === false)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
-                    {/* 待机页时钟 */}
-                    <div className="settings-card">
-                      <h3 className="settings-section-title">待机页时钟</h3>
-                      <div className="settings-item">
-                        <span className="settings-item-label">开启时钟</span>
-                        <div
-                          className={`settings-switch active`}
-                        >
-                          <div className="settings-switch-thumb" />
+                        {/* 待机页时钟 */}
+                        <div className="settings-card">
+                          <h3 className="settings-section-title">待机页时钟</h3>
+                          <div className="settings-item">
+                            <span className="settings-item-label">开启时钟</span>
+                            <div
+                              className={`settings-switch ${settings.standby?.displayClock !== false ? 'active' : ''}`}
+                              onClick={() => updateStandbySetting('displayClock', settings.standby?.displayClock === false)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
+                          <div className="settings-item">
+                            <span className="settings-item-label">24小时制</span>
+                            <div
+                              className={`settings-switch ${settings.clockFormat === '24h' ? 'active' : ''}`}
+                              onClick={() => updateSetting('clockFormat', settings.clockFormat === '24h' ? '12h' : '24h')}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="settings-item">
-                        <span className="settings-item-label">24小时制</span>
-                        <div
-                          className={`settings-switch ${settings.clockFormat === '24h' ? 'active' : ''}`}
-                          onClick={() => updateSetting('clockFormat', settings.clockFormat === '24h' ? '12h' : '24h')}
-                        >
-                          <div className="settings-switch-thumb" />
+
+                        {/* 待机页天气 */}
+                        <div className="settings-card">
+                          <h3 className="settings-section-title">待机页天气</h3>
+                          <div className="settings-item">
+                            <span className="settings-item-label">开启天气</span>
+                            <div
+                              className={`settings-switch ${settings.standby?.displayWeather !== false ? 'active' : ''}`}
+                              onClick={() => updateStandbySetting('displayWeather', settings.standby?.displayWeather === false)}
+                            >
+                              <div className="settings-switch-thumb" />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

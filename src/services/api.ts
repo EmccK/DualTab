@@ -3,7 +3,7 @@
  * 处理用户认证和数据同步
  */
 
-import type { LocationInfo, Settings, ThemeType } from '../types'
+import type { LocationInfo, Settings, StandbySettings, ThemeType } from '../types'
 
 const API_BASE = 'https://dynamic-api.monknow.com'
 const WEATHER_API_BASE = 'https://weather-api.monknow.com'
@@ -1260,6 +1260,64 @@ export async function uploadWallpaper(
     }
   } catch (err) {
     console.error('上传壁纸失败:', err)
+    return null
+  }
+}
+
+// Monknow standby 数据结构
+interface MonkNowStandbyData {
+  version: number
+  setting: {
+    display: boolean                           // 开启待机页
+    openAfterAppReady: boolean                 // 打开标签页时进入
+    openAfterAppInactiveDelaySeconds: number   // 不活跃时进入延迟（秒）
+    blurredBackground: boolean                 // 待机页背景模糊
+    displayClock: boolean                      // 显示时钟
+    displayWeather: boolean                    // 显示天气
+  }
+}
+
+const MONKNOW_STANDBY_VERSION = 1
+
+/**
+ * 同步待机页设置到服务器
+ * @param secret 用户 token
+ * @param standbySettings 待机页设置
+ */
+export async function syncStandbyToServer(secret: string, standbySettings: StandbySettings): Promise<boolean> {
+  const standbyData: MonkNowStandbyData = {
+    version: MONKNOW_STANDBY_VERSION,
+    setting: {
+      display: standbySettings.display,
+      openAfterAppReady: standbySettings.openAfterAppReady,
+      openAfterAppInactiveDelaySeconds: standbySettings.openAfterAppInactiveDelaySeconds,
+      blurredBackground: standbySettings.blurredBackground,
+      displayClock: standbySettings.displayClock,
+      displayWeather: standbySettings.displayWeather
+    }
+  }
+
+  return updateUserData(secret, 'standby', JSON.stringify(standbyData))
+}
+
+/**
+ * 解析 Monknow standby 数据为本地设置格式
+ * @param standbyJson standby 数据 JSON 字符串
+ */
+export function parseMonknowStandby(standbyJson: string): StandbySettings | null {
+  try {
+    const standbyData: MonkNowStandbyData = JSON.parse(standbyJson)
+
+    return {
+      display: standbyData.setting.display,
+      openAfterAppReady: standbyData.setting.openAfterAppReady,
+      openAfterAppInactiveDelaySeconds: standbyData.setting.openAfterAppInactiveDelaySeconds as StandbySettings['openAfterAppInactiveDelaySeconds'],
+      blurredBackground: standbyData.setting.blurredBackground,
+      displayClock: standbyData.setting.displayClock,
+      displayWeather: standbyData.setting.displayWeather
+    }
+  } catch (e) {
+    console.error('解析 Monknow standby 数据失败:', e)
     return null
   }
 }

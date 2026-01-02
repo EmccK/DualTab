@@ -3,7 +3,7 @@ import type { Settings } from '../types'
 
 interface TimeWeatherProps {
   visible?: boolean  // 控制显示/隐藏
-  settings?: Pick<Settings, 'clockFormat' | 'showSeconds' | 'showWeather'>  // 时钟设置
+  settings?: Pick<Settings, 'clockFormat' | 'showSeconds' | 'showWeather' | 'standby'>  // 时钟和待机页设置
 }
 
 // 时间天气组件 - 空闲时显示 (Monknow 风格)
@@ -13,7 +13,9 @@ export function TimeWeather({ visible = true, settings }: TimeWeatherProps) {
   // 默认设置
   const clockFormat = settings?.clockFormat ?? '24h'
   const showSeconds = settings?.showSeconds ?? false
-  const showWeather = settings?.showWeather ?? true
+  // 使用待机页设置中的 displayClock 和 displayWeather
+  const showClock = settings?.standby?.displayClock !== false
+  const showWeather = settings?.standby?.displayWeather !== false
 
   // 更新时间
   useEffect(() => {
@@ -53,15 +55,19 @@ export function TimeWeather({ visible = true, settings }: TimeWeatherProps) {
       <div className="time-weather-main">
         <div className="time-weather-container">
           {/* 时间显示 - Monknow 风格 */}
-          <div className="time-display">
-            <span className="time-text">
-              {timeString}
-              {period && <span className="time-period">{period}</span>}
-            </span>
-          </div>
+          {showClock && (
+            <>
+              <div className="time-display">
+                <span className="time-text">
+                  {timeString}
+                  {period && <span className="time-period">{period}</span>}
+                </span>
+              </div>
 
-          {/* 日期显示 */}
-          <div className="date-display">{dateStr}</div>
+              {/* 日期显示 */}
+              <div className="date-display">{dateStr}</div>
+            </>
+          )}
 
           {/* 天气显示 - Monknow 风格 */}
           {showWeather && (

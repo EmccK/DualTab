@@ -23,8 +23,8 @@ interface WallpaperCache {
   category: number
 }
 
-// 空闲超时时间（毫秒）- 用户停止操作后多久显示时间天气
-const IDLE_TIMEOUT = 5000
+// 默认空闲超时时间（毫秒）- 用户停止操作后多久显示时间天气
+const DEFAULT_IDLE_TIMEOUT = 30000
 // 滚动切换分组的动画时间（毫秒）
 const SLIDE_ANIMATION_TIME = 200
 
@@ -237,10 +237,26 @@ function App() {
   // 标记当前滚轮操作是否已经开始（用于只响应滚轮操作的第一个事件）
   const wheelStarted = useRef(false)
 
+  // 计算空闲超时时间（毫秒）
+  // 如果待机页关闭或设置为"从不"，则不启用空闲检测
+  const idleTimeout = useMemo(() => {
+    // 待机页关闭时不启用空闲检测
+    if (settings.standby?.display === false) return 0
+    // 获取设置的延迟时间（秒），0 表示"从不"
+    const delaySeconds = settings.standby?.openAfterAppInactiveDelaySeconds ?? 30
+    if (delaySeconds === 0) return 0
+    return delaySeconds * 1000
+  }, [settings.standby?.display, settings.standby?.openAfterAppInactiveDelaySeconds])
+
   // 使用空闲计时器 hook（排除 wheel 事件，由下面的 handleWheel 统一处理）
   const { resetTimer: resetIdleTimer } = useIdleTimer({
-    timeout: IDLE_TIMEOUT,
-    onIdle: () => setShowTimeWeather(true),
+    timeout: idleTimeout || DEFAULT_IDLE_TIMEOUT,
+    onIdle: () => {
+      // 只有在待机页启用且有超时时间时才显示
+      if (idleTimeout > 0) {
+        setShowTimeWeather(true)
+      }
+    },
     onActive: () => setShowTimeWeather(false),
     excludeWheel: true
   })
@@ -249,6 +265,15 @@ function App() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // 打开标签页时进入待机页（如果设置了 openAfterAppReady）
+  useEffect(() => {
+    if (isLoaded && settings.standby?.display !== false && settings.standby?.openAfterAppReady) {
+      setShowTimeWeather(true)
+    }
+  // 只在初始加载完成时执行一次
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded])
 
   // 滚动切换分组（带动画）
   useEffect(() => {
@@ -534,7 +559,12 @@ function App() {
         >
           <div
             className="time-weather-blur-bg"
-            style={blurredWallpaperUrl ? { backgroundImage: `url(${blurredWallpaperUrl})` } : { backgroundColor: settings.wallpaperColor || '#276ce6' }}
+            style={
+              // 根据待机页背景模糊设置决定使用模糊壁纸还是原壁纸
+              settings.standby?.blurredBackground !== false
+                ? (blurredWallpaperUrl ? { backgroundImage: `url(${blurredWallpaperUrl})` } : { backgroundColor: settings.wallpaperColor || '#276ce6' })
+                : (currentWallpaperUrl ? { backgroundImage: `url(${currentWallpaperUrl})` } : { backgroundColor: settings.wallpaperColor || '#276ce6' })
+            }
           />
           <TimeWeather visible={showTimeWeather} settings={settings} />
         </div>

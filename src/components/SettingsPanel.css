@@ -180,7 +180,7 @@
 
 .settings-content-inner {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   scrollbar-width: thin;
 }
 

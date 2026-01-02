@@ -127,6 +127,19 @@ export interface WallpaperDict {
   lib?: WallpaperData
 }
 
+// 待机页不活跃进入延迟时间（秒）
+export type StandbyInactiveDelay = 0 | 30 | 60 | 120 | 300  // 从不、30秒、60秒、2分钟、5分钟
+
+// 待机页设置类型
+export interface StandbySettings {
+  display: boolean                           // 开启待机页
+  openAfterAppReady: boolean                 // 打开标签页时进入
+  openAfterAppInactiveDelaySeconds: StandbyInactiveDelay  // 不活跃时进入延迟
+  blurredBackground: boolean                 // 待机页背景模糊
+  displayClock: boolean                      // 显示时钟
+  displayWeather: boolean                    // 显示天气
+}
+
 // 设置配置类型
 export interface Settings {
   // 主题设置
@@ -173,6 +186,9 @@ export interface Settings {
   showAddButton: boolean              // 显示添加按钮
   scrollToSwitchGroup: boolean        // 滚动以切换分组
   rememberLastGroup: boolean          // 记住最后访问的分组
+
+  // 待机页设置 - Monknow 风格
+  standby: StandbySettings
 }
 
 // 用户信息类型

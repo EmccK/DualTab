@@ -1,4 +1,4 @@
-import type { NavGroup, SearchEngine, Site, ThemeType, ViewLayout, WallpaperCategory, WallpaperInterval, WallpaperSource } from './types'
+import type { NavGroup, SearchEngine, Site, StandbyInactiveDelay, ThemeType, ViewLayout, WallpaperCategory, WallpaperInterval, WallpaperSource } from './types'
 
 // 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
@@ -114,6 +114,15 @@ export const WALLPAPER_INTERVALS: { value: WallpaperInterval; label: string }[] 
   { value: 86400, label: '24小时' }
 ]
 
+// 待机页不活跃进入延迟选项（Monknow 风格）
+export const STANDBY_INACTIVE_DELAYS: { value: StandbyInactiveDelay; label: string }[] = [
+  { value: 0, label: '从不' },
+  { value: 30, label: '30秒' },
+  { value: 60, label: '60秒' },
+  { value: 120, label: '2分钟' },
+  { value: 300, label: '5分钟' }
+]
+
 
 // 创建图片类型 Site 的辅助函数
 const createImageSite = (id: string, name: string, desc: string, url: string, iconUrl: string, bgColor: string): Site => ({
@@ -220,7 +229,17 @@ export const DEFAULT_SETTINGS = {
   iconColumnGap: 34,                  // 默认列间距 34%
   showAddButton: true,                // 默认显示添加按钮
   scrollToSwitchGroup: true,          // 默认开启滚动切换分组
-  rememberLastGroup: false            // 默认不记住最后访问的分组
+  rememberLastGroup: false,           // 默认不记住最后访问的分组
+
+  // 待机页设置 - Monknow 风格默认值
+  standby: {
+    display: true,                    // 默认开启待机页
+    openAfterAppReady: false,         // 默认不在打开标签页时进入
+    openAfterAppInactiveDelaySeconds: 30 as StandbyInactiveDelay,  // 默认30秒不活跃后进入
+    blurredBackground: true,          // 默认模糊背景
+    displayClock: true,               // 默认显示时钟
+    displayWeather: true              // 默认显示天气
+  }
 }
 
 // 打开方式选项 - Monknow 风格（只有三个选项）
