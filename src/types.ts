@@ -96,6 +96,8 @@ export interface Settings {
   showSiteLabel: boolean       // 显示网站标签
   showSiteDesc: boolean        // 显示网站描述
   sidebarPosition: 'left' | 'right'  // 侧边栏位置
+  sidebarAutoHide: boolean     // 侧边栏自动隐藏
+  sidebarCollapsed: boolean    // 侧边栏窄距菜单
 
   // 图标设置 - Monknow 风格
   iconLayout: IconLayout              // 图标布局: simple(简洁) / particular(详细)

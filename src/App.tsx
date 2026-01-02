@@ -100,6 +100,10 @@ function App() {
 
   // 分组切换动画状态
   const [slideStatus, setSlideStatus] = useState<SlideStatusType>(SlideStatus.Normal)
+  // 侧边栏进入状态（用于自动隐藏功能）
+  const [sidebarEntered, setSidebarEntered] = useState(false)
+  // 侧边栏离开延迟定时器
+  const sidebarLeaveTimer = useRef<number | null>(null)
   // 动画是否正在进行中
   const isAnimating = useRef(false)
   // 动画定时器
@@ -251,13 +255,41 @@ function App() {
     ? { backgroundColor: settings.wallpaper }
     : { backgroundImage: `url(${settings.wallpaper})` }
 
+  // 侧边栏鼠标进入处理（取消延迟关闭）
+  const handleSidebarEnter = useCallback(() => {
+    if (sidebarLeaveTimer.current) {
+      clearTimeout(sidebarLeaveTimer.current)
+      sidebarLeaveTimer.current = null
+    }
+    setSidebarEntered(true)
+  }, [])
+
+  // 侧边栏鼠标离开处理（延迟关闭，避免闪烁）
+  const handleSidebarLeave = useCallback(() => {
+    sidebarLeaveTimer.current = window.setTimeout(() => {
+      setSidebarEntered(false)
+      sidebarLeaveTimer.current = null
+    }, 100)
+  }, [])
+
   return (
     <div className={`app ${effectiveTheme}-theme`}>
       {/* 壁纸 */}
       <div className="wallpaper" style={wallpaperStyle} />
 
       {/* 主容器 */}
-      <div className="main-container">
+      <div className={[
+        'main-container',
+        settings.sidebarPosition === 'right' && 'sidebar-right',
+        settings.sidebarAutoHide && 'sidebar-auto-hide',
+        !settings.sidebarCollapsed && 'sidebar-expanded',
+        sidebarEntered && 'sidebar-entered'
+      ].filter(Boolean).join(' ')}>
+        {/* 侧边栏触发区域 - 用于自动隐藏模式下检测鼠标进入 */}
+        <div
+          className="sidebar-trigger"
+          onMouseEnter={handleSidebarEnter}
+        />
         {/* 侧边栏 */}
         <Sidebar
           groups={groups}
@@ -274,6 +306,9 @@ function App() {
           }}
           onOpenSettings={openSettings}
           user={user}
+          collapsed={settings.sidebarCollapsed}
+          onMouseEnter={handleSidebarEnter}
+          onMouseLeave={handleSidebarLeave}
         />
 
         {/* 内容区视口 - 用于滚动切换分组动画 */}

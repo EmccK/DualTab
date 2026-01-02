@@ -197,17 +197,19 @@ export async function getUserAllData(secret: string): Promise<{
   common?: string
   background?: string
   searcher?: string
+  sidebar?: string
 } | null> {
   try {
     // 并行获取所有数据类型
-    const [icons, common, background, searcher] = await Promise.all([
+    const [icons, common, background, searcher, sidebar] = await Promise.all([
       getUserDataByType(secret, 'icons'),
       getUserDataByType(secret, 'common'),
       getUserDataByType(secret, 'background'),
-      getUserDataByType(secret, 'searcher')
+      getUserDataByType(secret, 'searcher'),
+      getUserDataByType(secret, 'sidebar')
     ])
-    
-    return { icons: icons || undefined, common: common || undefined, background: background || undefined, searcher: searcher || undefined }
+
+    return { icons: icons || undefined, common: common || undefined, background: background || undefined, searcher: searcher || undefined, sidebar: sidebar || undefined }
   } catch (err) {
     console.warn('获取用户数据失败:', err)
     return null
@@ -842,6 +844,55 @@ export function parseMonknowCommon(commonJson: string): Partial<Settings> | null
     return settings
   } catch (e) {
     console.error('解析 Monknow common 数据失败:', e)
+    return null
+  }
+}
+
+// Monknow sidebar 数据格式
+interface MonkNowSidebarData {
+  version: number
+  setting: {
+    autoHide: boolean
+    collapsed: boolean
+    side: 'left' | 'right'
+  }
+}
+
+const MONKNOW_SIDEBAR_VERSION = 2
+
+/**
+ * 同步侧边栏设置到服务器（sidebar 类型）
+ * @param secret 用户 token
+ * @param settings 本地设置
+ */
+export async function syncSidebarToServer(secret: string, settings: Settings): Promise<boolean> {
+  const sidebarData: MonkNowSidebarData = {
+    version: MONKNOW_SIDEBAR_VERSION,
+    setting: {
+      autoHide: settings.sidebarAutoHide,
+      collapsed: settings.sidebarCollapsed,
+      side: settings.sidebarPosition
+    }
+  }
+
+  return updateUserData(secret, 'sidebar', JSON.stringify(sidebarData))
+}
+
+/**
+ * 解析 Monknow sidebar 数据为本地设置格式
+ * @param sidebarJson sidebar 数据 JSON 字符串
+ */
+export function parseMonknowSidebar(sidebarJson: string): Partial<Settings> | null {
+  try {
+    const sidebarData: MonkNowSidebarData = JSON.parse(sidebarJson)
+
+    return {
+      sidebarAutoHide: sidebarData.setting.autoHide,
+      sidebarCollapsed: sidebarData.setting.collapsed,
+      sidebarPosition: sidebarData.setting.side
+    }
+  } catch (e) {
+    console.error('解析 Monknow sidebar 数据失败:', e)
     return null
   }
 }

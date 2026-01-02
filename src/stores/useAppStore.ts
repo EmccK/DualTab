@@ -7,27 +7,60 @@ import { create } from 'zustand'
 import type { NavGroup, Site, Settings, User } from '../types'
 import { DEFAULT_NAV_GROUPS, DEFAULT_SETTINGS } from '../constants'
 import { getStorage, setStorage, removeStorage, STORAGE_KEYS } from '../services/storage'
-import { getUserAllData, parseMonkNowIcons, syncIconsToServer, syncSettingsToServer, parseMonknowCommon } from '../services/api'
+import { getUserAllData, parseMonkNowIcons, syncIconsToServer, syncSettingsToServer, syncSidebarToServer, parseMonknowCommon, parseMonknowSidebar } from '../services/api'
 import type { UserInfo } from '../services/api'
 
 // 设置同步防抖定时器
-let settingsSyncTimer: ReturnType<typeof setTimeout> | null = null
+let commonSyncTimer: ReturnType<typeof setTimeout> | null = null
+let sidebarSyncTimer: ReturnType<typeof setTimeout> | null = null
 const SETTINGS_SYNC_DELAY = 1000 // 1秒防抖延迟
 
+// 侧边栏相关的设置 key
+const SIDEBAR_SETTINGS_KEYS: (keyof Settings)[] = ['sidebarPosition', 'sidebarAutoHide', 'sidebarCollapsed']
+
 /**
- * 防抖同步设置到服务器
- * 避免用户快速切换设置时产生大量 API 请求
+ * 防抖同步 common 设置到服务器
  */
-function debouncedSyncSettings(secret: string, settings: Settings) {
-  if (settingsSyncTimer) {
-    clearTimeout(settingsSyncTimer)
+function debouncedSyncCommon(secret: string, settings: Settings) {
+  if (commonSyncTimer) {
+    clearTimeout(commonSyncTimer)
   }
-  settingsSyncTimer = setTimeout(() => {
+  commonSyncTimer = setTimeout(() => {
     syncSettingsToServer(secret, settings).catch(err => {
-      console.warn('同步设置到服务器失败:', err)
+      console.warn('同步 common 设置到服务器失败:', err)
     })
-    settingsSyncTimer = null
+    commonSyncTimer = null
   }, SETTINGS_SYNC_DELAY)
+}
+
+/**
+ * 防抖同步 sidebar 设置到服务器
+ */
+function debouncedSyncSidebar(secret: string, settings: Settings) {
+  if (sidebarSyncTimer) {
+    clearTimeout(sidebarSyncTimer)
+  }
+  sidebarSyncTimer = setTimeout(() => {
+    syncSidebarToServer(secret, settings).catch(err => {
+      console.warn('同步 sidebar 设置到服务器失败:', err)
+    })
+    sidebarSyncTimer = null
+  }, SETTINGS_SYNC_DELAY)
+}
+
+/**
+ * 根据变更的设置 key 同步到服务器
+ */
+function syncSettingsChange(secret: string, settings: Settings, changedKeys: (keyof Settings)[]) {
+  const hasSidebarChange = changedKeys.some(key => SIDEBAR_SETTINGS_KEYS.includes(key))
+  const hasCommonChange = changedKeys.some(key => !SIDEBAR_SETTINGS_KEYS.includes(key))
+
+  if (hasSidebarChange) {
+    debouncedSyncSidebar(secret, settings)
+  }
+  if (hasCommonChange) {
+    debouncedSyncCommon(secret, settings)
+  }
 }
 
 interface AppState {
@@ -165,12 +198,17 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // 设置操作
   setSettings: (settings) => {
+    const oldSettings = get().settings
     set({ settings })
     setStorage(STORAGE_KEYS.SETTINGS, settings)
-    // 如果已登录，防抖同步到服务器
+    // 如果已登录，根据变更的 key 同步到服务器
     const { user } = get()
     if (user?.secret) {
-      debouncedSyncSettings(user.secret, settings)
+      // 找出变更的 key
+      const changedKeys = (Object.keys(settings) as (keyof Settings)[]).filter(
+        key => settings[key] !== oldSettings[key]
+      )
+      syncSettingsChange(user.secret, settings, changedKeys)
     }
   },
 
@@ -178,10 +216,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     set(state => {
       const newSettings = { ...state.settings, ...partial }
       setStorage(STORAGE_KEYS.SETTINGS, newSettings)
-      // 如果已登录，防抖同步到服务器
+      // 如果已登录，根据变更的 key 同步到服务器
       const { user } = get()
       if (user?.secret) {
-        debouncedSyncSettings(user.secret, newSettings)
+        const changedKeys = Object.keys(partial) as (keyof Settings)[]
+        syncSettingsChange(user.secret, newSettings, changedKeys)
       }
       return { settings: newSettings }
     })
@@ -280,16 +319,35 @@ export const useAppStore = create<AppState>((set, get) => ({
       try {
         const serverData = await getUserAllData(savedUser.secret)
 
+        // 合并服务器设置，避免竞态条件
+        let mergedServerSettings = { ...get().settings }
+        let hasSettingsUpdate = false
+
         // 同步 common 设置（主题等）
         if (serverData?.common) {
           const parsedSettings = parseMonknowCommon(serverData.common)
           if (parsedSettings) {
-            const currentSettings = get().settings
-            const newSettings = { ...currentSettings, ...parsedSettings }
-            set({ settings: newSettings })
-            await setStorage(STORAGE_KEYS.SETTINGS, newSettings)
-            console.log('从服务器同步设置成功')
+            mergedServerSettings = { ...mergedServerSettings, ...parsedSettings }
+            hasSettingsUpdate = true
+            console.log('解析 common 设置成功')
           }
+        }
+
+        // 同步 sidebar 设置（侧边栏位置等）
+        if (serverData?.sidebar) {
+          const parsedSidebar = parseMonknowSidebar(serverData.sidebar)
+          if (parsedSidebar) {
+            mergedServerSettings = { ...mergedServerSettings, ...parsedSidebar }
+            hasSettingsUpdate = true
+            console.log('解析 sidebar 设置成功')
+          }
+        }
+
+        // 一次性更新设置，避免多次 set 导致的竞态条件
+        if (hasSettingsUpdate) {
+          set({ settings: mergedServerSettings })
+          await setStorage(STORAGE_KEYS.SETTINGS, mergedServerSettings)
+          console.log('从服务器同步设置成功')
         }
 
         // 同步 icons 数据

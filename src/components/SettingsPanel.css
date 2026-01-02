@@ -422,6 +422,92 @@
   padding: 8px 16px 16px;
 }
 
+/* 主题&壁纸两列布局 - Monknow 风格 */
+.theme-wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.theme-wallpaper-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.theme-wallpaper-left .settings-card {
+  margin-bottom: 0;
+}
+
+.theme-wallpaper-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-wallpaper-right .settings-card {
+  margin-bottom: 0;
+  height: 100%;
+}
+
+/* 壁纸类型选择网格 - Monknow 风格 */
+.wallpaper-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 8px 16px 16px;
+}
+
+.wallpaper-type-item {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.wallpaper-type-preview {
+  border: 2px solid transparent;
+  border-radius: 4px;
+  height: 80px;
+  padding: 1px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: border-color 0.2s ease-in-out;
+}
+
+/* 本地壁纸预览 - 灰色渐变 */
+.wallpaper-type-preview.local-preview {
+  background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+}
+
+.dark-theme .wallpaper-type-preview.local-preview {
+  background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+}
+
+.wallpaper-type-label {
+  font-size: 14px;
+  line-height: 1.3;
+  margin-top: 4px;
+  text-align: center;
+  display: block;
+  transition: color 0.2s ease-in-out;
+}
+
+.dark-theme .wallpaper-type-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .wallpaper-type-label {
+  color: #676767;
+}
+
+/* 壁纸类型选中状态 */
+.wallpaper-type-item.selected .wallpaper-type-preview {
+  border-color: #1890ff;
+}
+
+.wallpaper-type-item.selected .wallpaper-type-label {
+  color: #1890ff;
+}
+
 .theme-item {
   cursor: pointer;
   transition: opacity 0.2s ease-in-out;
@@ -2099,4 +2185,139 @@
 
 .light-theme .settings-item-clickable:hover .settings-item-arrow {
   color: #333;
+}
+
+/* 侧边栏位置选择 - Monknow 风格 */
+.sidebar-position-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 102px);
+  justify-content: center;
+  column-gap: 24px;
+  row-gap: 12px;
+  padding: 8px 16px 16px;
+}
+
+.sidebar-position-item {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* 侧边栏位置预览卡片 */
+.sidebar-position-preview {
+  border: 2px solid transparent;
+  border-radius: 4px;
+  height: 60px;
+  padding: 1px;
+  position: relative;
+  transition: border-color 0.2s ease-in-out;
+  display: flex;
+  overflow: hidden;
+}
+
+.dark-theme .sidebar-position-preview {
+  background-color: #333;
+}
+
+.light-theme .sidebar-position-preview {
+  background-color: #e8f4ff;
+}
+
+/* 侧边栏预览条 */
+.sidebar-preview-bar {
+  width: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 2px;
+  flex-shrink: 0;
+}
+
+.dark-theme .sidebar-preview-bar {
+  background-color: rgba(32, 33, 36, 0.9);
+}
+
+.light-theme .sidebar-preview-bar {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-preview-bar::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #1890ff;
+  margin-bottom: 4px;
+}
+
+.sidebar-preview-bar::after {
+  content: '';
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  margin-top: 4px;
+}
+
+.dark-theme .sidebar-preview-bar::after {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.light-theme .sidebar-preview-bar::after {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 侧边栏预览内容区 */
+.sidebar-preview-content {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 预览卡片网格 */
+.sidebar-preview-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+.sidebar-preview-card {
+  height: 16px;
+  border-radius: 2px;
+}
+
+.dark-theme .sidebar-preview-card {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .sidebar-preview-card {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* 侧边栏位置标签 */
+.sidebar-position-label {
+  font-size: 14px;
+  line-height: 1.3;
+  margin-top: 4px;
+  text-align: center;
+  display: block;
+  transition: color 0.2s ease-in-out;
+}
+
+.dark-theme .sidebar-position-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .sidebar-position-label {
+  color: #676767;
+}
+
+/* 选中状态 */
+.sidebar-position-item.selected .sidebar-position-preview {
+  border-color: #1890ff;
+}
+
+.sidebar-position-item.selected .sidebar-position-label {
+  color: #1890ff;
 }

@@ -80,6 +80,64 @@ ol, ul {
   display: flex;
 }
 
+/* 侧边栏在右侧时，调整 flex 顺序 */
+.main-container.sidebar-right {
+  flex-direction: row-reverse;
+}
+
+/* 侧边栏自动隐藏 - Monknow 风格 */
+.main-container.sidebar-auto-hide .sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 10;
+}
+
+/* 右侧侧边栏自动隐藏时的位置 */
+.main-container.sidebar-right.sidebar-auto-hide .sidebar {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
+}
+
+/* 侧边栏触发区域 - 用于检测鼠标进入 */
+.sidebar-trigger {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  z-index: 9;
+  pointer-events: auto;
+}
+
+/* 左侧侧边栏触发区域 */
+.main-container:not(.sidebar-right) .sidebar-trigger {
+  left: 0;
+}
+
+/* 右侧侧边栏触发区域 */
+.main-container.sidebar-right .sidebar-trigger {
+  right: 0;
+}
+
+/* 非自动隐藏模式下隐藏触发区域 */
+.main-container:not(.sidebar-auto-hide) .sidebar-trigger {
+  display: none;
+}
+
+/* 鼠标进入侧边栏区域时显示侧边栏 */
+.main-container.sidebar-auto-hide.sidebar-entered .sidebar {
+  transform: translateX(0);
+}
+
+/* 右侧侧边栏鼠标进入时显示 */
+.main-container.sidebar-right.sidebar-auto-hide.sidebar-entered .sidebar {
+  transform: translateX(0);
+}
+
 /* 侧边栏 - Monknow 风格 */
 .sidebar {
   width: 72px;
@@ -87,12 +145,18 @@ ol, ul {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 0 24px;
+  padding: 20px 0 0;
   user-select: none;
   position: relative;
   z-index: 1;
   flex: none;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, width 0.2s ease-in-out;
+}
+
+/* 展开的侧边栏（宽距菜单） */
+.sidebar.expanded {
+  width: 212px;
+  align-items: flex-start;
 }
 
 /* 深色主题侧边栏 */
@@ -109,6 +173,9 @@ ol, ul {
 .sidebar-header {
   padding: 20px 0 24px;
   flex: none;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .user-avatar {
@@ -128,6 +195,23 @@ ol, ul {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background-size: cover;
   background-position: center;
+  transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+}
+
+.avatar-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+  object-fit: cover;
+  transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+}
+
+/* 展开侧边栏时的头像放大 */
+.sidebar.expanded .avatar-placeholder,
+.sidebar.expanded .avatar-img {
+  width: 72px;
+  height: 72px;
 }
 
 .login-text {
@@ -162,10 +246,29 @@ ol, ul {
   justify-content: center;
   padding: 12px 0;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, width 0.2s ease-in-out;
   position: relative;
   background-color: transparent;
   user-select: none;
+}
+
+/* 展开侧边栏时的导航项 */
+.sidebar.expanded .nav-item {
+  width: 100%;
+  height: 64px;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 12px 24px;
+}
+
+.sidebar.expanded .nav-icon-svg {
+  margin-bottom: 0;
+  margin-right: 12px;
+}
+
+.sidebar.expanded .nav-label {
+  font-size: 14px;
+  padding: 0;
 }
 
 .nav-icon {
@@ -259,10 +362,22 @@ ol, ul {
   justify-content: center;
 }
 
+/* 展开侧边栏时的添加按钮 */
+.sidebar.expanded .add-btn {
+  height: 64px;
+  justify-content: flex-start;
+}
+
 /* 添加按钮图标放大 */
 .add-icon-svg {
   width: 24px !important;
   height: 24px !important;
+}
+
+/* 展开侧边栏时添加按钮图标恢复正常大小 */
+.sidebar.expanded .add-icon-svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 /* 设置按钮 - 底部固定 */

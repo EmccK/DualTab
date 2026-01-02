@@ -11,6 +11,9 @@ interface SidebarProps {
   onOpenAllSites: (group: NavGroup) => void
   onOpenSettings: () => void
   user: User | null
+  collapsed?: boolean  // 是否为窄距菜单
+  onMouseEnter?: () => void  // 鼠标进入侧边栏
+  onMouseLeave?: () => void  // 鼠标离开侧边栏
 }
 
 // 右键菜单状态
@@ -31,7 +34,10 @@ export function Sidebar({
   onDeleteGroup,
   onOpenAllSites,
   onOpenSettings,
-  user
+  user,
+  collapsed = true,
+  onMouseEnter,
+  onMouseLeave
 }: SidebarProps) {
   // 右键菜单状态
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -82,7 +88,11 @@ export function Sidebar({
   }
 
   return (
-    <aside className="sidebar">
+    <aside
+      className={`sidebar ${collapsed ? '' : 'expanded'}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* 用户头像 */}
       <div className="sidebar-header">
         {user?.isLoggedIn ? (
@@ -117,9 +127,9 @@ export function Sidebar({
           </div>
         ))}
 
-        {/* 添加分组按钮 - 只显示图标 */}
-        <div 
-          className="nav-item add-btn" 
+        {/* 添加分组按钮 */}
+        <div
+          className="nav-item add-btn"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect()
             onAddGroup({ x: rect.right + 8, y: rect.top })
@@ -128,6 +138,7 @@ export function Sidebar({
           <svg className="nav-icon-svg add-icon-svg" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
           </svg>
+          {!collapsed && <span className="nav-label">添加</span>}
         </div>
       </nav>
 

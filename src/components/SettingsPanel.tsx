@@ -507,147 +507,230 @@ export function SettingsPanel({
             {/* 主题&壁纸设置 */}
             {activeTab === 'theme' && (
               <div className="settings-panel-content">
-                {/* 主题选择 - Monknow 风格 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">主题</h3>
-                  <div className="theme-grid">
-                    {/* 浅色主题 */}
-                    <div
-                      className={`theme-item ${settings.theme === 'light' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
-                      onClick={() => {
-                        if (settings.theme !== 'auto') {
-                          updateSetting('theme', 'light')
-                        }
-                      }}
-                    >
-                      <ThemePreviewCard variant="light" />
-                      <span className="theme-label">浅色</span>
-                    </div>
-                    {/* 深色主题 */}
-                    <div
-                      className={`theme-item ${settings.theme === 'dark' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
-                      onClick={() => {
-                        if (settings.theme !== 'auto') {
-                          updateSetting('theme', 'dark')
-                        }
-                      }}
-                    >
-                      <ThemePreviewCard variant="dark" />
-                      <span className="theme-label">深色</span>
-                    </div>
-                  </div>
-                  {/* 跟随系统开关 */}
-                  <div className="settings-item">
-                    <span className="settings-item-label">跟随系统</span>
-                    <div
-                      className={`settings-switch ${settings.theme === 'auto' ? 'active' : ''}`}
-                      onClick={() => {
-                        if (settings.theme === 'auto') {
-                          // 关闭跟随系统时，根据当前系统主题设置
-                          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-                          updateSetting('theme', isDark ? 'dark' : 'light')
-                        } else {
-                          // 开启跟随系统
-                          updateSetting('theme', 'auto')
-                        }
-                      }}
-                    >
-                      <div className="settings-switch-thumb" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 壁纸选择 */}
-                <div className="settings-card">
-                  <div className="settings-section-header">
-                    <h3 className="settings-section-title">壁纸</h3>
-                    <div className="wallpaper-tabs">
-                      <button
-                        className={`wallpaper-tab ${wallpaperTab === 'official' ? 'active' : ''}`}
-                        onClick={() => setWallpaperTab('official')}
-                      >
-                        官方
-                      </button>
-                      <button
-                        className={`wallpaper-tab ${wallpaperTab === 'local' ? 'active' : ''}`}
-                        onClick={() => setWallpaperTab('local')}
-                      >
-                        本地
-                      </button>
-                      <button
-                        className={`wallpaper-tab ${wallpaperTab === 'solid' ? 'active' : ''}`}
-                        onClick={() => setWallpaperTab('solid')}
-                      >
-                        纯色
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 官方壁纸 */}
-                  {wallpaperTab === 'official' && (
-                    <div className="wallpaper-grid">
-                      {WALLPAPERS.map((wp, index) => (
+                {/* 两列网格布局 - Monknow 风格 */}
+                <div className="theme-wallpaper-grid">
+                  {/* 左列 - 主题 + 侧边栏 */}
+                  <div className="theme-wallpaper-left">
+                    {/* 主题选择 - Monknow 风格 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">主题</h3>
+                      <div className="theme-grid">
+                        {/* 浅色主题 */}
                         <div
-                          key={index}
-                          className={`wallpaper-item ${settings.wallpaper === wp && settings.wallpaperType === 'image' ? 'selected' : ''}`}
-                          style={{ backgroundImage: `url(${wp})` }}
+                          className={`theme-item ${settings.theme === 'light' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
                           onClick={() => {
-                            updateSetting('wallpaper', wp)
-                            updateSetting('wallpaperType', 'image')
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 本地壁纸 */}
-                  {wallpaperTab === 'local' && (
-                    <div className="local-wallpaper-upload">
-                      <label className="upload-area">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              const reader = new FileReader()
-                              reader.onload = (event) => {
-                                const dataUrl = event.target?.result as string
-                                updateSetting('wallpaper', dataUrl)
-                                updateSetting('wallpaperType', 'image')
-                              }
-                              reader.readAsDataURL(file)
+                            if (settings.theme !== 'auto') {
+                              updateSetting('theme', 'light')
                             }
                           }}
-                        />
-                        <div className="upload-icon">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 4V16M12 4L8 8M12 4L16 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                        >
+                          <ThemePreviewCard variant="light" />
+                          <span className="theme-label">浅色</span>
                         </div>
-                        <span className="upload-text">点击上传本地图片</span>
-                        <span className="upload-hint">支持 JPG、PNG 格式</span>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* 纯色壁纸 */}
-                  {wallpaperTab === 'solid' && (
-                    <div className="solid-colors-grid">
-                      {SOLID_COLORS.map((color, index) => (
+                        {/* 深色主题 */}
                         <div
-                          key={index}
-                          className={`solid-color-item ${settings.wallpaper === color && settings.wallpaperType === 'color' ? 'selected' : ''}`}
-                          style={{ backgroundColor: color }}
+                          className={`theme-item ${settings.theme === 'dark' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
                           onClick={() => {
-                            updateSetting('wallpaper', color)
-                            updateSetting('wallpaperType', 'color')
+                            if (settings.theme !== 'auto') {
+                              updateSetting('theme', 'dark')
+                            }
                           }}
-                        />
-                      ))}
+                        >
+                          <ThemePreviewCard variant="dark" />
+                          <span className="theme-label">深色</span>
+                        </div>
+                      </div>
+                      {/* 跟随系统开关 */}
+                      <div className="settings-item">
+                        <span className="settings-item-label">跟随系统</span>
+                        <div
+                          className={`settings-switch ${settings.theme === 'auto' ? 'active' : ''}`}
+                          onClick={() => {
+                            if (settings.theme === 'auto') {
+                              // 关闭跟随系统时，根据当前系统主题设置
+                              const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+                              updateSetting('theme', isDark ? 'dark' : 'light')
+                            } else {
+                              // 开启跟随系统
+                              updateSetting('theme', 'auto')
+                            }
+                          }}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
                     </div>
-                  )}
+
+                    {/* 侧边栏设置 - Monknow 风格 */}
+                    <div className="settings-card">
+                      <h3 className="settings-section-title">侧边栏</h3>
+                      <div className="sidebar-position-grid">
+                        {/* 左侧 */}
+                        <div
+                          className={`sidebar-position-item ${settings.sidebarPosition === 'left' ? 'selected' : ''}`}
+                          onClick={() => updateSetting('sidebarPosition', 'left')}
+                        >
+                          <div className="sidebar-position-preview">
+                            <div className="sidebar-preview-bar left" />
+                            <div className="sidebar-preview-content">
+                              <div className="sidebar-preview-cards">
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="sidebar-position-label">左侧</span>
+                        </div>
+                        {/* 右侧 */}
+                        <div
+                          className={`sidebar-position-item ${settings.sidebarPosition === 'right' ? 'selected' : ''}`}
+                          onClick={() => updateSetting('sidebarPosition', 'right')}
+                        >
+                          <div className="sidebar-position-preview">
+                            <div className="sidebar-preview-content">
+                              <div className="sidebar-preview-cards">
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                                <div className="sidebar-preview-card" />
+                              </div>
+                            </div>
+                            <div className="sidebar-preview-bar right" />
+                          </div>
+                          <span className="sidebar-position-label">右侧</span>
+                        </div>
+                      </div>
+                      {/* 自动隐藏开关 */}
+                      <div className="settings-item">
+                        <span className="settings-item-label">自动隐藏</span>
+                        <div
+                          className={`settings-switch ${settings.sidebarAutoHide ? 'active' : ''}`}
+                          onClick={() => updateSetting('sidebarAutoHide', !settings.sidebarAutoHide)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                      {/* 窄距菜单开关 */}
+                      <div className="settings-item">
+                        <span className="settings-item-label">窄距菜单</span>
+                        <div
+                          className={`settings-switch ${settings.sidebarCollapsed ? 'active' : ''}`}
+                          onClick={() => updateSetting('sidebarCollapsed', !settings.sidebarCollapsed)}
+                        >
+                          <div className="settings-switch-thumb" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 右列 - 壁纸 */}
+                  <div className="theme-wallpaper-right">
+                    {/* 壁纸选择 */}
+                    <div className="settings-card wallpaper-card">
+                      <h3 className="settings-section-title">壁纸</h3>
+                      {/* 壁纸类型选择 - 使用预览卡片 */}
+                      <div className="wallpaper-type-grid">
+                        {/* 官方库 */}
+                        <div
+                          className={`wallpaper-type-item ${wallpaperTab === 'official' ? 'selected' : ''}`}
+                          onClick={() => setWallpaperTab('official')}
+                        >
+                          <div
+                            className="wallpaper-type-preview"
+                            style={{ backgroundImage: `url(${WALLPAPERS[0]})` }}
+                          />
+                          <span className="wallpaper-type-label">官方库</span>
+                        </div>
+                        {/* 本地 */}
+                        <div
+                          className={`wallpaper-type-item ${wallpaperTab === 'local' ? 'selected' : ''}`}
+                          onClick={() => setWallpaperTab('local')}
+                        >
+                          <div className="wallpaper-type-preview local-preview" />
+                          <span className="wallpaper-type-label">本地</span>
+                        </div>
+                        {/* 纯色 */}
+                        <div
+                          className={`wallpaper-type-item ${wallpaperTab === 'solid' ? 'selected' : ''}`}
+                          onClick={() => setWallpaperTab('solid')}
+                        >
+                          <div
+                            className="wallpaper-type-preview"
+                            style={{ backgroundColor: '#808080' }}
+                          />
+                          <span className="wallpaper-type-label">纯色</span>
+                        </div>
+                      </div>
+
+                      {/* 官方壁纸列表 */}
+                      {wallpaperTab === 'official' && (
+                        <div className="wallpaper-grid">
+                          {WALLPAPERS.map((wp, index) => (
+                            <div
+                              key={index}
+                              className={`wallpaper-item ${settings.wallpaper === wp && settings.wallpaperType === 'image' ? 'selected' : ''}`}
+                              style={{ backgroundImage: `url(${wp})` }}
+                              onClick={() => {
+                                updateSetting('wallpaper', wp)
+                                updateSetting('wallpaperType', 'image')
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* 本地壁纸 */}
+                      {wallpaperTab === 'local' && (
+                        <div className="local-wallpaper-upload">
+                          <label className="upload-area">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  const reader = new FileReader()
+                                  reader.onload = (event) => {
+                                    const dataUrl = event.target?.result as string
+                                    updateSetting('wallpaper', dataUrl)
+                                    updateSetting('wallpaperType', 'image')
+                                  }
+                                  reader.readAsDataURL(file)
+                                }
+                              }}
+                            />
+                            <div className="upload-icon">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 4V16M12 4L8 8M12 4L16 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                            <span className="upload-text">点击上传本地图片</span>
+                            <span className="upload-hint">支持 JPG、PNG 格式</span>
+                          </label>
+                        </div>
+                      )}
+
+                      {/* 纯色壁纸 */}
+                      {wallpaperTab === 'solid' && (
+                        <div className="solid-colors-grid">
+                          {SOLID_COLORS.map((color, index) => (
+                            <div
+                              key={index}
+                              className={`solid-color-item ${settings.wallpaper === color && settings.wallpaperType === 'color' ? 'selected' : ''}`}
+                              style={{ backgroundColor: color }}
+                              onClick={() => {
+                                updateSetting('wallpaper', color)
+                                updateSetting('wallpaperType', 'color')
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -696,23 +779,6 @@ export function SettingsPanel({
                   </div>
                 </div>
 
-                {/* 布局设置 */}
-                <div className="settings-card">
-                  <h3 className="settings-section-title">布局设置</h3>
-
-                  {/* 侧边栏位置 */}
-                  <div className="settings-item">
-                    <span className="settings-item-label">侧边栏位置</span>
-                    <select
-                      className="settings-select"
-                      value={settings.sidebarPosition}
-                      onChange={(e) => updateSetting('sidebarPosition', e.target.value as 'left' | 'right')}
-                    >
-                      <option value="left">左侧</option>
-                      <option value="right">右侧</option>
-                    </select>
-                  </div>
-                </div>
 
                 {/* 时钟设置 */}
                 <div className="settings-card">

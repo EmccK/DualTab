@@ -166,6 +166,8 @@ export const DEFAULT_SETTINGS = {
   showSiteLabel: true,
   showSiteDesc: true,
   sidebarPosition: 'left' as const,
+  sidebarAutoHide: false,    // 默认不自动隐藏
+  sidebarCollapsed: true,    // 默认窄距菜单
 
   // 图标设置 - Monknow 风格默认值
   iconLayout: 'particular' as const,  // 默认详细布局
