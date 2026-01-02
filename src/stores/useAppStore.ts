@@ -191,8 +191,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   logout: () => {
-    set({ user: null })
+    // 退出登录后重置为默认数据
+    set({
+      user: null,
+      groups: DEFAULT_NAV_GROUPS,
+      activeGroupId: 'home',
+      needSync: false
+    })
+    // 清除本地存储的用户和分组数据
     removeStorage(STORAGE_KEYS.USER)
+    removeStorage(STORAGE_KEYS.GROUPS)
   },
 
   // 数据操作
