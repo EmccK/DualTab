@@ -39,14 +39,18 @@ export const SiteCard = memo(function SiteCard({
         </span>
       )
     }
-    // 否则显示图片，支持缩放
-    const scale = site.icoScalePercentage || 100
+    // 否则显示图片
+    // 注意：全局缩放通过 CSS 的 --icon-scale 变量控制
+    // 单个图标的 icoScalePercentage 会与全局缩放叠加
+    const iconScale = site.icoScalePercentage || 100
     return (
       <img
         src={iconUrl}
         alt={site.name}
         loading="lazy"
-        style={scale !== 100 ? { transform: `scale(${scale / 100})` } : undefined}
+        style={iconScale !== 100 ? {
+          '--icon-individual-scale': iconScale / 100
+        } as React.CSSProperties : undefined}
       />
     )
   }

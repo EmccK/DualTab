@@ -839,7 +839,7 @@ ol, ul {
   display: flex;
   align-items: stretch;
   height: var(--icon-size);
-  border-radius: 10px;
+  border-radius: var(--icon-border-radius, 10px);
   overflow: hidden;
   cursor: pointer;
   user-select: none;
@@ -868,23 +868,34 @@ ol, ul {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 10px 0 0 10px;
+  border-radius: var(--icon-border-radius, 10px) 0 0 var(--icon-border-radius, 10px);
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.site-card-icon img {
-  width: 56px;
-  height: 56px;
+/* particular 布局: 图标使用基于 --icon-size 的固定尺寸，通过 --icon-scale 控制全局缩放，--icon-individual-scale 控制单个图标缩放 */
+.site-card-particular .site-card-icon img {
+  width: calc(var(--icon-size) * 0.9375); /* 90/96 */
+  height: calc(var(--icon-size) * 0.9375);
   object-fit: contain;
+  transform: scale(calc(var(--icon-scale, 1) * var(--icon-individual-scale, 1)));
 }
 
-/* 文字图标样式 */
+/* simple 布局: 图标使用基于 --icon-size 的固定尺寸，通过 --icon-scale 控制全局缩放，--icon-individual-scale 控制单个图标缩放 */
+.site-card-simple .site-card-icon img {
+  width: calc(var(--icon-size) * 0.9375); /* 90/96 */
+  height: calc(var(--icon-size) * 0.9375);
+  object-fit: contain;
+  transform: scale(calc(var(--icon-scale, 1) * var(--icon-individual-scale, 1)));
+}
+
+/* 文字图标样式 - 基于 --icon-size 计算字体大小，使用 --icon-scale 缩放 */
 .site-card-icon-text {
-  font-size: 28px;
+  font-size: calc(var(--icon-size) * 0.46875); /* 45/96 */
   font-weight: 500;
   color: #fff;
   text-transform: uppercase;
+  transform: scale(var(--icon-scale, 1));
 }
 
 /* 文字区域 - Monknow 风格 */
@@ -895,7 +906,7 @@ ol, ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 var(--icon-border-radius, 10px) var(--icon-border-radius, 10px) 0;
 }
 
 .dark-theme .site-card-info {

@@ -531,8 +531,12 @@ function App() {
             <div
               className={`sites-grid ${settings.iconLayout === 'simple' ? 'simple-layout' : 'particular-layout'}`}
               style={{
-                '--icon-size': `${settings.iconSizePercentage * 0.96 + 24}px`,
-                '--icon-border-radius': `${settings.iconBorderRadius}%`,
+                '--icon-size': '96px', // 图标区域固定大小
+                '--icon-scale': `${settings.iconSizePercentage / 100}`, // 图标内部缩放比例
+                // simple 布局使用百分比圆角（正方形图标），particular 布局使用像素圆角（避免长方形卡片变椭圆）
+                '--icon-border-radius': settings.iconLayout === 'simple'
+                  ? `${settings.iconBorderRadius}%`
+                  : `${(settings.iconBorderRadius / 100) * 96}px`, // 将百分比转换为基于 96px 的像素值
                 '--grid-row-gap': `${settings.iconRowGap}px`,
                 '--grid-column-gap': `${settings.iconColumnGap}px`
               } as React.CSSProperties}
