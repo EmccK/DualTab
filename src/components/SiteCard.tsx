@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { Site, OpenTarget } from '../types'
 import { ContextMenu } from './ContextMenu'
 import { useContextMenu } from '../hooks'
-import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito, openInNewWindow } from '../utils'
+import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito } from '../utils'
 
 interface SiteCardProps {
   site: Site
@@ -52,12 +52,6 @@ export const SiteCard = memo(function SiteCard({ site, onEdit, onDelete, openTar
         break
       case 'backgroundTab':
         openInNewTab(site.url, false)
-        break
-      case 'newWindow':
-        openInNewWindow(site.url, false)
-        break
-      case 'newIncognitoWindow':
-        openInIncognito(site.url)
         break
       case 'currentTab':
       default:

@@ -1,0 +1,144 @@
+/* 自定义选项选择组件 - Monknow 风格 */
+
+.option-select {
+  position: relative;
+  user-select: none;
+}
+
+/* 触发器 - 显示当前选中值 */
+.option-select-trigger {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.3;
+  transition: color 0.2s ease-in-out;
+}
+
+.dark-theme .option-select-trigger {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .option-select-trigger:hover,
+.dark-theme .option-select-trigger.active {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.light-theme .option-select-trigger {
+  color: #676767;
+}
+
+.light-theme .option-select-trigger:hover,
+.light-theme .option-select-trigger.active {
+  color: #333;
+}
+
+/* 当前选中值 */
+.option-select-value {
+  margin-right: 8px;
+}
+
+/* 下拉箭头 */
+.option-select-arrow {
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.option-select-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.option-select-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  border-radius: 6px;
+  padding: 4px;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.dark-theme .option-select-dropdown {
+  background-color: rgba(32, 33, 36, 0.96);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .option-select-dropdown {
+  background-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* 选项项 */
+.option-select-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.dark-theme .option-select-item {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-theme .option-select-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark-theme .option-select-item.selected {
+  color: #1890ff;
+}
+
+.light-theme .option-select-item {
+  color: #676767;
+}
+
+.light-theme .option-select-item:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.light-theme .option-select-item.selected {
+  color: #1890ff;
+}
+
+/* 选项标签 */
+.option-select-item-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* 选中图标 - Monknow 风格 */
+.option-select-check {
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  background-color: #1890ff;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}

@@ -114,7 +114,7 @@ function App() {
           <SearchBox
             currentEngineId={settings.searchEngine}
             onEngineChange={(id) => updateSettings({ searchEngine: id })}
-            openTarget={settings.openTarget}
+            openTarget={settings.searchOpenTarget}
           />
 
           {/* 网站网格 */}

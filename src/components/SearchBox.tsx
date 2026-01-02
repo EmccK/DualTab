@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import type { KeyboardEvent, ChangeEvent } from 'react'
 import { SEARCH_ENGINES } from '../constants'
 import type { OpenTarget } from '../types'
+import { openInNewTab, openInCurrentTab } from '../utils'
 
 interface SearchBoxProps {
   currentEngineId: string
@@ -80,22 +81,14 @@ export function SearchBox({ currentEngineId, onEngineChange, openTarget }: Searc
       // 根据 openTarget 设置决定打开方式
       switch (openTarget) {
         case 'newTab':
-          window.open(url, '_blank')
+          openInNewTab(url, true)
           break
         case 'backgroundTab':
-          // 后台标签页需要 Chrome API，这里降级为新标签页
-          window.open(url, '_blank')
-          break
-        case 'newWindow':
-          window.open(url, '_blank', 'noopener,noreferrer')
-          break
-        case 'newIncognitoWindow':
-          // 隐身窗口需要 Chrome API，这里降级为新标签页
-          window.open(url, '_blank')
+          openInNewTab(url, false)
           break
         case 'currentTab':
         default:
-          window.location.href = url
+          openInCurrentTab(url)
           break
       }
     }

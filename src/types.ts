@@ -57,7 +57,7 @@ export interface SearchEngine {
 }
 
 // 打开链接方式枚举
-export type OpenTarget = 'currentTab' | 'newTab' | 'backgroundTab' | 'newWindow' | 'newIncognitoWindow'
+export type OpenTarget = 'currentTab' | 'newTab' | 'backgroundTab'
 
 // 位置信息类型
 export interface LocationInfo {
@@ -76,7 +76,8 @@ export interface Settings {
   wallpaperType: 'image' | 'color'
 
   // 常规设置
-  openTarget: OpenTarget       // 打开链接方式
+  openTarget: OpenTarget              // 图标打开方式
+  searchOpenTarget: OpenTarget        // 搜索结果打开方式
   searchEngine: string
   clockFormat: '12h' | '24h'   // 时钟格式
   showSeconds: boolean         // 显示秒

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import type { Settings, User, OpenTarget } from '../types'
 import { WALLPAPERS, SOLID_COLORS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS } from '../constants'
 import { updateNickname, updatePortrait, changePassword, uploadImage } from '../services/api'
+import { OptionSelect } from './OptionSelect'
 import './SettingsPanel.css'
 
 interface SettingsPanelProps {
@@ -414,57 +415,39 @@ export function SettingsPanel({
 
                   {/* 右列 - 设置项 */}
                   <div className="settings-grid-right">
-                    {/* 基本设置 */}
+                    {/* 打开方式设置 - Monknow 风格下拉框 */}
                     <div className="settings-card">
-                      <h3 className="settings-section-title">基本设置</h3>
+                      <h3 className="settings-section-title">打开方式</h3>
+                      {/* 图标打开方式 */}
                       <div className="settings-item">
-                        <span className="settings-item-label">打开链接方式</span>
-                        <select
-                          className="settings-select"
+                        <span className="settings-item-label">图标</span>
+                        <OptionSelect
+                          options={OPEN_TARGET_OPTIONS}
                           value={settings.openTarget}
-                          onChange={(e) => updateSetting('openTarget', e.target.value as OpenTarget)}
-                        >
-                          {OPEN_TARGET_OPTIONS.map(option => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
+                          onChange={(value) => updateSetting('openTarget', value as OpenTarget)}
+                        />
                       </div>
+                      {/* 搜索结果打开方式 */}
                       <div className="settings-item">
-                        <span className="settings-item-label">默认搜索引擎</span>
-                        <select
-                          className="settings-select"
-                          value={settings.searchEngine}
-                          onChange={(e) => updateSetting('searchEngine', e.target.value)}
-                        >
-                          {SEARCH_ENGINES.map(engine => (
-                            <option key={engine.id} value={engine.id}>{engine.name}</option>
-                          ))}
-                        </select>
+                        <span className="settings-item-label">搜索结果</span>
+                        <OptionSelect
+                          options={OPEN_TARGET_OPTIONS}
+                          value={settings.searchOpenTarget}
+                          onChange={(value) => updateSetting('searchOpenTarget', value as OpenTarget)}
+                        />
                       </div>
                     </div>
 
-                    {/* 时钟设置 */}
+                    {/* 搜索设置 */}
                     <div className="settings-card">
-                      <h3 className="settings-section-title">时钟设置</h3>
+                      <h3 className="settings-section-title">搜索</h3>
                       <div className="settings-item">
-                        <span className="settings-item-label">时钟格式</span>
-                        <select
-                          className="settings-select"
-                          value={settings.clockFormat}
-                          onChange={(e) => updateSetting('clockFormat', e.target.value as '12h' | '24h')}
-                        >
-                          <option value="24h">24小时制</option>
-                          <option value="12h">12小时制</option>
-                        </select>
-                      </div>
-                      <div className="settings-item">
-                        <span className="settings-item-label">显示秒</span>
-                        <div
-                          className={`settings-switch ${settings.showSeconds ? 'active' : ''}`}
-                          onClick={() => updateSetting('showSeconds', !settings.showSeconds)}
-                        >
-                          <div className="settings-switch-thumb" />
-                        </div>
+                        <span className="settings-item-label">搜索引擎</span>
+                        <OptionSelect
+                          options={SEARCH_ENGINES.map(engine => ({ value: engine.id, label: engine.name }))}
+                          value={settings.searchEngine}
+                          onChange={(value) => updateSetting('searchEngine', value)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -656,6 +639,31 @@ export function SettingsPanel({
                       <option value="left">左侧</option>
                       <option value="right">右侧</option>
                     </select>
+                  </div>
+                </div>
+
+                {/* 时钟设置 */}
+                <div className="settings-card">
+                  <h3 className="settings-section-title">时钟设置</h3>
+                  <div className="settings-item">
+                    <span className="settings-item-label">时钟格式</span>
+                    <select
+                      className="settings-select"
+                      value={settings.clockFormat}
+                      onChange={(e) => updateSetting('clockFormat', e.target.value as '12h' | '24h')}
+                    >
+                      <option value="24h">24小时制</option>
+                      <option value="12h">12小时制</option>
+                    </select>
+                  </div>
+                  <div className="settings-item">
+                    <span className="settings-item-label">显示秒</span>
+                    <div
+                      className={`settings-switch ${settings.showSeconds ? 'active' : ''}`}
+                      onClick={() => updateSetting('showSeconds', !settings.showSeconds)}
+                    >
+                      <div className="settings-switch-thumb" />
+                    </div>
                   </div>
                 </div>
 

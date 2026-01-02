@@ -152,7 +152,8 @@ export const DEFAULT_SETTINGS = {
   wallpaperType: 'image' as const,
 
   // 常规设置
-  openTarget: 'currentTab' as const,  // 打开链接方式
+  openTarget: 'currentTab' as const,        // 图标打开方式
+  searchOpenTarget: 'currentTab' as const,  // 搜索结果打开方式
   searchEngine: 'google',
   clockFormat: '24h' as const,
   showSeconds: false,
@@ -167,13 +168,11 @@ export const DEFAULT_SETTINGS = {
   sidebarPosition: 'left' as const
 }
 
-// 打开链接方式选项
+// 打开方式选项 - Monknow 风格（只有三个选项）
 export const OPEN_TARGET_OPTIONS = [
-  { value: 'currentTab', label: '当前页' },
+  { value: 'currentTab', label: '当前标签页' },
   { value: 'newTab', label: '新标签页' },
-  { value: 'backgroundTab', label: '后台标签页' },
-  { value: 'newWindow', label: '新窗口' },
-  { value: 'newIncognitoWindow', label: '隐身窗口' }
+  { value: 'backgroundTab', label: '后台页' }
 ]
 
 // 温度单位选项
