@@ -1,4 +1,4 @@
-import type { NavGroup, SearchEngine, Site } from './types'
+import type { NavGroup, SearchEngine, Site, ThemeType } from './types'
 
 // 搜索引擎列表 - 使用 Monknow 官方 SVG 图标
 export const SEARCH_ENGINES: SearchEngine[] = [
@@ -147,7 +147,7 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
 // 默认设置
 export const DEFAULT_SETTINGS = {
   // 主题设置
-  theme: 'dark' as const,
+  theme: 'auto' as ThemeType,  // 默认跟随系统
   wallpaper: WALLPAPERS[0],
   wallpaperType: 'image' as const,
 

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef, useState, useMemo } from 'react'
 import './App.css'
 import { useAppStore, useUIStore } from './stores'
 import { useIdleTimer } from './hooks'
@@ -25,6 +25,11 @@ const SlideStatus = {
 } as const
 
 type SlideStatusType = typeof SlideStatus[keyof typeof SlideStatus]
+
+// 获取系统主题偏好
+function getSystemTheme(): 'dark' | 'light' {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 function App() {
   // 从 Store 获取状态和方法
@@ -68,6 +73,27 @@ function App() {
     closeLoginModal,
     setShowTimeWeather
   } = useUIStore()
+
+  // 系统主题状态（用于 auto 模式）
+  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(getSystemTheme)
+
+  // 监听系统主题变化
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSystemTheme(e.matches ? 'dark' : 'light')
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  // 计算实际应用的主题（处理 auto 模式）
+  const effectiveTheme = useMemo(() => {
+    if (settings.theme === 'auto') {
+      return systemTheme
+    }
+    return settings.theme
+  }, [settings.theme, systemTheme])
 
   // 当前分组
   const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0]
@@ -226,7 +252,7 @@ function App() {
     : { backgroundImage: `url(${settings.wallpaper})` }
 
   return (
-    <div className={`app ${settings.theme}-theme`}>
+    <div className={`app ${effectiveTheme}-theme`}>
       {/* 壁纸 */}
       <div className="wallpaper" style={wallpaperStyle} />
 

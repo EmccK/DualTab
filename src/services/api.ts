@@ -3,7 +3,7 @@
  * 处理用户认证和数据同步
  */
 
-import type { LocationInfo } from '../types'
+import type { LocationInfo, Settings, ThemeType } from '../types'
 
 const API_BASE = 'https://dynamic-api.monknow.com'
 const WEATHER_API_BASE = 'https://weather-api.monknow.com'
@@ -746,6 +746,102 @@ export async function getIconByUrl(url: string, secret?: string): Promise<IconBy
     return result.data.icon
   } catch (err) {
     console.error('获取图标失败:', err)
+    return null
+  }
+}
+
+// MonkNow common 数据结构（设置）
+const MONKNOW_COMMON_VERSION = 1  // Monknow common 数据版本号
+
+export interface MonkNowCommonData {
+  version: number
+  setting: {
+    themeType: 'bright' | 'dark' | 'auto'  // Monknow 使用 bright 而不是 light
+    widthPercentage: number
+    location: {
+      fullname: string
+      latitude: string
+      longtitude: string  // Monknow 拼写错误，保持一致
+      shortname: string
+      woeid: string
+    } | null
+    enable24HourSystem: boolean
+    enableImperialUnits: boolean
+  }
+}
+
+/**
+ * 将本地主题类型转换为 Monknow 格式
+ */
+function toMonknowThemeType(theme: ThemeType): 'bright' | 'dark' | 'auto' {
+  if (theme === 'light') return 'bright'
+  return theme
+}
+
+/**
+ * 将 Monknow 主题类型转换为本地格式
+ */
+export function fromMonknowThemeType(theme: 'bright' | 'dark' | 'auto'): ThemeType {
+  if (theme === 'bright') return 'light'
+  return theme
+}
+
+/**
+ * 同步设置到服务器（common 类型）
+ * @param secret 用户 token
+ * @param settings 本地设置
+ */
+export async function syncSettingsToServer(secret: string, settings: Settings): Promise<boolean> {
+  // 构建 Monknow 格式的 common 数据
+  const commonData: MonkNowCommonData = {
+    version: MONKNOW_COMMON_VERSION,
+    setting: {
+      themeType: toMonknowThemeType(settings.theme),
+      widthPercentage: 100,
+      location: settings.location ? {
+        fullname: settings.location.fullname,
+        latitude: String(settings.location.latitude),
+        longtitude: String(settings.location.longitude),
+        shortname: settings.location.shortname,
+        woeid: String(settings.location.woeid)
+      } : null,
+      enable24HourSystem: settings.clockFormat === '24h',
+      enableImperialUnits: settings.temperatureUnit === 'fahrenheit'
+    }
+  }
+
+  return updateUserData(secret, 'common', JSON.stringify(commonData))
+}
+
+/**
+ * 解析 Monknow common 数据为本地设置格式
+ * @param commonJson common 数据 JSON 字符串
+ */
+export function parseMonknowCommon(commonJson: string): Partial<Settings> | null {
+  try {
+    const commonData: MonkNowCommonData = JSON.parse(commonJson)
+
+    const settings: Partial<Settings> = {
+      theme: fromMonknowThemeType(commonData.setting.themeType),
+      clockFormat: commonData.setting.enable24HourSystem ? '24h' : '12h',
+      temperatureUnit: commonData.setting.enableImperialUnits ? 'fahrenheit' : 'celsius'
+    }
+
+    if (commonData.setting.location) {
+      settings.location = {
+        fullname: commonData.setting.location.fullname,
+        latitude: parseFloat(commonData.setting.location.latitude),
+        longitude: parseFloat(commonData.setting.location.longtitude),
+        shortname: commonData.setting.location.shortname,
+        woeid: parseInt(commonData.setting.location.woeid, 10)
+      }
+    } else {
+      settings.location = null
+    }
+
+    return settings
+  } catch (e) {
+    console.error('解析 Monknow common 数据失败:', e)
     return null
   }
 }

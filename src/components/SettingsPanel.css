@@ -427,42 +427,124 @@
   transition: opacity 0.2s ease-in-out;
 }
 
+.theme-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Monknow 风格主题预览卡片 */
 .theme-preview {
-  background-clip: content-box;
-  background-origin: content-box;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
   border: 2px solid transparent;
   border-radius: 4px;
   height: 60px;
   padding: 1px;
   position: relative;
-  transition: border-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+  transition: border-color 0.2s ease-in-out;
+  display: flex;
+  overflow: hidden;
 }
 
-/* 深色主题预览 - 添加深色滤镜 */
-.dark-preview::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+/* 浅色主题预览 */
+.light-theme-preview {
+  background-color: #1890ff;
+}
+
+/* 深色主题预览 */
+.dark-theme-preview {
+  background-color: #333;
+}
+
+/* 主题预览侧边栏 */
+.theme-preview-sidebar {
+  width: 24px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.theme-preview-sidebar.light {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.theme-preview-sidebar.dark {
+  background-color: rgba(32, 33, 36, 0.9);
+}
+
+/* 侧边栏圆点 */
+.theme-preview-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+}
+
+.theme-preview-sidebar.light .theme-preview-dot {
+  background-color: #1890ff;
+}
+
+.theme-preview-sidebar.dark .theme-preview-dot {
+  background-color: #1890ff;
+}
+
+/* 侧边栏线条 */
+.theme-preview-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.theme-preview-line {
+  height: 2px;
+  border-radius: 1px;
+}
+
+.theme-preview-sidebar.light .theme-preview-line {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-preview-sidebar.dark .theme-preview-line {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 主题预览内容区 */
+.theme-preview-content {
+  flex: 1;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-preview-content.light {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.theme-preview-content.dark {
+  background-color: rgba(32, 33, 36, 0.95);
+}
+
+/* 预览卡片网格 */
+.theme-preview-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+.theme-preview-card {
+  height: 16px;
   border-radius: 2px;
 }
 
-/* 浅色主题预览 - 添加浅色滤镜 */
-.light-preview::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+.theme-preview-content.light .theme-preview-card {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.theme-preview-content.dark .theme-preview-card {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .theme-label {

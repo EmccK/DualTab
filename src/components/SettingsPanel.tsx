@@ -59,6 +59,30 @@ function getPasswordStrengthText(strength: PasswordStrength): string {
   }
 }
 
+// 主题预览卡片组件 - 减少重复代码
+function ThemePreviewCard({ variant }: { variant: 'light' | 'dark' }) {
+  return (
+    <div className={`theme-preview ${variant}-theme-preview`}>
+      <div className={`theme-preview-sidebar ${variant}`}>
+        <div className="theme-preview-dot" />
+        <div className="theme-preview-lines">
+          <div className="theme-preview-line" />
+          <div className="theme-preview-line" />
+          <div className="theme-preview-line" />
+        </div>
+      </div>
+      <div className={`theme-preview-content ${variant}`}>
+        <div className="theme-preview-cards">
+          <div className="theme-preview-card" />
+          <div className="theme-preview-card" />
+          <div className="theme-preview-card" />
+          <div className="theme-preview-card" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // 设置面板组件 - Monknow 风格居中弹窗
 export function SettingsPanel({
   isOpen,
@@ -483,29 +507,52 @@ export function SettingsPanel({
             {/* 主题&壁纸设置 */}
             {activeTab === 'theme' && (
               <div className="settings-panel-content">
-                {/* 主题选择 */}
+                {/* 主题选择 - Monknow 风格 */}
                 <div className="settings-card">
                   <h3 className="settings-section-title">主题</h3>
                   <div className="theme-grid">
+                    {/* 浅色主题 */}
                     <div
-                      className={`theme-item ${settings.theme === 'dark' ? 'selected' : ''}`}
-                      onClick={() => updateSetting('theme', 'dark')}
+                      className={`theme-item ${settings.theme === 'light' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
+                      onClick={() => {
+                        if (settings.theme !== 'auto') {
+                          updateSetting('theme', 'light')
+                        }
+                      }}
                     >
-                      <div
-                        className="theme-preview dark-preview"
-                        style={{ backgroundImage: `url(${settings.wallpaperType === 'image' ? settings.wallpaper : ''})`, backgroundColor: settings.wallpaperType === 'color' ? settings.wallpaper : undefined }}
-                      />
+                      <ThemePreviewCard variant="light" />
+                      <span className="theme-label">浅色</span>
+                    </div>
+                    {/* 深色主题 */}
+                    <div
+                      className={`theme-item ${settings.theme === 'dark' ? 'selected' : ''} ${settings.theme === 'auto' ? 'disabled' : ''}`}
+                      onClick={() => {
+                        if (settings.theme !== 'auto') {
+                          updateSetting('theme', 'dark')
+                        }
+                      }}
+                    >
+                      <ThemePreviewCard variant="dark" />
                       <span className="theme-label">深色</span>
                     </div>
+                  </div>
+                  {/* 跟随系统开关 */}
+                  <div className="settings-item">
+                    <span className="settings-item-label">跟随系统</span>
                     <div
-                      className={`theme-item ${settings.theme === 'light' ? 'selected' : ''}`}
-                      onClick={() => updateSetting('theme', 'light')}
+                      className={`settings-switch ${settings.theme === 'auto' ? 'active' : ''}`}
+                      onClick={() => {
+                        if (settings.theme === 'auto') {
+                          // 关闭跟随系统时，根据当前系统主题设置
+                          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+                          updateSetting('theme', isDark ? 'dark' : 'light')
+                        } else {
+                          // 开启跟随系统
+                          updateSetting('theme', 'auto')
+                        }
+                      }}
                     >
-                      <div
-                        className="theme-preview light-preview"
-                        style={{ backgroundImage: `url(${settings.wallpaperType === 'image' ? settings.wallpaper : ''})`, backgroundColor: settings.wallpaperType === 'color' ? settings.wallpaper : undefined }}
-                      />
-                      <span className="theme-label">浅色</span>
+                      <div className="settings-switch-thumb" />
                     </div>
                   </div>
                 </div>

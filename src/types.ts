@@ -71,10 +71,13 @@ export interface LocationInfo {
 // 图标布局类型
 export type IconLayout = 'simple' | 'particular'
 
+// 主题类型: dark(深色) / light(浅色) / auto(跟随系统)
+export type ThemeType = 'dark' | 'light' | 'auto'
+
 // 设置配置类型
 export interface Settings {
   // 主题设置
-  theme: 'dark' | 'light'
+  theme: ThemeType
   wallpaper: string
   wallpaperType: 'image' | 'color'
 

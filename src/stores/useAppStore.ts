@@ -7,8 +7,28 @@ import { create } from 'zustand'
 import type { NavGroup, Site, Settings, User } from '../types'
 import { DEFAULT_NAV_GROUPS, DEFAULT_SETTINGS } from '../constants'
 import { getStorage, setStorage, removeStorage, STORAGE_KEYS } from '../services/storage'
-import { getUserAllData, parseMonkNowIcons, syncIconsToServer } from '../services/api'
+import { getUserAllData, parseMonkNowIcons, syncIconsToServer, syncSettingsToServer, parseMonknowCommon } from '../services/api'
 import type { UserInfo } from '../services/api'
+
+// 设置同步防抖定时器
+let settingsSyncTimer: ReturnType<typeof setTimeout> | null = null
+const SETTINGS_SYNC_DELAY = 1000 // 1秒防抖延迟
+
+/**
+ * 防抖同步设置到服务器
+ * 避免用户快速切换设置时产生大量 API 请求
+ */
+function debouncedSyncSettings(secret: string, settings: Settings) {
+  if (settingsSyncTimer) {
+    clearTimeout(settingsSyncTimer)
+  }
+  settingsSyncTimer = setTimeout(() => {
+    syncSettingsToServer(secret, settings).catch(err => {
+      console.warn('同步设置到服务器失败:', err)
+    })
+    settingsSyncTimer = null
+  }, SETTINGS_SYNC_DELAY)
+}
 
 interface AppState {
   // 状态
@@ -147,12 +167,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   setSettings: (settings) => {
     set({ settings })
     setStorage(STORAGE_KEYS.SETTINGS, settings)
+    // 如果已登录，防抖同步到服务器
+    const { user } = get()
+    if (user?.secret) {
+      debouncedSyncSettings(user.secret, settings)
+    }
   },
 
   updateSettings: (partial) => {
     set(state => {
       const newSettings = { ...state.settings, ...partial }
       setStorage(STORAGE_KEYS.SETTINGS, newSettings)
+      // 如果已登录，防抖同步到服务器
+      const { user } = get()
+      if (user?.secret) {
+        debouncedSyncSettings(user.secret, newSettings)
+      }
       return { settings: newSettings }
     })
   },
@@ -249,6 +279,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (savedUser?.secret) {
       try {
         const serverData = await getUserAllData(savedUser.secret)
+
+        // 同步 common 设置（主题等）
+        if (serverData?.common) {
+          const parsedSettings = parseMonknowCommon(serverData.common)
+          if (parsedSettings) {
+            const currentSettings = get().settings
+            const newSettings = { ...currentSettings, ...parsedSettings }
+            set({ settings: newSettings })
+            await setStorage(STORAGE_KEYS.SETTINGS, newSettings)
+            console.log('从服务器同步设置成功')
+          }
+        }
+
+        // 同步 icons 数据
         if (serverData?.icons) {
           const parsed = parseMonkNowIcons(serverData.icons)
           if (parsed?.groups && parsed.groups.length > 0) {
