@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { KeyboardEvent, ChangeEvent } from 'react'
 import { SEARCH_ENGINES } from '../constants'
+import { getSearchEngines } from '../services/api'
 import type { OpenTarget } from '../types'
 import { openInNewTab, openInCurrentTab } from '../utils'
+import { API_PATHS, buildApiUrl } from '../config/api'
 
 interface SearchBoxProps {
   currentEngineId: string
@@ -10,19 +12,41 @@ interface SearchBoxProps {
   openTarget: OpenTarget
 }
 
-// 搜索建议 API（使用 Google 搜索建议）
+// 搜索引擎类型（兼容本地和远程）
+interface SearchEngineItem {
+  id: string
+  name: string
+  url: string
+  icon: string
+}
+
+// 搜索建议 API（使用后端代理，失败时回退到 Google）
 const fetchSuggestions = async (query: string): Promise<string[]> => {
   if (!query.trim()) return []
 
   try {
-    // 使用 Google 搜索建议 API
-    const url = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}`
-    const response = await fetch(url)
-    const data = await response.json()
-    // 返回格式: [query, [suggestions], ...]
-    return data[1] || []
+    // 优先使用后端代理
+    const proxyUrl = buildApiUrl(API_PATHS.SEARCH_SUGGEST, { q: query })
+    const response = await fetch(proxyUrl)
+    const result = await response.json()
+
+    // 后端返回格式: { code: 0, data: [...], msg: "success" }
+    if (result.code === 0 && Array.isArray(result.data)) {
+      return result.data
+    }
+
+    // 后端不可用时回退到直接调用 Google（可能被墙）
+    throw new Error('Backend proxy failed')
   } catch {
-    return []
+    try {
+      // 回退到 Google 搜索建议 API
+      const url = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(query)}`
+      const response = await fetch(url)
+      const data = await response.json()
+      return data[1] || []
+    } catch {
+      return []
+    }
   }
 }
 
@@ -34,10 +58,22 @@ export function SearchBox({ currentEngineId, onEngineChange, openTarget }: Searc
   const [isFocused, setIsFocused] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [searchEngines, setSearchEngines] = useState<SearchEngineItem[]>(SEARCH_ENGINES)
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<number | null>(null)
 
-  const currentEngine = SEARCH_ENGINES.find(e => e.id === currentEngineId) || SEARCH_ENGINES[0]
+  // 从后端获取搜索引擎列表
+  useEffect(() => {
+    const fetchEngines = async () => {
+      const engines = await getSearchEngines()
+      if (engines.length > 0) {
+        setSearchEngines(engines)
+      }
+    }
+    fetchEngines()
+  }, [])
+
+  const currentEngine = searchEngines.find(e => e.id === currentEngineId) || searchEngines[0]
 
   // 获取搜索建议（防抖）
   const fetchSuggestionsDebounced = useCallback((q: string) => {
@@ -193,7 +229,7 @@ export function SearchBox({ currentEngineId, onEngineChange, openTarget }: Searc
             className="search-engine-dropdown"
             onClick={(e) => e.stopPropagation()}
           >
-            {SEARCH_ENGINES.map(engine => (
+            {searchEngines.map(engine => (
               <div
                 key={engine.id}
                 className="search-engine-option"

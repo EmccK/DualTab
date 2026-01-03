@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval, ViewLayout, StandbySettings, StandbyInactiveDelay } from '../types'
+import type { Settings, User, OpenTarget, WallpaperSource, WallpaperCategory, WallpaperInterval, ViewLayout, StandbySettings, StandbyInactiveDelay, LocationInfo } from '../types'
 import { WALLPAPERS, SEARCH_ENGINES, OPEN_TARGET_OPTIONS, WALLPAPER_COLORS, WALLPAPER_CATEGORIES, WALLPAPER_INTERVALS, VIEW_LAYOUT_PRESETS, STANDBY_INACTIVE_DELAYS } from '../constants'
-import { updateNickname, updatePortrait, changePassword, uploadImage, uploadWallpaper } from '../services/api'
+import { updateNickname, updatePortrait, changePassword, uploadImage, uploadWallpaper, getSearchEngines, searchLocations } from '../services/api'
 import { OptionSelect } from './OptionSelect'
 import './SettingsPanel.css'
 
@@ -134,6 +134,38 @@ export function SettingsPanel({
   // 外观子菜单状态: null | 'width' | 'search' | 'icon'
   const [appearanceSubMenu, setAppearanceSubMenu] = useState<'width' | 'search' | 'icon' | null>(null)
 
+  // 搜索引擎列表状态
+  const [searchEngineOptions, setSearchEngineOptions] = useState(
+    SEARCH_ENGINES.map(engine => ({ value: engine.id, label: engine.name }))
+  )
+
+  // 位置搜索状态
+  const [locationInput, setLocationInput] = useState('')
+  const [locationResults, setLocationResults] = useState<LocationInfo[]>([])
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false)
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false)
+  const locationSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 从后端获取搜索引擎列表
+  useEffect(() => {
+    const fetchEngines = async () => {
+      const engines = await getSearchEngines()
+      if (engines.length > 0) {
+        setSearchEngineOptions(engines.map(e => ({ value: e.id, label: e.name })))
+      }
+    }
+    fetchEngines()
+  }, [])
+
+  // 组件卸载时清理位置搜索定时器
+  useEffect(() => {
+    return () => {
+      if (locationSearchTimeout.current) {
+        clearTimeout(locationSearchTimeout.current)
+      }
+    }
+  }, [])
+
   // 更新设置
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     onSettingsChange({ ...settings, [key]: value })
@@ -156,6 +188,55 @@ export function SettingsPanel({
         [key]: value
       }
     })
+  }
+
+  // 处理位置搜索输入
+  const handleLocationInputChange = (value: string) => {
+    // 输入验证：限制长度和字符，防止 XSS
+    const sanitized = value.slice(0, 100).replace(/[<>]/g, '')
+    setLocationInput(sanitized)
+
+    // 清除之前的定时器
+    if (locationSearchTimeout.current) {
+      clearTimeout(locationSearchTimeout.current)
+    }
+
+    if (!sanitized.trim()) {
+      setLocationResults([])
+      setShowLocationDropdown(false)
+      return
+    }
+
+    // 防抖搜索
+    locationSearchTimeout.current = setTimeout(async () => {
+      setIsSearchingLocation(true)
+      try {
+        const results = await searchLocations(sanitized.trim())
+        setLocationResults(results)
+        setShowLocationDropdown(results.length > 0)
+      } catch (err) {
+        console.error('搜索位置失败:', err)
+        setLocationResults([])
+      } finally {
+        setIsSearchingLocation(false)
+      }
+    }, 300)
+  }
+
+  // 选择位置
+  const handleSelectLocation = (location: LocationInfo) => {
+    updateSetting('location', location)
+    setLocationInput(location.shortname)
+    setShowLocationDropdown(false)
+    setLocationResults([])
+  }
+
+  // 清除位置
+  const handleClearLocation = () => {
+    updateSetting('location', null)
+    setLocationInput('')
+    setLocationResults([])
+    setShowLocationDropdown(false)
   }
 
   // 切换主视图布局时，同时更新多个相关设置
@@ -525,7 +606,7 @@ export function SettingsPanel({
                       <div className="settings-item">
                         <span className="settings-item-label">搜索引擎</span>
                         <OptionSelect
-                          options={SEARCH_ENGINES.map(engine => ({ value: engine.id, label: engine.name }))}
+                          options={searchEngineOptions}
                           value={settings.searchEngine}
                           onChange={(value) => updateSetting('searchEngine', value)}
                         />
@@ -1361,6 +1442,55 @@ export function SettingsPanel({
                               <div className="settings-switch-thumb" />
                             </div>
                           </div>
+                          {/* 天气地区选择 - 仅在开启天气时显示 */}
+                          {settings.standby?.displayWeather !== false && (
+                            <div className="settings-item location-item">
+                              <span className="settings-item-label">天气地区</span>
+                              <div className="location-input-wrapper">
+                                <input
+                                  type="text"
+                                  className="settings-input"
+                                  placeholder="搜索城市..."
+                                  value={locationInput || settings.location?.shortname || ''}
+                                  onChange={(e) => handleLocationInputChange(e.target.value)}
+                                  onFocus={() => {
+                                    if (locationResults.length > 0) {
+                                      setShowLocationDropdown(true)
+                                    }
+                                  }}
+                                />
+                                {isSearchingLocation && (
+                                  <span className="location-loading">搜索中...</span>
+                                )}
+                                {settings.location && (
+                                  <button
+                                    className="location-clear-btn"
+                                    onClick={handleClearLocation}
+                                    title="清除位置"
+                                  >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                    </svg>
+                                  </button>
+                                )}
+                                {/* 位置搜索结果下拉列表 */}
+                                {showLocationDropdown && locationResults.length > 0 && (
+                                  <div className="location-dropdown">
+                                    {locationResults.map((loc, index) => (
+                                      <div
+                                        key={`${loc.woeid}-${index}`}
+                                        className="location-option"
+                                        onClick={() => handleSelectLocation(loc)}
+                                      >
+                                        <span className="location-option-name">{loc.shortname}</span>
+                                        <span className="location-option-fullname">{loc.fullname}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </>
                     )}

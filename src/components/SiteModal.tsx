@@ -2,29 +2,19 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Site, IconType } from '../types'
 import { PRESET_COLORS, ICON_SCALE_MIN, ICON_SCALE_MAX, ICON_SCALE_DEFAULT } from '../constants'
 import { generateId } from '../utils'
-import { getIconList, ICON_CATEGORIES, uploadImage, getIconByUrl } from '../services/api'
-import type { IconListItem } from '../services/api'
+import { getIconList, getCategories, uploadImage, getIconByUrl } from '../services/api'
+import type { IconListItem, CategoryInfo } from '../services/api'
 import './SiteModal.css'
 
 // 内部使用的图标模式类型（UI 展示用）
 type IconMode = 'official' | 'text' | 'upload'
 
-// 网站分类配置
-const SITE_CATEGORIES = [
-  { id: 'manual', name: '手动添加', cateId: 0 },
-  { id: 'hot', name: '热门', cateId: ICON_CATEGORIES.hot },
-  { id: 'shopping', name: '购物', cateId: ICON_CATEGORIES.shopping },
-  { id: 'social', name: '社交', cateId: ICON_CATEGORIES.social },
-  { id: 'entertainment', name: '娱乐', cateId: ICON_CATEGORIES.entertainment },
-  { id: 'news', name: '新闻与阅读', cateId: ICON_CATEGORIES.news },
-  { id: 'efficiency', name: '效率', cateId: ICON_CATEGORIES.efficiency },
-  { id: 'builtin', name: '内置App', cateId: ICON_CATEGORIES.builtin },
-  { id: 'image', name: '图片', cateId: ICON_CATEGORIES.image },
-  { id: 'lifestyle', name: '生活方式', cateId: ICON_CATEGORIES.lifestyle },
-  { id: 'travel', name: '旅行', cateId: ICON_CATEGORIES.travel },
-  { id: 'tech', name: '科技与教育', cateId: ICON_CATEGORIES.tech },
-  { id: 'finance', name: '金融', cateId: ICON_CATEGORIES.finance }
-]
+// 网站分类配置类型
+interface SiteCategory {
+  id: string
+  name: string
+  cateId: number
+}
 
 interface SiteModalProps {
   isOpen: boolean
@@ -35,10 +25,15 @@ interface SiteModalProps {
 }
 
 export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteModalProps) {
-  const [activeCategory, setActiveCategory] = useState('hot')
+  const [activeCategory, setActiveCategory] = useState('manual')
   const [searchQuery, setSearchQuery] = useState('')
   const [categorySites, setCategorySites] = useState<Site[]>([])
   const [loading, setLoading] = useState(false)
+
+  // 动态分类列表
+  const [siteCategories, setSiteCategories] = useState<SiteCategory[]>([
+    { id: 'manual', name: '手动添加', cateId: 0 }
+  ])
 
   // 表单状态
   const [url, setUrl] = useState('')
@@ -117,16 +112,43 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
     }
   }, [])
 
+  // 获取分类列表
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getCategories()
+        if (categories.length > 0) {
+          const dynamicCategories: SiteCategory[] = [
+            { id: 'manual', name: '手动添加', cateId: 0 },
+            ...categories.map((cat: CategoryInfo) => ({
+              id: cat.name_en || String(cat.id),
+              name: cat.name,
+              cateId: cat.id
+            }))
+          ]
+          setSiteCategories(dynamicCategories)
+          // 如果不是编辑模式，默认选中第一个非手动分类
+          if (!site && categories.length > 0) {
+            setActiveCategory(categories[0].name_en || String(categories[0].id))
+          }
+        }
+      } catch (err) {
+        console.warn('获取分类列表失败:', err)
+      }
+    }
+    fetchCategories()
+  }, [site])
+
   // 加载分类网站数据
   const loadCategorySites = useCallback(async (categoryId: string) => {
     if (categoryId === 'manual') return
 
-    const category = SITE_CATEGORIES.find(c => c.id === categoryId)
+    const category = siteCategories.find(c => c.id === categoryId)
     if (!category || category.cateId === 0) return
 
     setLoading(true)
     try {
-      const items: IconListItem[] = await getIconList(category.cateId, '', 20, userSecret)
+      const items: IconListItem[] = await getIconList(category.cateId, '', 20)
       // 转换 API 数据为 Site 格式
       const sites: Site[] = items.map(item => ({
         id: String(item.udId),
@@ -149,7 +171,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
     } finally {
       setLoading(false)
     }
-  }, [userSecret])
+  }, [siteCategories])
 
   // 当分类变化时加载数据
   useEffect(() => {
@@ -172,7 +194,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
 
     setIsFetchingIcon(true)
     try {
-      const iconInfo = await getIconByUrl(normalizedUrl, userSecret)
+      const iconInfo = await getIconByUrl(normalizedUrl)
       if (iconInfo) {
         setName(iconInfo.title || '')
         setDesc(iconInfo.description || '')
@@ -190,7 +212,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
     } finally {
       setIsFetchingIcon(false)
     }
-  }, [userSecret])
+  }, [])
 
   // URL 变化时自动获取图标（防抖 800ms）- 仅在官方图标模式下触发
   useEffect(() => {
@@ -372,7 +394,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
           <div className="site-modal-sidebar">
             <div className="site-modal-title">添加图标</div>
             <div className="site-modal-categories">
-              {SITE_CATEGORIES.map(cat => (
+              {siteCategories.map(cat => (
                 <div
                   key={cat.id}
                   className={`category-item ${activeCategory === cat.id ? 'active' : ''}`}

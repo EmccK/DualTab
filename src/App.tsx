@@ -557,9 +557,10 @@ function App() {
           </main>
         </div>
 
-        {/* 时间天气覆盖层 - 空闲时显示 */}
+        {/* 时间天气覆盖层 - 空闲时显示，点击关闭 */}
         <div
           className={`time-weather-overlay ${showTimeWeather ? 'visible' : 'hidden'}`}
+          onClick={() => setShowTimeWeather(false)}
         >
           <div
             className="time-weather-blur-bg"

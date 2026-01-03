@@ -1145,6 +1145,15 @@ ol, ul {
   line-height: 1.5;
 }
 
+/* 天气加载、错误和无位置状态 */
+.weather-no-location,
+.weather-loading,
+.weather-error {
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
 /* 深色主题时间天气颜色 */
 .dark-theme .time-weather-container {
   color: rgba(255, 255, 255, 0.9);
