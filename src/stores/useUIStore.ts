@@ -23,6 +23,10 @@ interface UIState {
   // 时间天气显示状态
   showTimeWeather: boolean
 
+  // 全局右键菜单状态
+  globalContextMenuOpen: boolean
+  globalContextMenuPosition: { x: number; y: number } | null
+
   // Actions - 设置面板
   openSettings: () => void
   closeSettings: () => void
@@ -43,6 +47,10 @@ interface UIState {
 
   // Actions - 时间天气
   setShowTimeWeather: (show: boolean) => void
+
+  // Actions - 全局右键菜单
+  openGlobalContextMenu: (position: { x: number; y: number }) => void
+  closeGlobalContextMenu: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -55,6 +63,8 @@ export const useUIStore = create<UIState>((set) => ({
   editingGroup: null,
   groupModalPosition: null,
   showTimeWeather: false,
+  globalContextMenuOpen: false,
+  globalContextMenuPosition: null,
 
   // 设置面板
   openSettings: () => set({ settingsOpen: true }),
@@ -100,5 +110,16 @@ export const useUIStore = create<UIState>((set) => ({
   closeLoginModal: () => set({ loginModalOpen: false }),
 
   // 时间天气
-  setShowTimeWeather: (show) => set({ showTimeWeather: show })
+  setShowTimeWeather: (show) => set({ showTimeWeather: show }),
+
+  // 全局右键菜单
+  openGlobalContextMenu: (position) => set({
+    globalContextMenuOpen: true,
+    globalContextMenuPosition: position
+  }),
+
+  closeGlobalContextMenu: () => set({
+    globalContextMenuOpen: false,
+    globalContextMenuPosition: null
+  })
 }))

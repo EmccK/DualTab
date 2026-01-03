@@ -871,6 +871,8 @@ ol, ul {
   border-radius: var(--icon-border-radius, 10px) 0 0 var(--icon-border-radius, 10px);
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
 }
 
 /* particular 布局: 图标使用基于 --icon-size 的固定尺寸，通过 --icon-scale 控制全局缩放，--icon-individual-scale 控制单个图标缩放 */
@@ -894,8 +896,13 @@ ol, ul {
   font-size: calc(var(--icon-size) * 0.46875); /* 45/96 */
   font-weight: 500;
   color: #fff;
-  text-transform: uppercase;
-  transform: scale(var(--icon-scale, 1));
+  /* 整体居中显示，超出时显示中间部分 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--icon-scale, 1));
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* 文字区域 - Monknow 风格 */

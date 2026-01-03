@@ -54,6 +54,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .context-menu-icon img {
@@ -67,7 +69,13 @@
   font-size: 18px;
   font-weight: 500;
   color: #fff;
-  text-transform: uppercase;
+  /* 整体居中显示，超出时显示中间部分 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
 }
 
 .context-menu-info {

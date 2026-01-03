@@ -10,6 +10,7 @@ import { SettingsPanel } from './components/SettingsPanel'
 import { SiteModal } from './components/SiteModal'
 import { GroupModal } from './components/GroupModal'
 import { LoginModal } from './components/LoginModal'
+import { GlobalContextMenu } from './components/GlobalContextMenu'
 import { getRandomWallpaper } from './services/api'
 import { getStorage, setStorage, STORAGE_KEYS } from './services/storage'
 
@@ -73,6 +74,8 @@ function App() {
     editingGroup,
     groupModalPosition,
     showTimeWeather,
+    globalContextMenuOpen,
+    globalContextMenuPosition,
     openSettings,
     closeSettings,
     openAddSiteModal,
@@ -83,7 +86,9 @@ function App() {
     closeGroupModal,
     openLoginModal,
     closeLoginModal,
-    setShowTimeWeather
+    setShowTimeWeather,
+    openGlobalContextMenu,
+    closeGlobalContextMenu
   } = useUIStore()
 
   // 系统主题状态（用于 auto 模式）
@@ -265,6 +270,37 @@ function App() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // 全局右键菜单监听
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      // 检查是否点击在书签卡片、侧边栏或其他已有右键菜单的元素上
+      const target = e.target as HTMLElement
+      const hasSiteCard = target.closest('.site-card')
+      const hasSidebar = target.closest('.sidebar')
+      const hasGroupItem = target.closest('.group-item')
+      const hasContextMenu = target.closest('.context-menu, .global-context-menu, .group-context-menu')
+
+      // 检查是否是输入框、文本框或可编辑元素
+      const isInput = target.tagName === 'INPUT' ||
+                      target.tagName === 'TEXTAREA' ||
+                      target.isContentEditable
+
+      // 如果点击的是已有右键菜单的元素、侧边栏或输入框，不显示全局右键菜单
+      if (hasSiteCard || hasSidebar || hasGroupItem || hasContextMenu || isInput) {
+        return
+      }
+
+      // 阻止默认右键菜单
+      e.preventDefault()
+
+      // 打开全局右键菜单
+      openGlobalContextMenu({ x: e.clientX, y: e.clientY })
+    }
+
+    document.addEventListener('contextmenu', handleContextMenu)
+    return () => document.removeEventListener('contextmenu', handleContextMenu)
+  }, [openGlobalContextMenu])
 
   // 打开标签页时进入待机页（如果设置了 openAfterAppReady）
   useEffect(() => {
@@ -614,6 +650,27 @@ function App() {
         onClose={closeLoginModal}
         onLogin={login}
       />
+
+      {/* 全局右键菜单 */}
+      {globalContextMenuOpen && globalContextMenuPosition && (
+        <GlobalContextMenu
+          x={globalContextMenuPosition.x}
+          y={globalContextMenuPosition.y}
+          onClose={closeGlobalContextMenu}
+          onAddIcon={openAddSiteModal}
+          onNextWallpaper={handleNextWallpaper}
+          onDownloadWallpaper={() => {
+            // 下载当前壁纸
+            if (currentWallpaperUrl) {
+              const link = document.createElement('a')
+              link.href = currentWallpaperUrl
+              link.download = `wallpaper-${Date.now()}.jpg`
+              link.click()
+            }
+          }}
+          onSettings={openSettings}
+        />
+      )}
     </div>
   )
 }

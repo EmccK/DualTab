@@ -269,6 +269,8 @@
   background-color: #e0e0e0;
   border: 3px solid transparent;
   transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .icon-type-card.active .icon-type-preview {
@@ -285,6 +287,13 @@
   font-size: 28px;
   font-weight: 500;
   color: #fff;
+  /* 整体居中显示，超出时显示中间部分 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
 }
 
 .icon-type-preview.upload-preview {

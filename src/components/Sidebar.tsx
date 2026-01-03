@@ -87,11 +87,28 @@ export function Sidebar({
     closeContextMenu()
   }
 
+  // 侧边栏右键菜单处理（阻止全局右键菜单）
+  const handleSidebarContextMenu = (e: React.MouseEvent) => {
+    // 检查是否点击在分组项上（排除添加按钮和设置按钮）
+    const target = e.target as HTMLElement
+    const navItem = target.closest('.nav-item')
+    const isAddBtn = navItem?.classList.contains('add-btn')
+    const isSettingsBtn = navItem?.classList.contains('settings-btn')
+
+    // 只有普通分组项才允许显示右键菜单，其他所有位置都阻止
+    if (!navItem || isAddBtn || isSettingsBtn) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    // 如果是普通分组项，handleContextMenu 会处理
+  }
+
   return (
     <aside
       className={`sidebar ${collapsed ? '' : 'expanded'}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onContextMenu={handleSidebarContextMenu}
     >
       {/* 用户头像 */}
       <div className="sidebar-header">

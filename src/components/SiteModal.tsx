@@ -602,8 +602,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
                         type="text"
                         placeholder="图标文字"
                         value={iconText || (name ? name.slice(0, 2) : '')}
-                        onChange={(e) => setIconText(e.target.value.slice(0, 4))}
-                        maxLength={4}
+                        onChange={(e) => setIconText(e.target.value)}
                       />
                     </div>
                   )}
