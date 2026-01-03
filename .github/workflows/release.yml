@@ -1,0 +1,87 @@
+name: Auto Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建项目
+        run: npm run build
+
+      - name: 生成时间戳标签
+        id: timestamp
+        run: |
+          # 生成格式: v1.0.0-20260104-143022
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TAG="v1.0.0-${TIMESTAMP}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
+      - name: 打包扩展
+        run: |
+          cd dist
+          zip -r ../dualtab-extension.zip .
+          cd ..
+
+      - name: 删除已存在的 latest release (如果存在)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes || true
+          git push origin :refs/tags/latest || true
+
+      - name: 创建 Latest Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create latest \
+            --title "Latest Build - ${{ steps.timestamp.outputs.date }}" \
+            --notes "自动构建版本
+
+          **构建时间**: ${{ steps.timestamp.outputs.date }}
+          **提交**: ${{ github.sha }}
+          **分支**: ${{ github.ref_name }}
+
+          此为最新构建版本，会自动更新。如需保留特定版本，请手动创建正式 Release。" \
+            dualtab-extension.zip
+
+      - name: 删除旧的时间戳 Release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 获取所有以 v1.0.0- 开头的 release，按时间排序，删除除最新的之外的所有
+          gh release list --limit 100 | grep "v1.0.0-" | tail -n +2 | while read -r line; do
+            TAG=$(echo "$line" | awk '{print $1}')
+            echo "删除旧 release: $TAG"
+            gh release delete "$TAG" --yes || true
+            git push origin ":refs/tags/$TAG" || true
+          done
+
+      - name: 创建带时间戳的 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ steps.timestamp.outputs.tag }} \
+            --title "Build ${{ steps.timestamp.outputs.date }}" \
+            --notes "构建时间: ${{ steps.timestamp.outputs.date }}
+          提交哈希: ${{ github.sha }}" \
+            dualtab-extension.zip
