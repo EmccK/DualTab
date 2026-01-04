@@ -6,9 +6,19 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "src/icons/icon16.png",
+      "48": "src/icons/icon48.png",
+      "128": "src/icons/icon128.png"
+    },
+    "default_title": "添加书签到 DualTab"
+  },
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "activeTab"
   ],
   "host_permissions": [
     "https://suggestqueries.google.com/*",

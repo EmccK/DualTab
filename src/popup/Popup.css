@@ -1,0 +1,500 @@
+/**
+ * Popup 样式 - 复刻 Monknow Pop 的 UI
+ */
+
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #popup-root {
+  width: 504px;
+  min-height: 400px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 容器 */
+.popup-container {
+  width: 504px;
+  min-height: 400px;
+  padding: 16px;
+  background-color: #202124;
+  position: relative;
+}
+
+/* 标题栏 */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 操作按钮 */
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.btn-cancel,
+.btn-add {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: rgb(32, 33, 36);
+}
+
+.btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-add {
+  background-color: #1686f0;
+  color: #fff;
+}
+
+.btn-add:hover:not(:disabled) {
+  background-color: #1a94ff;
+}
+
+.btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 表单 */
+.popup-form {
+  flex: 1;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+}
+
+/* 左侧表单字段 */
+.form-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-group label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.field-group input,
+.field-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  outline: none;
+}
+
+.field-group input:focus,
+.field-group textarea:focus {
+  border-color: #1686f0;
+}
+
+.field-group textarea {
+  min-height: 48px;
+  max-height: 80px;
+  resize: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.field-group textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.field-group textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.field-group textarea::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.field-group textarea::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 下拉选择框 */
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-select:focus {
+  border-color: #1686f0;
+}
+
+.form-select option {
+  background-color: rgb(32, 33, 36);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 右侧预览区 */
+.form-preview {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-preview > label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 三个图标类型卡片 */
+.icon-type-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.icon-type-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-type-card.active .icon-type-preview {
+  border-color: #1686f0;
+}
+
+.icon-type-preview img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.icon-type-preview.text-preview span {
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.icon-type-preview.upload-preview {
+  background-color: #e0e0e0;
+  overflow: hidden;
+}
+
+.icon-type-preview.upload-preview img {
+  transition: transform 0.2s;
+}
+
+.icon-type-preview .upload-icon {
+  color: #fff;
+}
+
+.icon-type-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.icon-type-card.active .icon-type-label {
+  color: #1686f0;
+}
+
+.preview-loading {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.3);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* 图标缩放控制 */
+.icon-scale-section {
+  display: flex;
+  justify-content: center;
+}
+
+.scale-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.scale-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.scale-btn:hover:not(:disabled) {
+  border-color: #1686f0;
+  color: #1686f0;
+}
+
+.scale-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* 图标文字输入框 */
+.icon-text-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.icon-text-section label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.icon-text-section input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  outline: none;
+}
+
+.icon-text-section input:focus {
+  border-color: #1686f0;
+}
+
+/* 背景颜色 */
+.color-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.color-section label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.color-preset {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s;
+}
+
+.color-preset.transparent {
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+                    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #ccc 75%),
+                    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  background-color: #fff;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+}
+
+.color-preset.active {
+  border-color: #fff;
+}
+
+.color-input-row input {
+  width: 100%;
+  padding: 6px 10px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  outline: none;
+}
+
+.color-input-row input:focus {
+  border-color: #1686f0;
+}
+
+/* 成功提示 */
+.save-success-toast {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #52c41a;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* 错误提示 */
+.save-error-toast {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ff4d4f;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 浅色主题 */
+.light-theme.popup-container {
+  background-color: #fff;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.light-theme .popup-title {
+  color: #333;
+}
+
+.light-theme .popup-actions {
+  border-bottom-color: #eee;
+}
+
+.light-theme .field-group label,
+.light-theme .form-preview > label,
+.light-theme .color-section label,
+.light-theme .icon-text-section label {
+  color: #666;
+}
+
+.light-theme .field-group input,
+.light-theme .field-group textarea,
+.light-theme .form-select,
+.light-theme .icon-text-section input,
+.light-theme .color-input-row input {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+  color: #333;
+}
+
+.light-theme .form-select option {
+  background-color: #fff;
+  color: #333;
+}
+
+.light-theme .icon-type-label {
+  color: #666;
+}
+
+.light-theme .icon-type-card.active .icon-type-label {
+  color: #1686f0;
+}
+
+.light-theme .scale-btn {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.light-theme .scale-btn:hover:not(:disabled) {
+  border-color: #1686f0;
+  color: #1686f0;
+}
+
+.light-theme .color-preset.active {
+  border-color: #333;
+}
+
+.light-theme .field-group textarea {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.light-theme .field-group textarea::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.light-theme .field-group textarea::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}

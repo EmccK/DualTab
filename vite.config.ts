@@ -13,7 +13,8 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        newtab: 'index.html'
+        newtab: 'index.html',
+        popup: 'popup.html'
       }
     }
   }
