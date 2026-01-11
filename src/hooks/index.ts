@@ -4,3 +4,5 @@
 
 export { useIdleTimer } from './useIdleTimer'
 export { useContextMenu } from './useContextMenu'
+export { useDragSort } from './useDragSort'
+export type { DragState, UseDragSortOptions, UseDragSortReturn } from './useDragSort'

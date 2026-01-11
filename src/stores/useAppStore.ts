@@ -207,6 +207,7 @@ interface AppState {
   addSite: (site: Site) => void
   updateSite: (site: Site) => void
   deleteSite: (siteId: string) => void
+  reorderSites: (sites: Site[]) => void  // 重排序网站
 
   // Actions - 设置操作
   setSettings: (settings: Settings) => void
@@ -312,6 +313,20 @@ export const useAppStore = create<AppState>((set, get) => ({
         ...g,
         sites: g.sites.filter(s => s.id !== siteId)
       })),
+      needSync: true
+    }))
+    get().syncToServer()
+  },
+
+  // 重排序当前分组的网站
+  reorderSites: (sites) => {
+    const { activeGroupId } = get()
+    set(state => ({
+      groups: state.groups.map(g =>
+        g.id === activeGroupId
+          ? { ...g, sites }
+          : g
+      ),
       needSync: true
     }))
     get().syncToServer()

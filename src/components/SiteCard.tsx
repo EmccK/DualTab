@@ -10,6 +10,14 @@ interface SiteCardProps {
   onDelete: (siteId: string) => void
   openTarget?: OpenTarget  // 全局打开链接方式
   iconLayout?: IconLayout  // 图标布局: simple(只有标题) / particular(标题+描述)
+  // 拖拽相关属性
+  draggable?: boolean
+  isDragging?: boolean
+  isDragOver?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragEnd?: () => void
+  onDragLeave?: () => void
 }
 
 // 网站卡片组件
@@ -18,7 +26,15 @@ export const SiteCard = memo(function SiteCard({
   onEdit,
   onDelete,
   openTarget = 'currentTab',
-  iconLayout = 'particular'
+  iconLayout = 'particular',
+  // 拖拽相关属性
+  draggable = false,
+  isDragging = false,
+  isDragOver = false,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  onDragLeave
 }: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
@@ -116,9 +132,19 @@ export const SiteCard = memo(function SiteCard({
   return (
     <>
       <div
-        className={`site-card ${iconLayout === 'simple' ? 'site-card-simple' : 'site-card-particular'}`}
+        className={[
+          'site-card',
+          iconLayout === 'simple' ? 'site-card-simple' : 'site-card-particular',
+          isDragging && 'site-card-dragging',
+          isDragOver && 'site-card-drag-over'
+        ].filter(Boolean).join(' ')}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
+        draggable={draggable}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragEnd={onDragEnd}
+        onDragLeave={onDragLeave}
         style={{
           '--shadow-color': shadowColor,
           '--hover-shadow-color': hoverShadowColor,

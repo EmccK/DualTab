@@ -1,6 +1,8 @@
 /* CSS 变量定义 */
 :root {
   --background-color_hovering: rgba(0, 0, 0, 0.05);
+  --drag-highlight-color: #1686f0;
+  --drag-highlight-shadow: rgba(22, 134, 240, 0.3);
 }
 
 .dark-theme {
@@ -1595,4 +1597,32 @@ ol, ul {
 
 .light-theme .group-context-divider {
   background-color: #f5f5f5;
+}
+
+/* ========== 拖拽排序样式 ========== */
+/* 拖拽中的卡片 */
+.site-card.site-card-dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+/* 拖拽悬停目标位置 */
+.site-card.site-card-drag-over {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 2px var(--drag-highlight-color), 0 12px 24px var(--drag-highlight-shadow);
+}
+
+/* Simple 布局下的拖拽悬停 */
+.site-card-simple.site-card-drag-over .site-card-icon {
+  box-shadow: 0 0 0 2px var(--drag-highlight-color), 0 12px 24px var(--drag-highlight-shadow);
+}
+
+/* 可拖拽卡片的光标 */
+.site-card[draggable="true"] {
+  cursor: grab;
+}
+
+.site-card[draggable="true"]:active {
+  cursor: grabbing;
 }

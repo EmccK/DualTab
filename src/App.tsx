@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState, useMemo } from 'react'
 import './App.css'
 import { useAppStore, useUIStore } from './stores'
-import { useIdleTimer } from './hooks'
+import { useIdleTimer, useDragSort } from './hooks'
 import { Sidebar } from './components/Sidebar'
 import { SearchBox } from './components/SearchBox'
 import { SiteCard, AddSiteCard } from './components/SiteCard'
@@ -56,6 +56,7 @@ function App() {
     addSite,
     updateSite,
     deleteSite,
+    reorderSites,
     addGroup,
     updateGroup,
     deleteGroup,
@@ -224,6 +225,12 @@ function App() {
 
   // 当前分组
   const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0]
+
+  // 拖拽排序 hook
+  const { getDragItemProps, dragState } = useDragSort({
+    items: currentGroup?.sites || [],
+    onReorder: reorderSites
+  })
 
   // 分组切换动画状态
   const [slideStatus, setSlideStatus] = useState<SlideStatusType>(SlideStatus.Normal)
@@ -577,16 +584,26 @@ function App() {
                 '--grid-column-gap': `${settings.iconColumnGap}px`
               } as React.CSSProperties}
             >
-              {isLoaded && currentGroup?.sites.map(site => (
-                <SiteCard
-                  key={site.id}
-                  site={site}
-                  onEdit={openEditSiteModal}
-                  onDelete={deleteSite}
-                  openTarget={settings.openTarget}
-                  iconLayout={settings.iconLayout}
-                />
-              ))}
+              {isLoaded && currentGroup?.sites.map((site, index) => {
+                const dragProps = getDragItemProps(index)
+                return (
+                  <SiteCard
+                    key={site.id}
+                    site={site}
+                    onEdit={openEditSiteModal}
+                    onDelete={deleteSite}
+                    openTarget={settings.openTarget}
+                    iconLayout={settings.iconLayout}
+                    draggable={dragProps.draggable}
+                    isDragging={dragState.isDragging && dragState.dragIndex === index}
+                    isDragOver={dragState.isDragging && dragState.overIndex === index && dragState.dragIndex !== index}
+                    onDragStart={dragProps.onDragStart}
+                    onDragOver={dragProps.onDragOver}
+                    onDragEnd={dragProps.onDragEnd}
+                    onDragLeave={dragProps.onDragLeave}
+                  />
+                )
+              })}
               {/* 添加网站卡片 - 根据设置决定是否显示 */}
               {isLoaded && settings.showAddButton !== false && <AddSiteCard onClick={openAddSiteModal} />}
             </div>
