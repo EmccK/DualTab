@@ -291,35 +291,46 @@ ol, ul {
   width: 18px;
   height: 18px;
   margin-bottom: 4px;
-  transition: filter 0.2s ease-in-out;
+  transition: filter 0.2s ease-in-out, opacity 0.2s ease-in-out;
 }
 
-/* 深色主题图标颜色 - 转为白色并控制透明度 */
-.dark-theme .nav-item .nav-icon-svg {
-  /* 将图标转为白色: brightness(0) 变黑, invert(1) 变白 */
-  filter: brightness(0) invert(1) opacity(0.4);
+/* 分组图标 - 使用 CSS mask 实现颜色跟随文字 */
+.nav-icon-mask {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  transition: background-color 0.2s ease-in-out;
 }
 
-.dark-theme .nav-item:hover .nav-icon-svg,
-.dark-theme .nav-item.active .nav-icon-svg {
-  filter: brightness(0) invert(1) opacity(0.9);
+/* 深色主题：默认 40% 白色，active 90% 白色 */
+.dark-theme .nav-item .nav-icon-mask {
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
-/* 浅色主题图标颜色 - 转为黑色并控制透明度 */
-.light-theme .nav-item .nav-icon-svg {
-  /* 将图标转为黑色: brightness(0) */
-  filter: brightness(0) opacity(0.4);
+.dark-theme .nav-item.active .nav-icon-mask {
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
-.light-theme .nav-item:hover .nav-icon-svg,
-.light-theme .nav-item.active .nav-icon-svg {
-  filter: brightness(0) opacity(0.9);
+/* 浅色主题：默认 #676767，active #333 */
+.light-theme .nav-item .nav-icon-mask {
+  background-color: #676767;
 }
 
-/* 添加按钮和设置按钮的 SVG 图标 - 不需要 filter，直接继承颜色 */
+.light-theme .nav-item.active .nav-icon-mask {
+  background-color: #333;
+}
+
+/* 添加按钮和设置按钮的 SVG 图标 - 直接继承文字颜色 */
 .nav-item.add-btn .nav-icon-svg,
 .nav-item.settings-btn .nav-icon-svg {
   filter: none;
+  opacity: 1;
 }
 
 .nav-label {

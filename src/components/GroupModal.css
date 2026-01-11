@@ -5,8 +5,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
   z-index: 200;
+}
+
+.dark-theme .group-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.light-theme .group-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 /* 弹窗容器 - MonkNow 风格 */
@@ -16,12 +23,20 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 320px;
-  background-color: #202124;
   border-radius: 6px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
   z-index: 201;
   padding: 20px;
   box-sizing: border-box;
+}
+
+.dark-theme .group-modal {
+  background-color: #202124;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .group-modal {
+  background-color: #fff;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* 定位模式（显示在按钮旁边） */
@@ -42,7 +57,14 @@
 .group-modal-title {
   font-size: 16px;
   font-weight: 500;
+}
+
+.dark-theme .group-modal-title {
   color: rgba(255, 255, 255, 0.9);
+}
+
+.light-theme .group-modal-title {
+  color: #333;
 }
 
 .group-modal-close {
@@ -50,7 +72,6 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,9 +79,22 @@
   transition: background-color 0.15s, color 0.15s;
 }
 
-.group-modal-close:hover {
+.dark-theme .group-modal-close {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .group-modal-close {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark-theme .group-modal-close:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.9);
+}
+
+.light-theme .group-modal-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .group-modal-section {
@@ -70,17 +104,21 @@
 .group-modal-section label {
   display: block;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 12px;
+}
+
+.dark-theme .group-modal-section label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light-theme .group-modal-section label {
+  color: #666;
 }
 
 .group-modal-section input {
   width: 100%;
   padding: 8px 12px;
-  background-color: hsla(0, 0%, 100%, 0.04);
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
   border-radius: 4px;
-  color: hsla(0, 0%, 100%, 0.9);
   font-size: 14px;
   line-height: 1.3;
   outline: none;
@@ -88,8 +126,28 @@
   transition: border-color 0.2s ease-in-out;
 }
 
+.dark-theme .group-modal-section input {
+  background-color: hsla(0, 0%, 100%, 0.04);
+  border: 1px solid hsla(0, 0%, 100%, 0.2);
+  color: hsla(0, 0%, 100%, 0.9);
+}
+
+.light-theme .group-modal-section input {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
 .group-modal-section input:focus {
   border-color: #1686f0;
+}
+
+.dark-theme .group-modal-section input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.light-theme .group-modal-section input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
 }
 
 /* 图标选择器 - MonkNow 风格，每行5个 */
@@ -111,24 +169,44 @@
   transition: background-color 0.2s ease-in-out;
 }
 
-.group-icon-item:hover {
+.dark-theme .group-icon-item:hover {
   background-color: hsla(0, 0%, 100%, 0.08);
 }
 
-.group-icon-item.active {
+.dark-theme .group-icon-item.active {
   background-color: hsla(0, 0%, 100%, 0.12);
 }
 
-/* 图标使用 filter 显示为白色 */
+.light-theme .group-icon-item:hover {
+  background-color: #f0f0f0;
+}
+
+.light-theme .group-icon-item.active {
+  background-color: #e5e5e5;
+}
+
+/* 图标颜色 - 使用 CSS mask */
 .group-icon-item img {
   width: 22px;
   height: 22px;
+}
+
+.dark-theme .group-icon-item img {
   filter: brightness(0) invert(1) opacity(0.5);
 }
 
-.group-icon-item:hover img,
-.group-icon-item.active img {
+.dark-theme .group-icon-item:hover img,
+.dark-theme .group-icon-item.active img {
   filter: brightness(0) invert(1) opacity(0.9);
+}
+
+.light-theme .group-icon-item img {
+  filter: brightness(0) opacity(0.4);
+}
+
+.light-theme .group-icon-item:hover img,
+.light-theme .group-icon-item.active img {
+  filter: brightness(0) opacity(0.8);
 }
 
 /* 按钮 - MonkNow 风格 */
@@ -162,12 +240,25 @@
 }
 
 .group-btn-secondary {
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.dark-theme .group-btn-secondary {
   background-color: hsla(0, 0%, 100%, 0.08);
   color: hsla(0, 0%, 100%, 0.9);
 }
 
-.group-btn-secondary:hover {
+.dark-theme .group-btn-secondary:hover {
   background-color: hsla(0, 0%, 100%, 0.15);
+}
+
+.light-theme .group-btn-secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.light-theme .group-btn-secondary:hover {
+  background-color: #e5e5e5;
 }
 
 .group-btn-delete {
@@ -177,31 +268,4 @@
 
 .group-btn-delete:hover {
   background-color: #ff7875;
-}
-
-/* 浅色主题 */
-.light-theme .group-modal {
-  background-color: #fff;
-}
-
-.light-theme .group-modal-title {
-  color: #333;
-}
-
-.light-theme .group-modal-section label {
-  color: #666;
-}
-
-.light-theme .group-modal-section input {
-  background-color: #f5f5f5;
-  border-color: #ddd;
-  color: #333;
-}
-
-.light-theme .group-icon-item {
-  background-color: #f5f5f5;
-}
-
-.light-theme .group-icon-item:hover {
-  background-color: #eee;
 }

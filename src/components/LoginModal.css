@@ -5,8 +5,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
+}
+
+.dark-theme .login-modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.light-theme .login-modal-overlay {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* 登录弹窗 */
@@ -16,19 +23,34 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 360px;
-  background: rgb(32, 33, 36);
   border-radius: 8px;
   padding: 32px;
   z-index: 1001;
+}
+
+.dark-theme .login-modal {
+  background: rgb(32, 33, 36);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .login-modal {
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 /* 标题 */
 .login-modal-header {
   font-size: 18px;
-  color: #fff;
   text-align: center;
   margin-bottom: 24px;
+}
+
+.dark-theme .login-modal-header {
+  color: #fff;
+}
+
+.light-theme .login-modal-header {
+  color: #333;
 }
 
 /* 错误提示 */
@@ -54,21 +76,34 @@
   width: 100%;
   height: 44px;
   padding: 0 14px;
-  background: rgb(41, 42, 45);
-  border: 1px solid rgb(60, 64, 67);
   border-radius: 6px;
-  color: #fff;
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
+}
+
+.dark-theme .login-form input {
+  background: rgb(41, 42, 45);
+  border: 1px solid rgb(60, 64, 67);
+  color: #fff;
+}
+
+.light-theme .login-form input {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #333;
 }
 
 .login-form input:focus {
   border-color: #1686f0;
 }
 
-.login-form input::placeholder {
+.dark-theme .login-form input::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .login-form input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
 }
 
 /* 验证码行 */
@@ -94,9 +129,16 @@
 }
 
 .forgot-password {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 13px;
   cursor: pointer;
+}
+
+.dark-theme .forgot-password {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light-theme .forgot-password {
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .forgot-password:hover {
@@ -143,11 +185,22 @@
 /* 保持登出 */
 .login-logout {
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
   cursor: pointer;
 }
 
-.login-logout:hover {
+.dark-theme .login-logout {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.light-theme .login-logout {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark-theme .login-logout:hover {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.light-theme .login-logout:hover {
+  color: rgba(0, 0, 0, 0.7);
 }

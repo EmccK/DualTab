@@ -138,7 +138,11 @@ export function Sidebar({
             onClick={() => onGroupSelect(group.id)}
             onContextMenu={(e) => handleContextMenu(e, group)}
           >
-            <img className="nav-icon-svg" src={group.icon} alt={group.name} />
+            {/* 使用 CSS mask 实现图标颜色跟随文字 */}
+            <div
+              className="nav-icon-mask"
+              style={{ maskImage: `url(${group.icon})`, WebkitMaskImage: `url(${group.icon})` }}
+            />
             <span className="nav-label">{group.name}</span>
             {group.badge && <span className="badge">{group.badge}</span>}
           </div>
