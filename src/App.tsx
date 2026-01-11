@@ -60,6 +60,7 @@ function App() {
     addGroup,
     updateGroup,
     deleteGroup,
+    reorderGroups,
     updateSettings,
     login,
     logout,
@@ -552,6 +553,7 @@ function App() {
               window.open(site.url, '_blank')
             })
           }}
+          onReorderGroups={reorderGroups}
           onOpenSettings={openSettings}
           user={user}
           collapsed={settings.sidebarCollapsed}

@@ -421,6 +421,23 @@ ol, ul {
   color: #333;
 }
 
+/* 分组拖拽样式 */
+.nav-item.dragging {
+  opacity: 0.5;
+}
+
+.nav-item.drag-over {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-theme .nav-item.drag-over {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.light-theme .nav-item.drag-over {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
 /* 内容区视口 - 用于滚动切换分组动画 */
 .content-viewport {
   flex: 1 1 0;

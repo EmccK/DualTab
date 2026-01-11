@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { NavGroup, User } from '../types'
 
 interface SidebarProps {
@@ -9,6 +9,7 @@ interface SidebarProps {
   onEditGroup: (group: NavGroup) => void
   onDeleteGroup: (group: NavGroup) => void
   onOpenAllSites: (group: NavGroup) => void
+  onReorderGroups: (groups: NavGroup[]) => void  // 重排序分组
   onOpenSettings: () => void
   user: User | null
   collapsed?: boolean  // 是否为窄距菜单
@@ -24,6 +25,13 @@ interface ContextMenuState {
   group: NavGroup | null
 }
 
+// 拖拽状态
+interface DragState {
+  isDragging: boolean
+  dragIndex: number | null
+  overIndex: number | null
+}
+
 // 侧边栏组件
 export function Sidebar({
   groups,
@@ -33,6 +41,7 @@ export function Sidebar({
   onEditGroup,
   onDeleteGroup,
   onOpenAllSites,
+  onReorderGroups,
   onOpenSettings,
   user,
   collapsed = true,
@@ -46,6 +55,70 @@ export function Sidebar({
     y: 0,
     group: null
   })
+
+  // 拖拽状态
+  const [dragState, setDragState] = useState<DragState>({
+    isDragging: false,
+    dragIndex: null,
+    overIndex: null
+  })
+
+  // 使用 ref 保存最新状态，避免闭包陈旧问题
+  const dragStateRef = useRef(dragState)
+  useEffect(() => {
+    dragStateRef.current = dragState
+  }, [dragState])
+
+  // 开始拖拽
+  const handleDragStart = useCallback((index: number, e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(index))
+
+    // 延迟设置状态，避免拖拽图像闪烁
+    requestAnimationFrame(() => {
+      setDragState({
+        isDragging: true,
+        dragIndex: index,
+        overIndex: null
+      })
+    })
+  }, [])
+
+  // 拖拽经过
+  const handleDragOver = useCallback((index: number, e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+
+    setDragState(prev => {
+      if (prev.dragIndex === null || prev.dragIndex === index) {
+        return prev
+      }
+      if (prev.overIndex !== index) {
+        return { ...prev, overIndex: index }
+      }
+      return prev
+    })
+  }, [])
+
+  // 拖拽结束
+  const handleDragEnd = useCallback(() => {
+    const { dragIndex, overIndex } = dragStateRef.current
+
+    // 如果有有效的拖拽和放置位置，执行重排序
+    if (dragIndex !== null && overIndex !== null && dragIndex !== overIndex) {
+      const newGroups = [...groups]
+      const [draggedItem] = newGroups.splice(dragIndex, 1)
+      newGroups.splice(overIndex, 0, draggedItem)
+      onReorderGroups(newGroups)
+    }
+
+    // 重置状态
+    setDragState({
+      isDragging: false,
+      dragIndex: null,
+      overIndex: null
+    })
+  }, [groups, onReorderGroups])
 
   // 显示右键菜单
   const handleContextMenu = (e: React.MouseEvent, group: NavGroup) => {
@@ -131,12 +204,21 @@ export function Sidebar({
 
       {/* 导航菜单 */}
       <nav className="nav-menu">
-        {groups.map(group => (
+        {groups.map((group, index) => (
           <div
             key={group.id}
-            className={`nav-item ${activeGroupId === group.id ? 'active' : ''}`}
+            className={[
+              'nav-item',
+              activeGroupId === group.id && 'active',
+              dragState.isDragging && dragState.dragIndex === index && 'dragging',
+              dragState.isDragging && dragState.overIndex === index && dragState.dragIndex !== index && 'drag-over'
+            ].filter(Boolean).join(' ')}
             onClick={() => onGroupSelect(group.id)}
             onContextMenu={(e) => handleContextMenu(e, group)}
+            draggable
+            onDragStart={(e) => handleDragStart(index, e)}
+            onDragOver={(e) => handleDragOver(index, e)}
+            onDragEnd={handleDragEnd}
           >
             {/* 使用 CSS mask 实现图标颜色跟随文字 */}
             <div
@@ -175,7 +257,7 @@ export function Sidebar({
       {contextMenu.visible && contextMenu.group && (
         <>
           <div className="group-context-overlay" onClick={closeContextMenu} />
-          <div 
+          <div
             className="group-context-menu"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >

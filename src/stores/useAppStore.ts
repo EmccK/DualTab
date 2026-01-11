@@ -202,6 +202,7 @@ interface AppState {
   addGroup: (group: NavGroup) => void
   updateGroup: (group: NavGroup) => void
   deleteGroup: (groupId: string) => void
+  reorderGroups: (groups: NavGroup[]) => void  // 重排序分组
 
   // Actions - 网站操作
   addSite: (site: Site) => void
@@ -279,6 +280,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         needSync: true
       }
     })
+    get().syncToServer()
+  },
+
+  // 重排序分组
+  reorderGroups: (groups) => {
+    set({ groups, needSync: true })
     get().syncToServer()
   },
 
