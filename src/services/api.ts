@@ -296,6 +296,7 @@ export interface MonkNowIcon {
   label: string
   desc: string
   url: string
+  internalUrl?: string  // 内网地址（可选）
   type: 'image' | 'text'
   icoSrc?: {
     data: string
@@ -402,6 +403,7 @@ export async function syncIconsToServer(
         label: site.name,
         desc: site.desc,
         url: site.url,
+        internalUrl: site.internalUrl,  // 同步内网地址
         type: site.type,
         backgroundColor: site.backgroundColor,
         icoScalePercentage: site.icoScalePercentage || 100
@@ -476,6 +478,7 @@ export function parseMonkNowIcons(iconsJson: string): { groups: import('../types
             name: icon.label,
             desc: icon.desc || icon.label,
             url: icon.url,
+            internalUrl: icon.internalUrl,  // 解析内网地址
             type: icon.type || 'image',
             backgroundColor: icon.backgroundColor || { type: 'pure', data: '#ffffff' },
             icoScalePercentage: icon.icoScalePercentage || 100

@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState, useMemo } from 'react'
 import './App.css'
 import { useAppStore, useUIStore } from './stores'
-import { useIdleTimer, useDragSort } from './hooks'
+import { useIdleTimer, useDragSort, useInternalUrlChecker } from './hooks'
 import { Sidebar } from './components/Sidebar'
 import { SearchBox } from './components/SearchBox'
 import { SiteCard, AddSiteCard } from './components/SiteCard'
@@ -226,6 +226,12 @@ function App() {
 
   // 当前分组
   const currentGroup = groups.find(g => g.id === activeGroupId) || groups[0]
+
+  // 内网地址检测 hook
+  const { getEffectiveUrl } = useInternalUrlChecker({
+    groups,
+    enabled: isLoaded
+  })
 
   // 拖拽排序 hook
   const { getDragItemProps, dragState } = useDragSort({
@@ -592,6 +598,7 @@ function App() {
                   <SiteCard
                     key={site.id}
                     site={site}
+                    effectiveUrl={getEffectiveUrl(site)}
                     onEdit={openEditSiteModal}
                     onDelete={deleteSite}
                     openTarget={settings.openTarget}

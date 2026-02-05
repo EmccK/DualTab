@@ -6,6 +6,7 @@ import { hexToRgba, openInNewTab, openInCurrentTab, openInIncognito } from '../u
 
 interface SiteCardProps {
   site: Site
+  effectiveUrl?: string  // 实际使用的 URL（内网/外网自动切换后的地址）
   onEdit: (site: Site) => void
   onDelete: (siteId: string) => void
   openTarget?: OpenTarget  // 全局打开链接方式
@@ -23,6 +24,7 @@ interface SiteCardProps {
 // 网站卡片组件
 export const SiteCard = memo(function SiteCard({
   site,
+  effectiveUrl,
   onEdit,
   onDelete,
   openTarget = 'currentTab',
@@ -38,6 +40,9 @@ export const SiteCard = memo(function SiteCard({
 }: SiteCardProps) {
   // 使用右键菜单 hook
   const { isOpen, position, openMenu, closeMenu } = useContextMenu<Site>()
+
+  // 获取实际使用的 URL（优先使用传入的 effectiveUrl）
+  const targetUrl = effectiveUrl || site.url
 
   // 获取背景颜色（添加空值检查）
   const bgColor = site.backgroundColor?.data || '#ffffff'
@@ -75,14 +80,14 @@ export const SiteCard = memo(function SiteCard({
   const handleClick = () => {
     switch (openTarget) {
       case 'newTab':
-        openInNewTab(site.url, true)
+        openInNewTab(targetUrl, true)
         break
       case 'backgroundTab':
-        openInNewTab(site.url, false)
+        openInNewTab(targetUrl, false)
         break
       case 'currentTab':
       default:
-        openInCurrentTab(site.url)
+        openInCurrentTab(targetUrl)
         break
     }
   }
@@ -94,19 +99,19 @@ export const SiteCard = memo(function SiteCard({
 
   // 在新标签页打开（切换到新标签）
   const handleOpenNewTab = () => {
-    openInNewTab(site.url, true)
+    openInNewTab(targetUrl, true)
     closeMenu()
   }
 
   // 在后台打开（不切换标签）
   const handleOpenBackground = () => {
-    openInNewTab(site.url, false)
+    openInNewTab(targetUrl, false)
     closeMenu()
   }
 
   // 在隐身窗口打开
   const handleOpenIncognito = () => {
-    const success = openInIncognito(site.url)
+    const success = openInIncognito(targetUrl)
     if (!success) {
       alert('隐身窗口功能仅在 Chrome 扩展中可用')
     }

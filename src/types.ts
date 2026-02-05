@@ -22,6 +22,7 @@ export interface Site {
   name: string                    // label
   desc: string                    // desc
   url: string                     // url
+  internalUrl?: string            // 内网地址（可选，用于内网/外网自动切换）
   type: IconType                  // 图标类型: image 或 text
   icoSrc?: IconSource             // 图片图标来源（type=image 时使用）
   icoText?: string                // 文字图标内容（type=text 时使用）

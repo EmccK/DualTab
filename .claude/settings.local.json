@@ -4,7 +4,8 @@
       "Bash(npm run build)",
       "Bash(chmod:*)",
       "Bash(npm run lint)",
-      "mcp__auggie-mcp__codebase-retrieval"
+      "mcp__auggie-mcp__codebase-retrieval",
+      "Bash(npx tsc:*)"
     ]
   }
 }

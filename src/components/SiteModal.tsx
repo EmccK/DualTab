@@ -39,6 +39,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
   const [url, setUrl] = useState('')
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
+  const [internalUrl, setInternalUrl] = useState('')  // 内网地址
   const [color, setColor] = useState('#ffffff')
   const [iconMode, setIconMode] = useState<IconMode>('official')
   const [customIcon, setCustomIcon] = useState('')
@@ -65,6 +66,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
       setUrl(site.url)
       setName(site.name)
       setDesc(site.desc)
+      setInternalUrl(site.internalUrl || '')  // 恢复内网地址
       const bgColor = site.backgroundColor?.data || '#ffffff'
       setColor(bgColor)
       setActiveCategory('manual')
@@ -93,6 +95,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
       setUrl('')
       setName('')
       setDesc('')
+      setInternalUrl('')  // 重置内网地址
       setColor('#ffffff')
       setCustomIcon('')
       setOfficialIcon('')
@@ -321,6 +324,16 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
     }
   }
 
+  // 校验 URL 格式是否有效
+  const isValidUrl = (urlStr: string): boolean => {
+    try {
+      new URL(urlStr)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   // 保存网站
   const handleSave = (continueAdd = false) => {
     if (!url.trim() || !name.trim()) return
@@ -328,11 +341,23 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
     const finalUrl = url.startsWith('http') ? url : `https://${url}`
     const finalColor = color === 'transparent' ? '' : color
 
+    // 内网地址校验：如果填写了内网地址，必须是有效的 URL 格式
+    let finalInternalUrl: string | undefined
+    if (internalUrl.trim()) {
+      const normalizedInternalUrl = internalUrl.startsWith('http') ? internalUrl : `https://${internalUrl}`
+      if (!isValidUrl(normalizedInternalUrl)) {
+        alert('内网地址格式无效，请输入有效的 URL')
+        return
+      }
+      finalInternalUrl = normalizedInternalUrl
+    }
+
     // 构建 Site 对象
     const siteData: Site = {
       id: site?.id || generateId(),
       name: name.trim(),
       url: finalUrl,
+      internalUrl: finalInternalUrl,  // 添加内网地址
       desc: desc.trim() || name.trim(),
       type: iconMode === 'text' ? 'text' : 'image',
       backgroundColor: {
@@ -362,6 +387,7 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
       setUrl('')
       setName('')
       setDesc('')
+      setInternalUrl('')  // 清空内网地址
       setColor('#ffffff')
       setCustomIcon('')
       setOfficialIcon('')
@@ -468,6 +494,15 @@ export function SiteModal({ isOpen, onClose, onSave, site, userSecret }: SiteMod
                       placeholder="网站描述(选填)"
                       value={desc}
                       onChange={(e) => setDesc(e.target.value)}
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label>内网地址</label>
+                    <input
+                      type="text"
+                      placeholder="内网地址(选填，用于内网自动切换)"
+                      value={internalUrl}
+                      onChange={(e) => setInternalUrl(e.target.value)}
                     />
                   </div>
                 </div>
